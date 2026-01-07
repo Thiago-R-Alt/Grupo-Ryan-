@@ -1,124 +1,47 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rateio Pro v4.2</title>
-    <style>
-        :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --dark: #0f172a; --slate: #64748b; --bg: #f8fafc; --warning: #f59e0b; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; color: var(--dark); }
-        .container { max-width: 500px; margin: 0 auto; padding: 15px; }
-        .header-status { background: linear-gradient(135deg, var(--dark) 0%, #1e293b 100%); color: #fff; padding: 30px 20px; border-radius: 24px; text-align: center; margin-bottom: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        .val-total { font-size: 2.5rem; font-weight: 800; color: var(--success); margin: 5px 0; }
-        .card { background: #fff; padding: 20px; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #edf2f7; margin-bottom: 20px; }
-        h4 { margin: 0 0 15px 0; font-size: 1rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
-        input, select { width: 100%; padding: 12px; border: 2px solid #edf2f7; border-radius: 12px; margin-top: 6px; font-size: 1rem; box-sizing: border-box; }
-        .btn { cursor: pointer; border: none; border-radius: 12px; padding: 14px; font-weight: 700; width: 100%; transition: 0.2s; display: block; font-size: 1rem; }
-        .btn-p { background: var(--primary); color: #fff; }
-        .btn-s { background: var(--success); color: #fff; }
-        .btn-danger { background: var(--danger); color: #fff; }
-        .btn-warning { background: var(--warning); color: #fff; }
-        .btn-ghost { background: #fff; color: var(--slate); border: 1px solid #edf2f7; margin-top: 10px; }
-        table { width: 100%; border-collapse: collapse; }
-        td { padding: 12px 5px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
-        .tag { padding: 6px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; cursor: pointer; border: none; }
-        .tag-pago { background: #dcfce7; color: #166534; }
-        .tag-pendente { background: #fee2e2; color: #991b1b; }
-        .member-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #f8fafc; border-radius: 12px; margin-bottom: 8px; }
-        .log-item { padding: 10px; border-radius: 10px; font-size: 0.75rem; border-left: 4px solid #cbd5e1; background: #fff; margin-bottom: 8px; }
-        .hidden { display: none !important; }
-        .badge-multa { background: var(--danger); color: white; padding: 2px 5px; border-radius: 4px; font-size: 0.6rem; margin-left: 5px; }
-    </style>
-</head>
-<body>
-<div class="container">
-    <div style="display:flex; gap:10px; margin-bottom:15px">
-        <select id="session-select" onchange="Engine.switchUser(this.value)"></select>
-        <button class="btn btn-ghost" style="margin:0; width:auto; padding: 8px 15px;" onclick="UI.toggleAdm()">⚙️ ADM</button>
-    </div>
-    <div class="header-status">
-        <small style="opacity: 0.8; letter-spacing: 1px;">SALDO NO COFRE</small>
-        <div class="val-total" id="ui-cofre">R$ 0,00</div>
-        <div id="user-role-badge" style="font-size: 0.8rem; opacity: 0.9; font-weight: bold;"></div>
-    </div>
-    <div id="view-admin" class="card hidden">
-        <h4>📝 Novo Rateio</h4>
-        <input id="f-desc" placeholder="Conta (ex: Wi-fi)">
-        <div style="display: flex; gap: 10px;"><input id="f-val" type="number" placeholder="Valor"><input id="f-date" type="date"></div>
-        <div id="ui-member-check-list" style="margin: 15px 0;"></div>
-        <button class="btn btn-s" onclick="Engine.createMainBill()">GERAR RATEIO</button>
-        <h4 style="margin-top:25px">💰 Baixas</h4>
-        <table id="ui-baixas-gerais"></table>
-        <h4 style="margin-top:25px">🛠️ Backup</h4>
-        <button class="btn btn-p" onclick="Engine.downloadDB()">💾 SALVAR BACKUP</button>
-        <button class="btn btn-danger" onclick="Engine.resetAll()" style="margin-top: 10px;">⚠️ RESETAR TUDO</button>
-    </div>
-    <div class="card"><h4>📋 Minhas Parcelas</h4><table id="ui-minhas-parcelas"></table></div>
-    <div class="card"><h4>🕒 Histórico</h4><div id="ui-logs"></div></div>
-</div>
+// Procure a parte do Engine no seu código e substitua por esta lógica:
 
-<script>
-const MULTA_VALOR = 500;
-let DB = { membros: [{id:"u1",nome:"Thiago",role:"ADMIN"},{id:"u2",nome:"Anna",role:"MEMBRO"},{id:"u3",nome:"Pedro",role:"MEMBRO"}], contas: [], parcelas: [], logs: [], cofreCentavos: 0 };
-const Utils = { toC: v => Math.round(parseFloat(v)*100), toR: c => (c/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}), genId: p => p+'_'+Math.random().toString(36).substr(2,9), hoje: () => new Date().toISOString().split('T')[0] };
+// COLE AQUI O LINK QUE VOCÊ COPIOU DO FIREBASE
+const FIREBASE_URL = "https://SEU-LINK-AQUI.firebaseio.com/dados.json";
 
 const Engine = {
     activeUser: null,
     ADMIN_PASS: "1234",
-    init() { const s = localStorage.getItem("rateio_v4"); if(s) DB = JSON.parse(s); this.activeUser = DB.membros[0]; this.render(); },
-    save() { localStorage.setItem("rateio_v4", JSON.stringify(DB)); this.render(); },
-    switchUser(id) {
-        const t = DB.membros.find(m => m.id === id);
-        if (t.role === "ADMIN") {
-            const p = prompt("Senha ADMIN:");
-            if (p !== this.ADMIN_PASS) { alert("Incorreta!"); this.render(); return; }
+
+    async init() {
+        // Busca os dados na nuvem assim que abre o site
+        try {
+            const response = await fetch(FIREBASE_URL);
+            const saved = await response.json();
+            if (saved) DB = saved;
+        } catch (e) {
+            console.log("Erro ao carregar dados");
         }
-        this.activeUser = t; this.render();
+        
+        this.activeUser = DB.membros[0];
+        this.render();
+
+        // ATUALIZAÇÃO AUTOMÁTICA: 
+        // Verifica se a Anna mudou algo a cada 5 segundos
+        setInterval(async () => {
+            const res = await fetch(FIREBASE_URL);
+            const data = await res.json();
+            if (data) {
+                DB = data;
+                this.render();
+            }
+        }, 5000);
     },
-    createMainBill() {
-        const d = document.getElementById("f-desc").value, v = Utils.toC(document.getElementById("f-val").value), dt = document.getElementById("f-date").value, cbs = document.querySelectorAll(".m-cb:checked");
-        if(!d || v<=0 || !dt || !cbs.length) return alert("Erro!");
-        const cid = Utils.genId('c');
-        DB.contas.push({id:cid, desc:d, total:v, venc:dt, status:"aberta"});
-        cbs.forEach(cb => { DB.parcelas.push({id:Utils.genId('p'), contaId:cid, membroId:cb.dataset.id, membroNome:cb.value, valorBase:Math.round(v/cbs.length), pago:false}); });
-        this.save();
-    },
-    payParcela(id) {
-        const p = DB.parcelas.find(x => x.id === id); if(p.pago) return;
-        const c = DB.contas.find(x => x.id === p.contaId);
-        const mult = Utils.hoje() > c.venc ? MULTA_VALOR : 0;
-        p.pago = true; p.valorPagoFinal = p.valorBase + mult;
-        DB.cofreCentavos += p.valorPagoFinal; this.save();
-    },
-    darBaixa(id) {
-        const c = DB.contas.find(x => x.id === id);
-        if(DB.cofreCentavos < c.total) return alert("Saldo insuficiente!");
-        c.status = "quitada"; DB.cofreCentavos -= c.total; this.save();
-    },
-    resetAll() { if(confirm("Apagar tudo?")) { localStorage.clear(); location.reload(); }},
-    downloadDB() { 
-        const blob = new Blob([JSON.stringify(DB)], {type: "application/json"});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a"); a.href = url; a.download = "backup.json"; a.click();
-    },
-    render() {
-        const isAdm = this.activeUser.role === "ADMIN";
-        document.getElementById("ui-cofre").innerText = Utils.toR(DB.cofreCentavos);
-        document.getElementById("user-role-badge").innerText = `${this.activeUser.nome} • ${this.activeUser.role}`;
-        document.getElementById("session-select").innerHTML = DB.membros.map(m => `<option value="${m.id}" ${m.id === this.activeUser.id ? "selected" : ""}>👤 ${m.nome}</option>`).join("");
-        document.getElementById("ui-member-check-list").innerHTML = DB.membros.map(m => `<label class="member-row"><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>`).join("");
-         document.getElementById("ui-baixas-gerais").innerHTML = DB.contas.filter(c => c.status === "aberta").map(c => `<tr><td><b>${c.desc}</b><br><small>Alvo: ${Utils.toR(c.total)}</small></td><td><button class="tag tag-pago" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button></td></tr>`).join(""); document.getElementById("ui-baixas-gerais").innerHTML = DB.contas.filter(c => c.status === "aberta").map(c => `<tr><td><b>${c.desc}</b><br><small>Alvo: ${Utils.toR(c.total)}</small></td><td><button class="tag tag-pago" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button></td></tr>`).join("");
-        const vis = isAdm ? DB.parcelas : DB.parcelas.filter(p => p.membroId === this.activeUser.id);
-        document.getElementById("ui-minhas-parcelas").innerHTML = vis.map(p => {
-            const c = DB.contas.find(x => x.id === p.contaId);
-            if(!c || c.status === "quitada") return "";
-             const atraso = !p.pago && Utils.hoje() > c.venc; const atraso = !p.pago && Utils.hoje() > c.venc;
-             return `<tr><td><b>${c.desc}</b><br><small>${p.membroNome}</small></td><td><b>${Utils.toR(p.pago?p.valorPagoFinal:(atraso?p.valorBase+MULTA_VALOR:p.valorBase))}</b>${atraso?'<span class="badge-multa">MULTA</span>':''}</td><td><button class="tag ${p.pago?'tag-pago':'tag-pendente'}" onclick="Engine.payParcela('${p.id}')">${p.pago?'OK':'PAGAR'}</button></td></tr>`; return `<tr><td><b>${c.desc}</b><br><small>${p.membroNome}</small></td><td><b>${Utils.toR(p.pago?p.valorPagoFinal:(atraso?p.valorBase+MULTA_VALOR:p.valorBase))}</b>${atraso?'<span class="badge-multa">MULTA</span>':''}</td><td><button class="tag ${p.pago?'tag-pago':'tag-pendente'}" onclick="Engine.payParcela('${p.id}')">${p.pago?'OK':'PAGAR'}</button></td></tr>`;
-        }).join("");
-    }
-};
-const UI = { toggleAdm: () => document.getElementById("view-admin").classList.toggle("hidden") };
-Engine.init();
-</script>
-</body>
-</html>
+
+    async save() {
+        // Salva na nuvem para a Anna ver
+        await fetch(FIREBASE_URL, {
+            method: 'PUT',
+            body: JSON.stringify(DB)
+        });
+        this.render();
+  https://grupo-ryan-default-rtdb.firebaseio.com/
+},
+
+
+    // ... restante das funções (switchUser, createMainBill, etc) permanecem iguais, 
+    // mas TODA VEZ que o código chamava "this.save()", ele agora salvará na nuvem.
