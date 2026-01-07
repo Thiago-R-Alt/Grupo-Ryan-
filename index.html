@@ -3,342 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rateio Pro v4.2 - Classic Design</title>
+    <title>Rateio Pro v4.2</title>
     <style>
-        :root {
-            --primary: #2563eb; --success: #10b981; --danger: #ef4444; 
-            --dark: #0f172a; --slate: #64748b; --bg: #f8fafc;
-            --warning: #f59e0b;
-        }
+        :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --dark: #0f172a; --slate: #64748b; --bg: #f8fafc; --warning: #f59e0b; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; color: var(--dark); }
         .container { max-width: 500px; margin: 0 auto; padding: 15px; }
-        
-        .header-status { 
-            background: linear-gradient(135deg, var(--dark) 0%, #1e293b 100%); 
-            color: #fff; padding: 30px 20px; border-radius: 24px; 
-            text-align: center; margin-bottom: 20px; 
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); 
-        }
+        .header-status { background: linear-gradient(135deg, var(--dark) 0%, #1e293b 100%); color: #fff; padding: 30px 20px; border-radius: 24px; text-align: center; margin-bottom: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
         .val-total { font-size: 2.5rem; font-weight: 800; color: var(--success); margin: 5px 0; }
-        
-        .card { 
-            background: #fff; padding: 20px; border-radius: 20px; 
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); 
-            border: 1px solid #edf2f7; margin-bottom: 20px; 
-        }
+        .card { background: #fff; padding: 20px; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #edf2f7; margin-bottom: 20px; }
         h4 { margin: 0 0 15px 0; font-size: 1rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
-        
-        input, select { width: 100%; padding: 12px; border: 2px solid #edf2f7; border-radius: 12px; margin-top: 6px; font-size: 1rem; box-sizing: border-box; transition: 0.3s; }
-        input:focus { border-color: var(--primary); outline: none; }
+        input, select { width: 100%; padding: 12px; border: 2px solid #edf2f7; border-radius: 12px; margin-top: 6px; font-size: 1rem; box-sizing: border-box; }
         .btn { cursor: pointer; border: none; border-radius: 12px; padding: 14px; font-weight: 700; width: 100%; transition: 0.2s; display: block; font-size: 1rem; }
         .btn-p { background: var(--primary); color: #fff; }
         .btn-s { background: var(--success); color: #fff; }
         .btn-danger { background: var(--danger); color: #fff; }
         .btn-warning { background: var(--warning); color: #fff; }
         .btn-ghost { background: #fff; color: var(--slate); border: 1px solid #edf2f7; margin-top: 10px; }
-
         table { width: 100%; border-collapse: collapse; }
         td { padding: 12px 5px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
         .tag { padding: 6px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; cursor: pointer; border: none; }
         .tag-pago { background: #dcfce7; color: #166534; }
         .tag-pendente { background: #fee2e2; color: #991b1b; }
-        
-        .member-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #f8fafc; border-radius: 12px; margin-bottom: 8px; border: 1px solid #eee; }
-        .log-item { padding: 10px; border-radius: 10px; font-size: 0.75rem; border-left: 4px solid #cbd5e1; background: #fff; margin-bottom: 8px; box-shadow: 2px 2px 4px rgba(0,0,0,0.02); }
+        .member-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #f8fafc; border-radius: 12px; margin-bottom: 8px; }
+        .log-item { padding: 10px; border-radius: 10px; font-size: 0.75rem; border-left: 4px solid #cbd5e1; background: #fff; margin-bottom: 8px; }
         .hidden { display: none !important; }
-        .badge-multa { background: var(--danger); color: white; padding: 2px 5px; border-radius: 4px; font-size: 0.6rem; margin-left: 5px; vertical-align: middle; }
+        .badge-multa { background: var(--danger); color: white; padding: 2px 5px; border-radius: 4px; font-size: 0.6rem; margin-left: 5px; }
     </style>
 </head>
 <body>
-
 <div class="container">
     <div style="display:flex; gap:10px; margin-bottom:15px">
         <select id="session-select" onchange="Engine.switchUser(this.value)"></select>
         <button class="btn btn-ghost" style="margin:0; width:auto; padding: 8px 15px;" onclick="UI.toggleAdm()">⚙️ ADM</button>
     </div>
-
     <div class="header-status">
         <small style="opacity: 0.8; letter-spacing: 1px;">SALDO NO COFRE</small>
         <div class="val-total" id="ui-cofre">R$ 0,00</div>
         <div id="user-role-badge" style="font-size: 0.8rem; opacity: 0.9; font-weight: bold;"></div>
     </div>
-
     <div id="view-admin" class="card hidden">
-        <h4>📝 Novo Rateio Profissional</h4>
-        <input id="f-desc" placeholder=" Conta ">
-        <div style="display: flex; gap: 10px;">
-            <input id="f-val" type="number" placeholder="Valor Total">
-            <input id="f-date" type="date">
-        </div>
-
-        <p style="font-size: 0.75rem; margin-top: 15px; font-weight: bold; color: var(--slate);">QUEM PARTICIPA? (% automático):</p>
-        <div id="ui-member-check-list" style="margin-bottom: 15px;"></div>
-        
+        <h4>📝 Novo Rateio</h4>
+        <input id="f-desc" placeholder="Conta (ex: Wi-fi)">
+        <div style="display: flex; gap: 10px;"><input id="f-val" type="number" placeholder="Valor"><input id="f-date" type="date"></div>
+        <div id="ui-member-check-list" style="margin: 15px 0;"></div>
         <button class="btn btn-s" onclick="Engine.createMainBill()">GERAR RATEIO</button>
-
-        <h4 style="margin-top:25px">👥 Gerenciar Moradores</h4>
-        <div id="ui-manage-members"></div>
-        <div style="display: flex; gap: 5px; margin-top: 10px;">
-            <input id="f-new-mem" placeholder="Nome do novo morador" style="margin:0">
-            <button class="btn btn-p" style="width: 50px; margin:0" onclick="Engine.addMember()">+</button>
-        </div>
-
-        <h4 style="margin-top:25px">💰 Baixas (Cofre → Pagamento)</h4>
+        <h4 style="margin-top:25px">💰 Baixas</h4>
         <table id="ui-baixas-gerais"></table>
-
-        <h4 style="margin-top:25px">🛠️ Ferramentas e Backup</h4>
-        <div id="admin-tools" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <button class="btn btn-warning" onclick="Engine.exportReport()" style="grid-column: span 2;">📋 EXPORTAR RELATÓRIO (WHATSAPP)</button>
-            <button class="btn btn-p" id="btn-save" onclick="Engine.downloadDB()">💾 SALVAR BACKUP</button>
-            <button class="btn btn-p" id="btn-import" onclick="document.getElementById('import-file').click()">📂 CARREGAR BACKUP</button>
-            <button id="btn-reset-danger" class="btn btn-danger" onclick="Engine.resetAll()" style="grid-column: span 2; margin-top: 10px;">⚠️ RESETAR TUDO</button>
-        </div>
-        <input type="file" id="import-file" class="hidden" accept=".json" onchange="Engine.importDB(event)">
+        <h4 style="margin-top:25px">🛠️ Backup</h4>
+        <button class="btn btn-p" onclick="Engine.downloadDB()">💾 SALVAR BACKUP</button>
+        <button class="btn btn-danger" onclick="Engine.resetAll()" style="margin-top: 10px;">⚠️ RESETAR TUDO</button>
     </div>
-
-    <div class="card">
-        <h4>📋 Minhas Parcelas</h4>
-        <table id="ui-minhas-parcelas"></table>
-    </div>
-
-    <div class="card">
-        <h4>🕒 Histórico de Atividade</h4>
-        <div id="ui-logs"></div>
-    </div>
+    <div class="card"><h4>📋 Minhas Parcelas</h4><table id="ui-minhas-parcelas"></table></div>
+    <div class="card"><h4>🕒 Histórico</h4><div id="ui-logs"></div></div>
 </div>
 
 <script>
 const MULTA_VALOR = 500;
-
-let DB = {
-    membros: [
-        { id: "u1", nome: "Thiago", role: "ADMIN" },
-        { id: "u2", nome: "Anna", role: "MEMBRO" },
-        { id: "u3", nome: "Pedro", role: "MEMBRO" }
-    ],
-    contas: [], parcelas: [], logs: [], cofreCentavos: 0
-};
-
-const Utils = {
-    toC: v => Math.round(parseFloat(v) * 100),
-    toR: c => (c / 100).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}),
-    genId: (pre) => pre + '_' + Math.random().toString(36).substr(2, 9),
-    hoje: () => new Date().toISOString().split('T')[0]
-};
+let DB = { membros: [{id:"u1",nome:"Thiago",role:"ADMIN"},{id:"u2",nome:"Anna",role:"MEMBRO"},{id:"u3",nome:"Pedro",role:"MEMBRO"}], contas: [], parcelas: [], logs: [], cofreCentavos: 0 };
+const Utils = { toC: v => Math.round(parseFloat(v)*100), toR: c => (c/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}), genId: p => p+'_'+Math.random().toString(36).substr(2,9), hoje: () => new Date().toISOString().split('T')[0] };
 
 const Engine = {
     activeUser: null,
-    ADMIN_PASS: "1234", // SENHA DEFINIDA AQUI
-
-    init() {
-        const saved = localStorage.getItem("rateio_v4_final");
-        if(saved) DB = JSON.parse(saved);
-        this.activeUser = DB.membros[0];
-        this.render();
-    },
-
-    save() {
-        localStorage.setItem("rateio_v4_final", JSON.stringify(DB));
-        this.render();
-    },
-
+    ADMIN_PASS: "1234",
+    init() { const s = localStorage.getItem("rateio_v4"); if(s) DB = JSON.parse(s); this.activeUser = DB.membros[0]; this.render(); },
+    save() { localStorage.setItem("rateio_v4", JSON.stringify(DB)); this.render(); },
     switchUser(id) {
-        const targetUser = DB.membros.find(m => m.id === id);
-        
-        if (targetUser && targetUser.role === "ADMIN") {
-            const pass = prompt("Digite a senha de Administrador:");
-            if (pass !== this.ADMIN_PASS) {
-                alert("Senha incorreta!");
-                this.render(); 
-                return;
-            }
+        const t = DB.membros.find(m => m.id === id);
+        if (t.role === "ADMIN") {
+            const p = prompt("Senha ADMIN:");
+            if (p !== this.ADMIN_PASS) { alert("Incorreta!"); this.render(); return; }
         }
-        this.activeUser = targetUser;
-        this.render();
-        this.log(`Sessão: ${this.activeUser.nome}`, 'neutro');
+        this.activeUser = t; this.render();
     },
-
-    addMember() {
-        const n = document.getElementById("f-new-mem").value.trim();
-        if(!n) return;
-        DB.membros.push({id: Utils.genId('u'), nome: n, role: "MEMBRO"});
-        document.getElementById("f-new-mem").value = "";
-        this.save();
-    },
-
-    removeMember(id) {
-        const peds = DB.parcelas.some(p => p.membroId === id && !p.pago);
-        if(peds) return alert("Dívidas pendentes!");
-        if(confirm("Remover morador?")) {
-            DB.membros = DB.membros.filter(m => m.id !== id);
-            this.save();
-        }
-    },
-
-    autoBalance() {
-        const cbs = document.querySelectorAll(".m-cb:checked");
-        document.querySelectorAll(".m-perc").forEach(i => { i.value = 0; i.disabled = true; });
-        if(!cbs.length) return;
-        const base = Math.floor(100 / cbs.length);
-        const resto = 100 - (base * cbs.length);
-        cbs.forEach((cb, i) => {
-            const ip = document.getElementById("perc-" + cb.dataset.id);
-            ip.disabled = false;
-            ip.value = (i === 0) ? base + resto : base;
-        });
-    },
-
     createMainBill() {
-        const desc = document.getElementById("f-desc").value;
-        const total = Utils.toC(document.getElementById("f-val").value);
-        const venc = document.getElementById("f-date").value;
-        const cbs = document.querySelectorAll(".m-cb:checked");
-        if(!desc || total <= 0 || !venc || !cbs.length) return alert("Preencha tudo!");
+        const d = document.getElementById("f-desc").value, v = Utils.toC(document.getElementById("f-val").value), dt = document.getElementById("f-date").value, cbs = document.querySelectorAll(".m-cb:checked");
+        if(!d || v<=0 || !dt || !cbs.length) return alert("Erro!");
         const cid = Utils.genId('c');
-        DB.contas.push({id: cid, desc, total, venc, status: "aberta"});
-        cbs.forEach(cb => {
-            const p = parseInt(document.getElementById("perc-" + cb.dataset.id).value);
-            DB.parcelas.push({
-                id: Utils.genId('p'), contaId: cid, membroId: cb.dataset.id,
-                membroNome: cb.value, valorBase: Math.round(total * (p / 100)),
-                pago: false, valorPagoFinal: 0
-            });
-        });
-        this.log(`Lançado: ${desc}`, 'neutro');
+        DB.contas.push({id:cid, desc:d, total:v, venc:dt, status:"aberta"});
+        cbs.forEach(cb => { DB.parcelas.push({id:Utils.genId('p'), contaId:cid, membroId:cb.dataset.id, membroNome:cb.value, valorBase:Math.round(v/cbs.length), pago:false}); });
         this.save();
     },
-
     payParcela(id) {
-        const p = DB.parcelas.find(x => x.id === id);
-        if(!p || p.pago) return;
+        const p = DB.parcelas.find(x => x.id === id); if(p.pago) return;
         const c = DB.contas.find(x => x.id === p.contaId);
-        const atrasada = Utils.hoje() > c.venc;
-        const total = p.valorBase + (atrasada ? MULTA_VALOR : 0);
-        p.pago = true; p.valorPagoFinal = total;
-        DB.cofreCentavos += total;
-        this.log(`Pago: ${p.membroNome}`, 'in');
-        this.save();
+        const mult = Utils.hoje() > c.venc ? MULTA_VALOR : 0;
+        p.pago = true; p.valorPagoFinal = p.valorBase + mult;
+        DB.cofreCentavos += p.valorPagoFinal; this.save();
     },
-
     darBaixa(id) {
         const c = DB.contas.find(x => x.id === id);
         if(DB.cofreCentavos < c.total) return alert("Saldo insuficiente!");
-        if(confirm(`Pagar ${c.desc}?`)) {
-            DB.cofreCentavos -= c.total;
-            c.status = "quitada";
-            this.log(`Baixa: ${c.desc}`, 'out');
-            this.save();
-        }
+        c.status = "quitada"; DB.cofreCentavos -= c.total; this.save();
     },
-
-    log(msg, tipo) {
-        DB.logs.unshift({msg, tipo, data: new Date().toLocaleString()});
-        if(DB.logs.length > 15) DB.logs.pop();
+    resetAll() { if(confirm("Apagar tudo?")) { localStorage.clear(); location.reload(); }},
+    downloadDB() { 
+        const blob = new Blob([JSON.stringify(DB)], {type: "application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a"); a.href = url; a.download = "backup.json"; a.click();
     },
-
-    resetAll() {
-        if(this.activeUser.role !== "ADMIN") return alert("Apenas ADMIN!");
-        if(confirm("Apagar TUDO?")) {
-            localStorage.removeItem("rateio_v4_final");
-            location.reload();
-        }
-    },
-
-    downloadDB() {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(DB));
-        const downloadAnchorNode = document.createElement('a');
-        downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", "rateio_backup.json");
-        document.body.appendChild(downloadAnchorNode);
-        downloadAnchorNode.click();
-        downloadAnchorNode.remove();
-    },
-
-    importDB(event) {
-        if(this.activeUser.role !== "ADMIN") return;
-        const file = event.target.files[0];
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            DB = JSON.parse(e.target.result);
-            this.save();
-            location.reload();
-        };
-        reader.readAsText(file);
-    },
-
-    exportReport() {
-        let txt = `📊 RATEIO - ${new Date().toLocaleDateString()}\n\n`;
-        DB.contas.filter(c => c.status === "aberta").forEach(c => {
-            txt += `📌 ${c.desc.toUpperCase()} (${Utils.toR(c.total)})\n`;
-            DB.parcelas.filter(p => p.contaId === c.id).forEach(p => {
-                txt += `  - ${p.membroNome}: ${Utils.toR(p.valorBase)} [${p.pago ? '✅' : '❌'}]\n`;
-            });
-        });
-        navigator.clipboard.writeText(txt).then(() => alert("Copiado!"));
-    },
-
     render() {
         const isAdm = this.activeUser.role === "ADMIN";
         document.getElementById("ui-cofre").innerText = Utils.toR(DB.cofreCentavos);
         document.getElementById("user-role-badge").innerText = `${this.activeUser.nome} • ${this.activeUser.role}`;
-        
-        document.getElementById("session-select").innerHTML = DB.membros.map(m => 
-            `<option value="${m.id}" ${m.id === this.activeUser.id ? "selected" : ""}>👤 ${m.nome}</option>`
-        ).join("");
-
-        document.getElementById("btn-reset-danger").style.display = isAdm ? "block" : "none";
-        document.getElementById("btn-import").style.display = isAdm ? "block" : "none";
-        document.getElementById("btn-save").style.display = isAdm ? "block" : "none";
-
-        document.getElementById("ui-member-check-list").innerHTML = DB.membros.map(m => `
-            <div class="member-row">
-                <label><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked onclick="Engine.autoBalance()"> ${m.nome}</label>
-                <span><input id="perc-${m.id}" class="m-perc" type="number" style="width:50px">%</span>
-            </div>
-        `).join("");
-        this.autoBalance();
-
-        document.getElementById("ui-manage-members").innerHTML = DB.membros.map(m => `
-            <div class="member-row"><b>${m.nome}</b><button class="tag tag-pendente" onclick="Engine.removeMember('${m.id}')">X</button></div>
-        `).join("");
-
-        document.getElementById("ui-baixas-gerais").innerHTML = DB.contas.filter(c => c.status === "aberta").map(c => `
-            <tr>
-                <td><b>${c.desc}</b><br><small>Alvo: ${Utils.toR(c.total)}</small></td>
-                <td style="text-align:right"><button class="tag tag-pago" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button></td>
-            </tr>
-        `).join("");
-
+        document.getElementById("session-select").innerHTML = DB.membros.map(m => `<option value="${m.id}" ${m.id === this.activeUser.id ? "selected" : ""}>👤 ${m.nome}</option>`).join("");
+        document.getElementById("ui-member-check-list").innerHTML = DB.membros.map(m => `<label class="member-row"><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>`).join("");
+         document.getElementById("ui-baixas-gerais").innerHTML = DB.contas.filter(c => c.status === "aberta").map(c => `<tr><td><b>${c.desc}</b><br><small>Alvo: ${Utils.toR(c.total)}</small></td><td><button class="tag tag-pago" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button></td></tr>`).join(""); document.getElementById("ui-baixas-gerais").innerHTML = DB.contas.filter(c => c.status === "aberta").map(c => `<tr><td><b>${c.desc}</b><br><small>Alvo: ${Utils.toR(c.total)}</small></td><td><button class="tag tag-pago" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button></td></tr>`).join("");
         const vis = isAdm ? DB.parcelas : DB.parcelas.filter(p => p.membroId === this.activeUser.id);
         document.getElementById("ui-minhas-parcelas").innerHTML = vis.map(p => {
             const c = DB.contas.find(x => x.id === p.contaId);
             if(!c || c.status === "quitada") return "";
-            const atrasada = !p.pago && Utils.hoje() > c.venc;
-            const valorExibido = p.pago ? p.valorPagoFinal : (atrasada ? p.valorBase + MULTA_VALOR : p.valorBase);
-            return `
-                <tr>
-                    <td><b>${c.desc}</b><br><small>${p.membroNome}  | Venc:  ${c.venc.split('-').reverse().join('/')}</small></td>
-                    <td style="text-align:right">
-                        <b>${Utils.toR(valorExibido)}</b>${atrasada ? '<span class="badge-multa">MULTA</span>' : ''}
-                    </td>
-                    <td style="text-align:right">
-                        <button class="tag ${p.pago ? 'tag-pago' : 'tag-pendente'}" onclick="Engine.payParcela('${p.id}')">
-                            ${p.pago ? 'OK' : 'PAGAR'}
-                        </button>
-                    </td>
-                </tr>`;
+             const atraso = !p.pago && Utils.hoje() > c.venc; const atraso = !p.pago && Utils.hoje() > c.venc;
+             return `<tr><td><b>${c.desc}</b><br><small>${p.membroNome}</small></td><td><b>${Utils.toR(p.pago?p.valorPagoFinal:(atraso?p.valorBase+MULTA_VALOR:p.valorBase))}</b>${atraso?'<span class="badge-multa">MULTA</span>':''}</td><td><button class="tag ${p.pago?'tag-pago':'tag-pendente'}" onclick="Engine.payParcela('${p.id}')">${p.pago?'OK':'PAGAR'}</button></td></tr>`; return `<tr><td><b>${c.desc}</b><br><small>${p.membroNome}</small></td><td><b>${Utils.toR(p.pago?p.valorPagoFinal:(atraso?p.valorBase+MULTA_VALOR:p.valorBase))}</b>${atraso?'<span class="badge-multa">MULTA</span>':''}</td><td><button class="tag ${p.pago?'tag-pago':'tag-pendente'}" onclick="Engine.payParcela('${p.id}')">${p.pago?'OK':'PAGAR'}</button></td></tr>`;
         }).join("");
-
-        document.getElementById("ui-logs").innerHTML = DB.logs.map(l => `<div class="log-item"><b>${l.msg}</b><br><small>${l.data}</small></div>`).join("");
     }
 };
-
-const UI = { toggleAdm: (show) => {
-    const el = document.getElementById("view-admin");
-    if(show !== undefined) { if(show) el.classList.remove('hidden'); else el.classList.add('hidden'); }
-    else el.classList.toggle("hidden");
-}};
-
+const UI = { toggleAdm: () => document.getElementById("view-admin").classList.toggle("hidden") };
 Engine.init();
 </script>
 </body>
