@@ -1,0 +1,19 @@
+Sistema de Rateio Familiar body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; padding: 0; } header { background: #1f2937; color: #fff; padding: 15px; text-align: center; } main { padding: 20px; max-width: 900px; margin: auto; } .card { background: #fff; border-radius: 8px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); } h2 { margin-top: 0; color: #111827; } table { width: 100%; border-collapse: collapse; } table th, table td { border-bottom: 1px solid #e5e7eb; padding: 8px; text-align: left; } table th { background: #f9fafb; } input, button { padding: 8px; margin: 5px 0; } button { background: #2563eb; color: #fff; border: none; border-radius: 5px; cursor: pointer; } button:hover { background: #1d4ed8; } 
+
+🏠 Sistema de Rateio Familiar
+
+Controle simples das contas da casa
+
+Moradores
+
+NomePercentual (%) Adicionar 
+
+Contas do Mês
+
+ContaValor (R$) Adicionar 
+
+Rateio Automático
+
+MoradorValor a pagar (R$) Calcular Rateio 
+
+let moradores = []; let contas = []; function adicionarMorador() { const nome = document.getElementById('nomeMorador').value; const percentual = parseFloat(document.getElementById('percentualMorador').value); if (!nome || !percentual) return; moradores.push({ nome, percentual }); atualizarMoradores(); } function atualizarMoradores() { const tabela = document.getElementById('tabelaMoradores'); tabela.innerHTML = '<tr><th>Nome</th><th>Percentual (%)</th></tr>'; moradores.forEach(m => { tabela.innerHTML += `<tr><td>${m.nome}</td><td>${m.percentual}</td></tr>`; }); } function adicionarConta() { const nome = document.getElementById('nomeConta').value; const valor = parseFloat(document.getElementById('valorConta').value); if (!nome || !valor) return; contas.push({ nome, valor }); atualizarContas(); } function atualizarContas() { const tabela = document.getElementById('tabelaContas'); tabela.innerHTML = '<tr><th>Conta</th><th>Valor (R$)</th></tr>'; contas.forEach(c => { tabela.innerHTML += `<tr><td>${c.nome}</td><td>${c.valor.toFixed(2)}</td></tr>`; }); } function calcularRateio() { const total = contas.reduce((sum, c) => sum + c.valor, 0); const tabela = document.getElementById('tabelaRateio'); tabela.innerHTML = '<tr><th>Morador</th><th>Valor a pagar (R$)</th></tr>'; moradores.forEach(m => { const valor = (total * m.percentual) / 100; tabela.innerHTML += `<tr><td>${m.nome}</td><td>${valor.toFixed(2)}</td></tr>`; }); } 
