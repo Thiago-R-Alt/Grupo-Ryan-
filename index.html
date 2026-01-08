@@ -3,60 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rateio Grupo Ryan</title>
+    <title>Rateio Pro v4.5 - Grupo Ryan</title>
     <style>
-        :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --dark: #0f172a; --slate: #64748b; --bg: #0f172a; --card: #1e293b; }
+        :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --dark: #0f172a; --slate: #64748b; --bg: #0f172a; --card: #1e293b; --warning: #f59e0b; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; color: #fff; }
         .container { max-width: 500px; margin: 0 auto; padding: 15px; }
         .header-status { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #fff; padding: 30px 20px; border-radius: 24px; text-align: center; margin-bottom: 20px; box-shadow: 0 10px 15px rgba(0,0,0,0.3); }
         .val-total { font-size: 2.5rem; font-weight: 800; color: var(--success); margin: 5px 0; }
         .card { background: var(--card); padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #334155; }
-        h4 { margin: 0 0 15px 0; font-size: 0.9rem; border-bottom: 1px solid #334155; padding-bottom: 8px; color: var(--slate); text-transform: uppercase; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #334155; border-radius: 12px; background: #0f172a; color: #fff; margin-top: 6px; box-sizing: border-box; }
-        .btn { cursor: pointer; border: none; border-radius: 12px; padding: 14px; font-weight: 700; width: 100%; transition: 0.2s; display: block; font-size: 1rem; }
+        h4 { margin: 0 0 15px 0; font-size: 0.9rem; border-bottom: 1px solid #334155; padding-bottom: 8px; color: var(--slate); text-transform: uppercase; letter-spacing: 1px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #334155; border-radius: 12px; background: #0f172a; color: #fff; margin-top: 6px; box-sizing: border-box; font-size: 1rem; }
+        .btn { cursor: pointer; border: none; border-radius: 12px; padding: 14px; font-weight: 700; width: 100%; transition: 0.2s; display: block; font-size: 1rem; margin-top: 10px; }
         .btn-p { background: var(--primary); color: #fff; }
         .btn-s { background: var(--success); color: #fff; }
         .btn-danger { background: var(--danger); color: #fff; }
-        .btn-ghost { background: transparent; color: var(--slate); border: 1px solid #334155; }
+        .btn-warning { background: var(--warning); color: #fff; }
+        .btn-ghost { background: transparent; color: var(--slate); border: 1px solid #334155; margin-top: 0; }
         table { width: 100%; border-collapse: collapse; }
         td { padding: 12px 5px; border-bottom: 1px solid #334155; font-size: 0.9rem; }
         .tag { padding: 6px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; cursor: pointer; border: none; }
         .tag-pago { background: #064e3b; color: #10b981; }
         .tag-pendente { background: #7f1d1d; color: #f87171; }
+        .member-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #161e2e; border-radius: 12px; margin-bottom: 8px; border: 1px solid #2d3748; }
+        .log-item { padding: 8px; border-radius: 8px; font-size: 0.75rem; background: #161e2e; margin-bottom: 5px; border-left: 3px solid var(--primary); }
         .hidden { display: none !important; }
         .badge-multa { background: var(--danger); color: white; padding: 2px 5px; border-radius: 4px; font-size: 0.6rem; margin-left: 5px; }
     </style>
 </head>
 <body>
+
 <div class="container">
     <div style="display:flex; gap:10px; margin-bottom:15px">
         <select id="session-select" onchange="Engine.switchUser(this.value)"></select>
         <button class="btn btn-ghost" style="width:auto; padding: 8px 15px;" onclick="UI.toggleAdm()">⚙️ ADM</button>
     </div>
+
     <div class="header-status">
         <small style="opacity: 0.7;">SALDO NO COFRE</small>
         <div class="val-total" id="ui-cofre">R$ 0,00</div>
-        <div id="user-role-badge" style="font-size: 0.8rem; color: var(--slate);">Carregando...</div>
+        <div id="user-role-badge" style="font-size: 0.8rem; color: var(--slate);">Sincronizando...</div>
     </div>
+
     <div id="view-admin" class="card hidden">
-        <h4>📝 Novo Rateio</h4>
-        <input id="f-desc" placeholder="Conta (ex: Wi-fi)">
-        <div style="display: flex; gap: 10px;"><input id="f-val" type="number" placeholder="Valor"><input id="f-date" type="date"></div>
-        <div id="ui-member-check-list" style="margin: 15px 0;"></div>
+        <h4>📝 Novo Rateio Profissional</h4>
+        <input id="f-desc" placeholder="Conta (ex: Aluguel, Wi-fi)">
+        <div style="display: flex; gap: 10px;">
+            <input id="f-val" type="number" placeholder="Valor Total">
+            <input id="f-date" type="date">
+        </div>
+
+        <p style="font-size: 0.75rem; margin: 15px 0 5px; color: var(--slate);">DIVISÃO (%):</p>
+        <div id="ui-member-check-list"></div>
+        
         <button class="btn btn-s" onclick="Engine.createMainBill()">GERAR RATEIO</button>
-        <h4 style="margin-top:25px">💰 Baixas</h4>
+
+        <h4 style="margin-top:25px">👥 Moradores</h4>
+        <div id="ui-manage-members"></div>
+        <div style="display: flex; gap: 5px; margin-top: 10px;">
+            <input id="f-new-mem" placeholder="Novo nome" style="margin:0">
+            <button class="btn btn-p" style="width: 50px; margin:0; padding:0" onclick="Engine.addMember()">+</button>
+        </div>
+
+        <h4 style="margin-top:25px">💰 Baixas (Pagar Contas)</h4>
         <table id="ui-baixas-gerais"></table>
-        <button class="btn btn-danger" onclick="Engine.resetAll()" style="margin-top: 20px;">⚠️ RESETAR TUDO</button>
+
+        <h4 style="margin-top:25px">🛠️ Ferramentas</h4>
+        <button class="btn btn-warning" onclick="Engine.exportReport()">📋 RELATÓRIO WHATSAPP</button>
+        <button class="btn btn-danger" onclick="Engine.resetAll()">⚠️ RESETAR TUDO (NUVEM)</button>
     </div>
-    <div class="card"><h4>📋 Minhas Parcelas</h4><table id="ui-minhas-parcelas"></table></div>
-    <div class="card"><h4>🕒 Histórico</h4><div id="ui-logs" style="font-size: 0.8rem; color: var(--slate);"></div></div>
+
+    <div class="card">
+        <h4>📋 Minhas Parcelas</h4>
+        <table id="ui-minhas-parcelas"></table>
+    </div>
+
+    <div class="card">
+        <h4>🕒 Histórico</h4>
+        <div id="ui-logs"></div>
+    </div>
 </div>
 
 <script>
 const FIREBASE_URL = "https://grupo-ryan-default-rtdb.firebaseio.com/dados.json";
 const MULTA_VALOR = 500;
-let DB = { membros: [{id:"u1",nome:"Thiago",role:"ADMIN"},{id:"u2",nome:"Anna",role:"MEMBRO"},{id:"u3",nome:"Pedro",role:"MEMBRO"}], contas: [], parcelas: [], logs: [], cofreCentavos: 0 };
-const Utils = { toC: v => Math.round(parseFloat(v)*100), toR: c => (c/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}), genId: p => p+'_'+Math.random().toString(36).substr(2,9), hoje: () => new Date().toISOString().split('T')[0] };
+
+let DB = {
+    membros: [{id:"u1",nome:"Thiago",role:"ADMIN"},{id:"u2",nome:"Anna",role:"MEMBRO"},{id:"u3",nome:"Pedro",role:"MEMBRO"}],
+    contas: [], parcelas: [], logs: [], cofreCentavos: 0
+};
+
+const Utils = {
+    toC: v => Math.round(parseFloat(v)*100),
+    toR: c => (c/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}),
+    genId: p => p+'_'+Math.random().toString(36).substr(2,9),
+    hoje: () => new Date().toISOString().split('T')[0]
+};
 
 const Engine = {
     activeUser: null,
@@ -66,7 +107,6 @@ const Engine = {
         await this.load();
         this.activeUser = DB.membros[0];
         this.render();
-        // Sincronização em tempo real (cada 5 segundos)
         setInterval(() => this.load(), 5000);
     },
 
@@ -75,78 +115,146 @@ const Engine = {
             const res = await fetch(FIREBASE_URL);
             const data = await res.json();
             if (data) { DB = data; this.render(); }
-        } catch (e) { console.error("Erro ao carregar"); }
+        } catch (e) { console.error("Erro de conexão"); }
     },
 
     async save() {
         try {
             await fetch(FIREBASE_URL, { method: 'PUT', body: JSON.stringify(DB) });
             this.render();
-        } catch (e) { alert("Erro ao salvar na nuvem!"); }
+        } catch (e) { alert("Falha ao salvar!"); }
     },
 
     switchUser(id) {
         const t = DB.membros.find(m => m.id === id);
-        if (t.role === "ADMIN") {
-            const p = prompt("Senha ADMIN:");
-            if (p !== this.ADMIN_PASS) { alert("Incorreta!"); this.render(); return; }
+        if (t && t.role === "ADMIN") {
+            const p = prompt("Senha Administrador:");
+            if (p !== this.ADMIN_PASS) { alert("Acesso Negado!"); this.render(); return; }
         }
         this.activeUser = t; this.render();
     },
 
+    addMember() {
+        const n = document.getElementById("f-new-mem").value.trim();
+        if(!n) return;
+        DB.membros.push({id: Utils.genId('u'), nome: n, role: "MEMBRO"});
+        document.getElementById("f-new-mem").value = "";
+        this.save();
+    },
+
+    removeMember(id) {
+        if(confirm("Remover morador?")) {
+            DB.membros = DB.membros.filter(m => m.id !== id);
+            this.save();
+        }
+    },
+
+    autoBalance() {
+        const cbs = document.querySelectorAll(".m-cb:checked");
+        document.querySelectorAll(".m-perc").forEach(i => { i.value = 0; i.disabled = true; });
+        if(!cbs.length) return;
+        const base = Math.floor(100 / cbs.length);
+        const resto = 100 - (base * cbs.length);
+        cbs.forEach((cb, i) => {
+            const ip = document.getElementById("perc-" + cb.dataset.id);
+            ip.disabled = false;
+            ip.value = (i === 0) ? base + resto : base;
+        });
+    },
+
     createMainBill() {
         const d = document.getElementById("f-desc").value, v = Utils.toC(document.getElementById("f-val").value), dt = document.getElementById("f-date").value, cbs = document.querySelectorAll(".m-cb:checked");
-        if(!d || v<=0 || !dt || !cbs.length) return alert("Preencha tudo!");
+        if(!d || v<=0 || !dt || !cbs.length) return alert("Preencha todos os campos!");
         const cid = Utils.genId('c');
         DB.contas.push({id:cid, desc:d, total:v, venc:dt, status:"aberta"});
-        cbs.forEach(cb => { DB.parcelas.push({id:Utils.genId('p'), contaId:cid, membroId:cb.dataset.id, membroNome:cb.value, valorBase:Math.round(v/cbs.length), pago:false}); });
-        this.log(`Lançado: ${d}`, 'neutro');
+        cbs.forEach(cb => {
+            const p = parseInt(document.getElementById("perc-" + cb.dataset.id).value);
+            DB.parcelas.push({id:Utils.genId('p'), contaId:cid, membroId:cb.dataset.id, membroNome:cb.value, valorBase:Math.round(v*(p/100)), pago:false});
+        });
+        this.log(`🚀 Novo Rateio: ${d}`, 'neutro');
         this.save();
     },
 
     payParcela(id) {
-        const p = DB.parcelas.find(x => x.id === id); if(p.pago) return;
+        const p = DB.parcelas.find(x => x.id === id); if(!p || p.pago) return;
         const c = DB.contas.find(x => x.id === p.contaId);
         const mult = Utils.hoje() > c.venc ? MULTA_VALOR : 0;
         p.pago = true; p.valorPagoFinal = p.valorBase + mult;
-        DB.cofreCentavos += p.valorPagoFinal; 
-        this.log(`Pago: ${p.membroNome} (${c.desc})`, 'in');
+        DB.cofreCentavos += p.valorPagoFinal;
+        this.log(`✅ ${p.membroNome} pagou ${c.desc}`, 'in');
         this.save();
     },
 
     darBaixa(id) {
         const c = DB.contas.find(x => x.id === id);
         if(DB.cofreCentavos < c.total) return alert("Saldo insuficiente no cofre!");
-        if(confirm(`Dar baixa em ${c.desc}?`)){
-            c.status = "quitada"; DB.cofreCentavos -= c.total; 
-            this.log(`Baixa: ${c.desc}`, 'out');
+        if(confirm(`Confirmar pagamento da conta: ${c.desc}?`)){
+            c.status = "quitada"; DB.cofreCentavos -= c.total;
+            this.log(`🏦 Baixa efetuada: ${c.desc}`, 'out');
             this.save();
         }
     },
 
-    log(m, t) { DB.logs.unshift({m, t, d: new Date().toLocaleTimeString()}); if(DB.logs.length > 10) DB.logs.pop(); },
+    exportReport() {
+        let txt = `📊 *RELATÓRIO DE CONTAS*\n\n`;
+        DB.contas.filter(c => c.status === "aberta").forEach(c => {
+            txt += `📌 *${c.desc.toUpperCase()}*\n`;
+            DB.parcelas.filter(p => p.contaId === c.id).forEach(p => {
+                txt += `  ${p.pago ? '✅' : '❌'} ${p.membroNome}: ${Utils.toR(p.valorBase)}\n`;
+            });
+            txt += `\n`;
+        });
+        navigator.clipboard.writeText(txt).then(() => alert("Relatório copiado para o WhatsApp!"));
+    },
 
-    resetAll() { if(confirm("RESETAR TODOS OS DADOS DA NUVEM?")) { DB.contas = []; DB.parcelas = []; DB.cofreCentavos = 0; DB.logs = []; this.save(); }},
+    log(m, t) { DB.logs.unshift({m, t, d: new Date().toLocaleTimeString()}); if(DB.logs.length > 8) DB.logs.pop(); },
+
+    resetAll() { if(confirm("CUIDADO! Apagar todos os dados da nuvem?")) { DB.contas = []; DB.parcelas = []; DB.cofreCentavos = 0; DB.logs = []; this.save(); }},
 
     render() {
         if(!this.activeUser) return;
         const isAdm = this.activeUser.role === "ADMIN";
+        
         document.getElementById("ui-cofre").innerText = Utils.toR(DB.cofreCentavos);
         document.getElementById("user-role-badge").innerText = `${this.activeUser.nome} • ${this.activeUser.role}`;
+        
         document.getElementById("session-select").innerHTML = DB.membros.map(m => `<option value="${m.id}" ${m.id === this.activeUser.id ? "selected" : ""}>👤 ${m.nome}</option>`).join("");
-        document.getElementById("ui-member-check-list").innerHTML = DB.membros.map(m => `<label style="display:block; margin-bottom:5px"><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>`).join("");
-        document.getElementById("ui-baixas-gerais").innerHTML = DB.contas.filter(c => c.status === "aberta").map(c => `<tr><td><b>${c.desc}</b><br><small>Alvo: ${Utils.toR(c.total)}</small></td><td style="text-align:right"><button class="tag tag-pago" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button></td></tr>`).join("");
+        
+        document.getElementById("ui-member-check-list").innerHTML = DB.membros.map(m => `
+            <div class="member-row">
+                <label><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked onclick="Engine.autoBalance()"> ${m.nome}</label>
+                <span><input id="perc-${m.id}" class="m-perc" type="number" style="width:50px; background:transparent; border:none; color:var(--success); font-weight:bold" value="0">%</span>
+            </div>
+        `).join("");
+        this.autoBalance();
+
+        document.getElementById("ui-manage-members").innerHTML = DB.membros.map(m => `
+            <div class="member-row"><span>${m.nome}</span><button onclick="Engine.removeMember('${m.id}')" style="background:none; border:none; color:var(--danger); cursor:pointer">✖</button></div>
+        `).join("");
+
+        document.getElementById("ui-baixas-gerais").innerHTML = DB.contas.filter(c => c.status === "aberta").map(c => `
+            <tr>
+                <td><b>${c.desc}</b><br><small style="color:var(--slate)">Alvo: ${Utils.toR(c.total)}</small></td>
+                <td style="text-align:right"><button class="tag tag-pago" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button></td>
+            </tr>
+        `).join("");
+
         const vis = isAdm ? DB.parcelas : DB.parcelas.filter(p => p.membroId === this.activeUser.id);
         document.getElementById("ui-minhas-parcelas").innerHTML = vis.map(p => {
             const c = DB.contas.find(x => x.id === p.contaId);
             if(!c || c.status === "quitada") return "";
             const atraso = !p.pago && Utils.hoje() > c.venc;
             const val = p.pago ? p.valorPagoFinal : (atraso ? p.valorBase + MULTA_VALOR : p.valorBase);
-            return `<tr><td><b>${c.desc}</b><br><small>${p.membroNome}</small></td><td style="text-align:right"><b>${Utils.toR(val)}</b>${atraso?'<span class="badge-multa">MULTA</span>':''}</td><td style="text-align:right"><button class="tag ${p.pago?'tag-pago':'tag-pendente'}" onclick="Engine.payParcela('${p.id}')">${p.pago?'OK':'PAGAR'}</button></td></tr>`;
+            return `<tr>
+                <td><b>${c.desc}</b><br><small>${p.membroNome}</small></td>
+                <td style="text-align:right"><b>${Utils.toR(val)}</b>${atraso?'<span class="badge-multa">MULTA</span>':''}</td>
+                <td style="text-align:right"><button class="tag ${p.pago?'tag-pago':'tag-pendente'}" onclick="Engine.payParcela('${p.id}')">${p.pago?'OK':'PAGAR'}</button></td>
+            </tr>`;
         }).join("");
-        document.getElementById("ui-logs").innerHTML = DB.logs.map(l => `<div>[${l.d}] ${l.m}</div>`).join("");
+        document.getElementById("ui-logs").innerHTML = DB.logs.map(l => `<div class="log-item"><b>${l.m}</b> <span style="float:right; opacity:0.5">${l.d}</span></div>`).join("");
     }
 };
+
 const UI = { toggleAdm: () => document.getElementById("view-admin").classList.toggle("hidden") };
 Engine.init();
 </script>
