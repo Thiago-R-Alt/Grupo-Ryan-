@@ -11,56 +11,31 @@
             --bg: #090e1a; --card: #151c2c; --text: #f8fafc; --sub: #94a3b8;
             --accent: #6366f1;
         }
-        
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background: var(--bg); color: var(--text); margin: 0; padding-bottom: 60px; }
-        
         .container { max-width: 480px; margin: 0 auto; padding: 20px; }
-        
-        /* Header & Saldo */
         .header-status { 
             background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%); 
             padding: 35px 25px; border-radius: 30px; text-align: left; 
             margin-bottom: 25px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-            position: relative; overflow: hidden;
         }
         .val-total { font-size: 2.2rem; font-weight: 800; margin: 8px 0; letter-spacing: -1px; }
-        .label-cofre { font-size: 0.75rem; font-weight: 600; opacity: 0.8; text-transform: uppercase; }
-        
-        /* Top Menu */
         .top-nav { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; }
-        select { 
-            flex: 1; background: var(--card); border: 1px solid #2d3748; color: white;
-            padding: 12px; border-radius: 16px; font-weight: 600; outline: none;
-        }
-        
-        /* Cards */
-        .card { 
-            background: var(--card); border-radius: 24px; padding: 20px; 
-            margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05);
-        }
+        select { flex: 1; background: var(--card); border: 1px solid #2d3748; color: white; padding: 12px; border-radius: 16px; font-weight: 600; outline: none; }
+        .card { background: var(--card); border-radius: 24px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); }
         h4 { margin: 0 0 18px 0; font-size: 0.85rem; color: var(--sub); text-transform: uppercase; letter-spacing: 1px; }
-        
-        /* Inputs & Buttons */
-        input { 
-            width: 100%; padding: 14px; background: #0f172a; border: 1px solid #1e293b;
-            border-radius: 14px; color: white; margin-top: 8px; font-size: 0.95rem;
-        }
+        input { width: 100%; padding: 14px; background: #0f172a; border: 1px solid #1e293b; border-radius: 14px; color: white; margin-top: 8px; }
         .btn { cursor: pointer; border: none; border-radius: 14px; padding: 15px; font-weight: 700; width: 100%; transition: 0.3s; margin-top: 12px; }
         .btn-p { background: var(--primary); color: white; }
         .btn-s { background: var(--success); color: white; }
         .btn-ghost { background: rgba(255,255,255,0.05); color: white; border: 1px solid #1e293b; width: auto; }
-
-        /* Rows */
         .item-row { display: flex; align-items: center; justify-content: space-between; padding: 14px; background: rgba(255,255,255,0.03); border-radius: 18px; margin-bottom: 10px; }
-        .btn-del { background: rgba(244, 63, 94, 0.1); color: var(--danger); border: none; border-radius: 10px; padding: 8px 12px; cursor: pointer; font-weight: 800; }
-        
+        .btn-del { background: rgba(244, 63, 94, 0.1); color: var(--danger); border: none; border-radius: 10px; padding: 8px 12px; cursor: pointer; }
         .parcela-item { border-bottom: 1px solid #1e293b; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
         .tag { padding: 8px 14px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; cursor: pointer; border: none; text-transform: uppercase; }
         .tag-pago { background: #064e3b; color: #10b981; }
         .tag-pendente { background: #450a0a; color: #f87171; }
         .tag-pix { background: #0e7490; color: #fff; margin-right: 5px; }
-        
         .hidden { display: none !important; }
         .atraso-text { color: var(--danger); font-size: 0.7rem; font-weight: 800; }
     </style>
@@ -74,7 +49,7 @@
     </div>
 
     <div class="header-status">
-        <div class="label-cofre">Saldo no Cofre</div>
+        <small style="opacity:0.8">SALDO NO COFRE</small>
         <div class="val-total" id="ui-cofre">R$ 0,00</div>
         <div id="user-role-badge" style="font-size: 0.8rem; font-weight: 600; opacity: 0.7;">Sincronizando...</div>
     </div>
@@ -83,36 +58,32 @@
         <h4>🔑 Minha Chave PIX</h4>
         <input id="f-adm-pix" placeholder="Sua chave Pix">
         <button class="btn btn-p" onclick="Engine.updateAdmPix()">SALVAR CHAVE</button>
-
         <h4 style="margin-top:25px">👥 Moradores</h4>
         <div id="ui-manage-members"></div>
         <input id="f-new-mem" placeholder="Nome do Novo Morador">
-        <button class="btn btn-p" onclick="Engine.addMember()" style="background:#334155">ADICIONAR MORADOR</button>
-
+        <button class="btn btn-p" onclick="Engine.addMember()" style="background:#334155">ADICIONAR</button>
         <h4 style="margin-top:25px">📝 Novo Rateio</h4>
-        <input id="f-desc" placeholder="Ex: Aluguel">
-        <div style="display: flex; gap: 10px;">
-            <input id="f-val" type="number" placeholder="Valor Total">
-            <input id="f-date" type="date">
-        </div>
+        <input id="f-desc" placeholder="Ex: Internet">
+        <div style="display: flex; gap: 10px;"><input id="f-val" type="number" placeholder="Total"><input id="f-date" type="date"></div>
         <div id="ui-member-check-list" style="margin-top:10px"></div>
         <button class="btn btn-s" onclick="Engine.createMainBill()">GERAR RATEIO</button>
-
-        <h4 style="margin-top:25px">💰 Baixas</h4>
+        <h4 style="margin-top:25px">💰 Contas em Aberto (Baixas)</h4>
         <div id="ui-baixas-gerais"></div>
     </div>
 
     <div class="card">
-        <h4>📋 Extrato de Parcelas</h4>
+        <h4>📋 Parcelas em Aberto</h4>
         <div id="ui-minhas-parcelas"></div>
+    </div>
+
+    <div class="card">
+        <h4>⌛ Histórico de Contas Pagas</h4>
+        <div id="ui-historico-quitadas" style="opacity: 0.7; font-size: 0.9rem;"></div>
     </div>
 </div>
 
 <script>
-const b1 = "https://grupo-ryan-";
-const b2 = "default-rtdb.firebaseio.com/dados.json";
-const FIREBASE_URL = b1 + b2;
-
+const FIREBASE_URL = "https://grupo-ryan-default-rtdb.firebaseio.com/dados.json";
 let DB = { membros: [], contas: [], parcelas: [], cofreCentavos: 0, admPix: "" };
 
 const Utils = {
@@ -151,12 +122,8 @@ const Engine = {
         this.render();
     },
 
-    updateAdmPix() {
-        DB.admPix = document.getElementById("f-adm-pix").value;
-        this.save();
-        alert("Chave Pix Atualizada!");
-    },
-
+    updateAdmPix() { DB.admPix = document.getElementById("f-adm-pix").value; this.save(); alert("Pix Salvo!"); },
+    
     addMember() {
         const n = document.getElementById("f-new-mem").value;
         if(!n) return;
@@ -166,41 +133,25 @@ const Engine = {
     },
 
     removeMember(id) {
-        if (id === "u1") return alert("O administrador não pode ser removido!");
-        if (confirm("Remover este morador?")) {
-            DB.membros = DB.membros.filter(m => m.id !== id);
-            this.save();
-        }
+        if (id === "u1") return alert("Admin não pode ser removido!");
+        if (confirm("Remover morador?")) { DB.membros = DB.membros.filter(m => m.id !== id); this.save(); }
     },
 
     createMainBill() {
-        const d = document.getElementById("f-desc").value;
-        const v = Utils.toC(document.getElementById("f-val").value);
-        const dt = document.getElementById("f-date").value;
-        const cbs = document.querySelectorAll(".m-cb:checked");
+        const d = document.getElementById("f-desc").value, v = Utils.toC(document.getElementById("f-val").value), dt = document.getElementById("f-date").value, cbs = document.querySelectorAll(".m-cb:checked");
         if(!d || !v || !dt || cbs.length === 0) return alert("Preencha tudo!");
-
         const cid = Utils.genId('c');
-        DB.contas = DB.contas || [];
-        DB.parcelas = DB.parcelas || [];
-        
+        DB.contas = DB.contas || []; DB.parcelas = DB.parcelas || [];
         DB.contas.push({id:cid, desc:d, total:v, venc:dt, status:"aberta"});
-        cbs.forEach(cb => {
-            DB.parcelas.push({
-                id: Utils.genId('p'),
-                contaId: cid,
-                membroId: cb.dataset.id,
-                membroNome: cb.value,
-                valorBase: Math.round(v / cbs.length),
-                pago: false
-            });
-        });
-        alert("Rateio Gerado!");
-        this.save();
+        cbs.forEach(cb => { DB.parcelas.push({id: Utils.genId('p'), contaId: cid, membroId: cb.dataset.id, membroNome: cb.value, valorBase: Math.round(v / cbs.length), pago: false}); });
+        this.save(); alert("Rateio Gerado!");
     },
 
+    // CORREÇÃO: Impede pagamento duplo
     payParcela(id) {
         const p = DB.parcelas.find(x => x.id === id);
+        if (p.pago) return; // Se já estiver pago, não faz nada
+        
         const c = DB.contas.find(x => x.id === p.contaId);
         const multa = Utils.hoje() > c.venc ? 500 : 0;
         p.pago = true; 
@@ -217,7 +168,7 @@ const Engine = {
 
     darBaixa(id) {
         const c = DB.contas.find(x => x.id === id);
-        if(DB.cofreCentavos < c.total) return alert("Saldo insuficiente!");
+        if(DB.cofreCentavos < c.total) return alert("Saldo insuficiente no cofre!");
         c.status = "quitada"; DB.cofreCentavos -= c.total;
         this.save();
     },
@@ -237,14 +188,10 @@ const Engine = {
         document.getElementById("session-select").innerHTML = DB.membros.map(m => `<option value="${m.id}" ${m.id === this.activeUser.id ? "selected" : ""}>👤 ${m.nome}</option>`).join("");
         document.getElementById("f-adm-pix").value = DB.admPix || "";
 
-        document.getElementById("ui-manage-members").innerHTML = DB.membros.map(m => `
-            <div class="item-row"><span>${m.nome}</span><button class="btn-del" onclick="Engine.removeMember('${m.id}')">✖</button></div>
-        `).join("");
-        
-        document.getElementById("ui-member-check-list").innerHTML = DB.membros.map(m => `
-            <label class="item-row" style="cursor:pointer"><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>
-        `).join("");
+        document.getElementById("ui-manage-members").innerHTML = DB.membros.map(m => `<div class="item-row"><span>${m.nome}</span><button class="btn-del" onclick="Engine.removeMember('${m.id}')">✖</button></div>`).join("");
+        document.getElementById("ui-member-check-list").innerHTML = DB.membros.map(m => `<label class="item-row" style="cursor:pointer"><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>`).join("");
 
+        // LISTA DE BAIXAS (CONTAS ABERTAS)
         document.getElementById("ui-baixas-gerais").innerHTML = (DB.contas || []).filter(c => c.status === "aberta").map(c => `
             <div class="parcela-item">
                 <div><b>${c.desc}</b><br><small>Total: ${Utils.toR(c.total)}</small></div>
@@ -252,6 +199,16 @@ const Engine = {
             </div>
         `).join("");
 
+        // HISTÓRICO DE CONTAS QUITADAS
+        const quitadas = (DB.contas || []).filter(c => c.status === "quitada");
+        document.getElementById("ui-historico-quitadas").innerHTML = quitadas.length ? quitadas.map(c => `
+            <div style="border-bottom: 1px solid #1e293b; padding: 10px 0; display:flex; justify-content:space-between">
+                <span>✅ ${c.desc}</span>
+                <span style="font-weight:bold; color:var(--success)">${Utils.toR(c.total)}</span>
+            </div>
+        `).join("") : "Nenhuma conta quitada ainda.";
+
+        // PARCELAS DOS MORADORES
         const vis = this.activeUser.role === "ADMIN" ? (DB.parcelas || []) : (DB.parcelas || []).filter(p => p.membroId === this.activeUser.id);
         document.getElementById("ui-minhas-parcelas").innerHTML = vis.map(p => {
             const c = (DB.contas || []).find(x => x.id === p.contaId);
