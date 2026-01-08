@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rateio Grupo Ryan v6.4</title>
+    <title>Rateio Grupo Ryan v6.5</title>
     <style>
         :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --dark: #0f172a; --slate: #64748b; --bg: #0f172a; --card: #1e293b; --warning: #f59e0b; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; color: #fff; }
@@ -25,6 +25,7 @@
         .tag-pix { background: #32bcad; color: #fff; }
         .member-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #161e2e; border-radius: 12px; margin-bottom: 8px; }
         .hidden { display: none !important; }
+        .btn-del { background: none; border: none; color: var(--danger); font-weight: bold; cursor: pointer; padding: 5px 10px; }
     </style>
 </head>
 <body>
@@ -42,7 +43,7 @@
     </div>
 
     <div id="view-admin" class="card hidden">
-        <h4>👥 Cadastrar Moradores</h4>
+        <h4>👥 Gerenciar Moradores</h4>
         <div id="ui-manage-members"></div>
         <div class="card" style="background:#0f172a; padding:10px; border: 1px solid var(--primary);">
             <input id="f-new-mem" placeholder="Nome do Morador">
@@ -83,7 +84,7 @@ const Utils = {
     hoje: () => new Date().toISOString().split('T')[0],
     gerarPix: (chave, valor, nome) => {
         const v = (valor/100).toFixed(2);
-        const n = nome.substring(0,15).toUpperCase();
+        const n = nome.substring(0,15).toUpperCase().replace(/\s/g, '');
         return `00020126330014BR.GOV.BCB.PIX01${chave.length}${chave}520400005303986540${v}5802BR59${n.length}${n}6009SAO PAULO62070503***6304`;
     }
 };
@@ -108,10 +109,7 @@ const Engine = {
         try {
             const res = await fetch(FIREBASE_URL);
             const data = await res.json();
-            if (data && data.membros) { 
-                DB = data; 
-                this.render(); 
-            }
+            if (data && data.membros) { DB = data; this.render(); }
         } catch (e) { console.error("Erro banco"); }
     },
 
@@ -130,10 +128,18 @@ const Engine = {
 
     addMember() {
         const n = document.getElementById("f-new-mem").value, p = document.getElementById("f-new-pix").value;
-        if(!n) return alert("Digite o nome");
+        if(!n) return;
         DB.membros.push({id: Utils.genId('u'), nome: n, role: DB.membros.length === 0 ? "ADMIN" : "MEMBRO", pix: p});
         document.getElementById("f-new-mem").value = ""; document.getElementById("f-new-pix").value = "";
         this.save();
+    },
+
+    removeMember(id) {
+        if (id === "u1") return alert("O administrador principal não pode ser removido!");
+        if (confirm("Deseja realmente remover este morador?")) {
+            DB.membros = DB.membros.filter(m => m.id !== id);
+            this.save();
+        }
     },
 
     createMainBill() {
@@ -168,7 +174,15 @@ const Engine = {
         document.getElementById("user-role-badge").innerText = `${this.activeUser.nome} • ${this.activeUser.role}`;
         document.getElementById("session-select").innerHTML = DB.membros.map(m => `<option value="${m.id}" ${m.id === this.activeUser.id ? "selected" : ""}>👤 ${m.nome}</option>`).join("");
         document.getElementById("ui-member-check-list").innerHTML = DB.membros.map(m => `<label class="member-row"><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>`).join("");
-        document.getElementById("ui-manage-members").innerHTML = DB.membros.map(m => `<div class="member-row"><span>${m.nome} <small>(${m.pix || 's/ Pix'})</small></span></div>`).join("");
+        
+        // Renderiza lista de membros com botão de apagar
+        document.getElementById("ui-manage-members").innerHTML = DB.membros.map(m => `
+            <div class="member-row">
+                <span>${m.nome} <small>(${m.pix || 's/ Pix'})</small></span>
+                <button class="btn-del" onclick="Engine.removeMember('${m.id}')">✖</button>
+            </div>
+        `).join("");
+        
         document.getElementById("ui-baixas-gerais").innerHTML = DB.contas.filter(c => c.status === "aberta").map(c => `<tr><td><b>${c.desc}</b></td><td style="text-align:right"><button class="tag tag-pago" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button></td></tr>`).join("");
 
         const isAdm = this.activeUser.role === "ADMIN";
@@ -204,7 +218,7 @@ const UI = {
         if(!recebedor.pix) return alert("Recebedor sem chave Pix!");
         const valor = p.valorBase + (Utils.hoje() > c.venc ? 500 : 0);
         const code = Utils.gerarPix(recebedor.pix, valor, recebedor.nome);
-        navigator.clipboard.writeText(code).then(() => alert("Copia e Cola copiado!"));
+        navigator.clipboard.writeText(code).then(() => alert("Copia e Cola copiado com sucesso!"));
     }
 };
 
