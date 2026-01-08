@@ -5,39 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financeiro Grupo Ryan</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { 
             --primary: #4f46e5; --success: #10b981; --danger: #f43f5e; 
             --bg: #090e1a; --card: #151c2c; --text: #f8fafc; --sub: #94a3b8;
-            --accent: #6366f1;
         }
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background: var(--bg); color: var(--text); margin: 0; padding-bottom: 60px; }
         .container { max-width: 480px; margin: 0 auto; padding: 20px; }
+        
         .header-status { 
             background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%); 
-            padding: 35px 25px; border-radius: 30px; text-align: left; 
-            margin-bottom: 25px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+            padding: 30px 25px; border-radius: 30px; margin-bottom: 25px;
         }
-        .val-total { font-size: 2.2rem; font-weight: 800; margin: 8px 0; letter-spacing: -1px; }
-        .top-nav { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; }
-        select, input { background: var(--card); border: 1px solid #2d3748; color: white; padding: 12px; border-radius: 16px; font-weight: 600; outline: none; }
+        .val-total { font-size: 2.2rem; font-weight: 800; }
+        
+        .top-nav { display: flex; gap: 12px; margin-bottom: 20px; }
+        select, input { background: var(--card); border: 1px solid #2d3748; color: white; padding: 12px; border-radius: 16px; width: 100%; }
+        
         .card { background: var(--card); border-radius: 24px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); }
-        h4 { margin: 0 0 18px 0; font-size: 0.85rem; color: var(--sub); text-transform: uppercase; letter-spacing: 1px; }
-        input { width: 100%; margin-top: 8px; }
-        .btn { cursor: pointer; border: none; border-radius: 14px; padding: 15px; font-weight: 700; width: 100%; transition: 0.3s; margin-top: 12px; }
+        h4 { margin: 0 0 15px 0; font-size: 0.8rem; color: var(--sub); text-transform: uppercase; letter-spacing: 1px; }
+        
+        .btn { cursor: pointer; border: none; border-radius: 14px; padding: 15px; font-weight: 700; width: 100%; margin-top: 10px; }
         .btn-p { background: var(--primary); color: white; }
         .btn-s { background: var(--success); color: white; }
-        .btn-ghost { background: rgba(255,255,255,0.05); color: white; border: 1px solid #1e293b; width: auto; }
-        .item-row { display: flex; align-items: center; justify-content: space-between; padding: 14px; background: rgba(255,255,255,0.03); border-radius: 18px; margin-bottom: 10px; }
-        .parcela-item { border-bottom: 1px solid #1e293b; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
-        .tag { padding: 8px 14px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; cursor: pointer; border: none; text-transform: uppercase; }
+        
+        .parcela-item { border-bottom: 1px solid #1e293b; padding: 12px 0; display: flex; justify-content: space-between; align-items: center; }
+        .tag { padding: 6px 12px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; cursor: pointer; border: none; }
         .tag-pago { background: #064e3b; color: #10b981; }
         .tag-pendente { background: #450a0a; color: #f87171; }
-        .tag-pix { background: #0e7490; color: #fff; margin-right: 5px; }
-        .hist-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        
+        .chart-container { position: relative; height: 200px; margin-bottom: 20px; }
         .hidden { display: none !important; }
-        .atraso-text { color: var(--danger); font-size: 0.7rem; font-weight: 800; }
     </style>
 </head>
 <body>
@@ -45,57 +45,56 @@
 <div class="container">
     <div class="top-nav">
         <select id="session-select" onchange="Engine.switchUser(this.value)"></select>
-        <button class="btn btn-ghost" onclick="UI.toggleAdm()">⚙️ ADM</button>
+        <button class="btn" style="width: auto; background: #1e293b; color: white;" onclick="UI.toggleAdm()">⚙️ ADM</button>
     </div>
 
     <div class="header-status">
         <small style="opacity:0.8; font-weight: 600;">SALDO EM CAIXA</small>
         <div class="val-total" id="ui-cofre">R$ 0,00</div>
-        <div id="user-role-badge" style="font-size: 0.8rem; font-weight: 600; opacity: 0.7;">Conectando...</div>
-    </div>
-
-    <div id="view-admin" class="card hidden">
-        <h4>🔑 Chave PIX</h4>
-        <input id="f-adm-pix" placeholder="Sua chave Pix">
-        <button class="btn btn-p" onclick="Engine.updateAdmPix()">SALVAR CHAVE</button>
-        
-        <h4 style="margin-top:25px">👥 Moradores</h4>
-        <div id="ui-manage-members"></div>
-        <input id="f-new-mem" placeholder="Nome do Novo Morador">
-        <button class="btn btn-p" onclick="Engine.addMember()" style="background:#334155">ADICIONAR</button>
-        
-        <h4 style="margin-top:25px">📝 Criar Novo Rateio</h4>
-        <input id="f-desc" placeholder="Ex: Compra Geladeira">
-        <div style="display: flex; gap: 10px;">
-            <input id="f-val" type="number" placeholder="Valor Total">
-            <input id="f-date" type="date">
-        </div>
-        <select id="f-vezes" style="width: 100%; margin-top: 10px;">
-            <option value="1">Pagamento Único (1x)</option>
-            <option value="2">Parcelado em 2x (Cartão)</option>
-            <option value="3">Parcelado em 3x (Cartão)</option>
-            <option value="4">Parcelado em 4x (Cartão)</option>
-            <option value="5">Parcelado em 5x (Cartão)</option>
-            <option value="6">Parcelado em 6x (Cartão)</option>
-            <option value="10">Parcelado em 10x (Cartão)</option>
-            <option value="12">Parcelado em 12x (Cartão)</option>
-        </select>
-        <div id="ui-member-check-list" style="margin-top:10px"></div>
-        <button class="btn btn-s" onclick="Engine.createMainBill()">PUBLICAR RATEIO</button>
-        
-        <h4 style="margin-top:25px">💰 Baixas (Pagar Contas)</h4>
-        <div id="ui-baixas-gerais"></div>
-
-        <button class="btn" style="background:transparent; border:1px solid #1e293b; color:#475569; font-size:0.7rem; margin-top:40px;" onclick="Engine.resetAll()">Zerar Sistema</button>
+        <div id="user-role-badge" style="font-size: 0.8rem; opacity: 0.7;">Carregando...</div>
     </div>
 
     <div class="card">
-        <h4>📋 Minhas Parcelas / Próximos Meses</h4>
+        <h4>📊 Resumo de Gastos (Geral)</h4>
+        <div class="chart-container">
+            <canvas id="chartCasa"></canvas>
+        </div>
+        <h4 style="margin-top:20px">👤 Gastos por Morador</h4>
+        <div class="chart-container">
+            <canvas id="chartPessoas"></canvas>
+        </div>
+    </div>
+
+    <div id="view-admin" class="card hidden">
+        <h4>📝 Novo Rateio / Parcelamento</h4>
+        <input id="f-desc" placeholder="Ex: Aluguel ou Compra Cartão">
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+            <input id="f-val" type="number" placeholder="Total">
+            <input id="f-date" type="date">
+        </div>
+        <select id="f-vezes" style="margin-top: 8px;">
+            <option value="1">Pagamento Único (1x)</option>
+            <option value="2">2x no Cartão</option>
+            <option value="3">3x no Cartão</option>
+            <option value="4">4x no Cartão</option>
+            <option value="6">6x no Cartão</option>
+            <option value="12">12x no Cartão</option>
+        </select>
+        <div id="ui-member-check-list" style="margin-top:10px"></div>
+        <button class="btn btn-s" onclick="Engine.createMainBill()">LANÇAR GASTO</button>
+        
+        <h4 style="margin-top:20px">💰 Baixas</h4>
+        <div id="ui-baixas-gerais"></div>
+        <button class="btn" style="font-size: 0.6rem; opacity: 0.5;" onclick="Engine.resetAll()">Zerar Sistema</button>
+    </div>
+
+    <div class="card">
+        <h4>📋 Minhas Contas</h4>
         <div id="ui-minhas-parcelas"></div>
     </div>
 
     <div class="card">
-        <h4>⌛ Histórico de Quitadas</h4>
+        <h4>⌛ Últimas Quitadas</h4>
         <div id="ui-historico-detalhado"></div>
     </div>
 </div>
@@ -103,13 +102,13 @@
 <script>
 const FIREBASE_URL = "https://grupo-ryan-default-rtdb.firebaseio.com/dados.json";
 let DB = { membros: [], contas: [], parcelas: [], cofreCentavos: 0, admPix: "" };
+let chartCasa, chartPessoas;
 
 const Utils = {
     toC: v => Math.round(parseFloat(v)*100),
     toR: c => (c/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}),
     genId: p => p+'_'+Math.random().toString(36).substr(2,9),
     hoje: () => new Date().toISOString().split('T')[0],
-    formatBr: (data) => data.split('-').reverse().join('/'),
     addMes: (dataStr, meses) => {
         let d = new Date(dataStr + 'T12:00:00');
         d.setMonth(d.getMonth() + meses);
@@ -129,6 +128,7 @@ const Engine = {
         }
         const savedId = localStorage.getItem("activeUserId");
         this.activeUser = DB.membros.find(m => m.id === savedId) || DB.membros[0];
+        this.initCharts();
         this.render();
         setInterval(() => this.load(), 5000);
     },
@@ -146,97 +146,75 @@ const Engine = {
         this.render();
     },
 
-    resetAll() {
-        if(confirm("Zerar tudo?")) {
-            DB = { membros: [{id:"u1", nome:"Thiago", role:"ADMIN"}], contas: [], parcelas: [], cofreCentavos: 0, admPix: "" };
-            this.save();
-        }
-    },
-
-    updateAdmPix() { DB.admPix = document.getElementById("f-adm-pix").value; this.save(); alert("Pix Salvo!"); },
-    
-    addMember() {
-        const n = document.getElementById("f-new-mem").value;
-        if(!n) return;
-        DB.membros.push({id: Utils.genId('u'), nome: n, role: "MEMBRO"});
-        document.getElementById("f-new-mem").value = "";
-        this.save();
-    },
-
-    removeMember(id) {
-        if (id === "u1") return alert("Admin fixo.");
-        if (confirm("Remover?")) { DB.membros = DB.membros.filter(m => m.id !== id); this.save(); }
-    },
-
     createMainBill() {
-        const d = document.getElementById("f-desc").value;
-        const vTotal = Utils.toC(document.getElementById("f-val").value);
-        const dtBase = document.getElementById("f-date").value;
-        const vezes = parseInt(document.getElementById("f-vezes").value);
-        const cbs = document.querySelectorAll(".m-cb:checked");
+        const d = document.getElementById("f-desc").value, vTotal = Utils.toC(document.getElementById("f-val").value), 
+              dtBase = document.getElementById("f-date").value, vezes = parseInt(document.getElementById("f-vezes").value),
+              cbs = document.querySelectorAll(".m-cb:checked");
 
-        if(!d || !vTotal || !dtBase || cbs.length === 0) return alert("Preencha todos os campos!");
-
-        DB.contas = DB.contas || [];
-        DB.parcelas = DB.parcelas || [];
+        if(!d || !vTotal || !dtBase || cbs.length === 0) return alert("Preencha tudo!");
 
         const valorPorMes = Math.round(vTotal / vezes);
-
         for(let i=0; i < vezes; i++) {
-            const cid = Utils.genId('c');
-            const dataVenc = Utils.addMes(dtBase, i);
-            const titulo = vezes > 1 ? `${d} (${i+1}/${vezes})` : d;
-            
-            DB.contas.push({id:cid, desc:titulo, total:valorPorMes, venc:dataVenc, status:"aberta"});
-            
+            const cid = Utils.genId('c'), dataVenc = Utils.addMes(dtBase, i);
+            DB.contas.push({id:cid, desc: vezes > 1 ? `${d} (${i+1}/${vezes})` : d, total:valorPorMes, venc:dataVenc, status:"aberta"});
             cbs.forEach(cb => {
-                DB.parcelas.push({
-                    id: Utils.genId('p'),
-                    contaId: cid,
-                    membroId: cb.dataset.id,
-                    membroNome: cb.value,
-                    valorBase: Math.round(valorPorMes / cbs.length),
-                    pago: false
-                });
+                DB.parcelas.push({id: Utils.genId('p'), contaId: cid, membroId: cb.dataset.id, membroNome: cb.value, valorBase: Math.round(valorPorMes / cbs.length), pago: false});
             });
         }
-
-        document.getElementById("f-desc").value = "";
-        document.getElementById("f-val").value = "";
         this.save();
-        alert(vezes > 1 ? "Compra parcelada lançada nos próximos meses!" : "Rateio publicado!");
+        alert("Gasto lançado!");
     },
 
     payParcela(id) {
         const p = DB.parcelas.find(x => x.id === id);
         if (p.pago) return;
         const c = DB.contas.find(x => x.id === p.contaId);
-        const multa = Utils.hoje() > c.venc ? 500 : 0;
-        p.pago = true; p.valorPagoFinal = p.valorBase + multa;
+        p.pago = true; p.valorPagoFinal = p.valorBase + (Utils.hoje() > c.venc ? 500 : 0);
         DB.cofreCentavos += p.valorPagoFinal;
         this.save();
     },
 
-    copyPix(valor) {
-        if(!DB.admPix) return alert("Cadastre o Pix no ADM!");
-        navigator.clipboard.writeText(DB.admPix);
-        alert("Pix Copiado!");
-    },
-
     darBaixa(id) {
         const c = DB.contas.find(x => x.id === id);
-        if(DB.cofreCentavos < c.total) return alert("Saldo insuficiente!");
+        if(DB.cofreCentavos < c.total) return alert("Cofre sem saldo!");
         c.status = "quitada"; c.dataFechamento = Utils.hoje();
         DB.cofreCentavos -= c.total;
         this.save();
     },
 
+    initCharts() {
+        const ctx1 = document.getElementById('chartCasa').getContext('2d');
+        const ctx2 = document.getElementById('chartPessoas').getContext('2d');
+        const cfg = (label) => ({ type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: ['#4f46e5', '#10b981', '#f43f5e', '#fbbf24', '#8b5cf6', '#06b6d4'] }] }, options: { maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#fff', font: { size: 10 } } } } } });
+        chartCasa = new Chart(ctx1, cfg());
+        chartPessoas = new Chart(ctx2, cfg());
+    },
+
+    updateCharts() {
+        // Dados Casa (Contas Abertas)
+        const categorias = {};
+        (DB.contas || []).filter(c => c.status === "aberta").forEach(c => {
+            const nomeSimples = c.desc.split('(')[0].trim();
+            categorias[nomeSimples] = (categorias[nomeSimples] || 0) + (c.total / 100);
+        });
+        chartCasa.data.labels = Object.keys(categorias);
+        chartCasa.data.datasets[0].data = Object.values(categorias);
+        chartCasa.update();
+
+        // Dados Pessoas (Parcelas Pendentes)
+        const pessoas = {};
+        (DB.parcelas || []).filter(p => !p.pago).forEach(p => {
+            pessoas[p.membroNome] = (pessoas[p.membroNome] || 0) + (p.valorBase / 100);
+        });
+        chartPessoas.data.labels = Object.keys(pessoas);
+        chartPessoas.data.datasets[0].data = Object.values(pessoas);
+        chartPessoas.update();
+    },
+
     switchUser(id) {
         const t = DB.membros.find(m => m.id === id);
-        if (t?.role === "ADMIN" && prompt("Senha:") !== this.ADMIN_PASS) return this.render();
-        this.activeUser = t;
-        localStorage.setItem("activeUserId", t.id);
-        this.render();
+        if (t?.role === "ADMIN" && prompt("Senha:") !== this.ADMIN_PASS) return;
+        this.activeUser = t; localStorage.setItem("activeUserId", t.id); this.render();
     },
 
     render() {
@@ -244,48 +222,24 @@ const Engine = {
         document.getElementById("ui-cofre").innerText = Utils.toR(DB.cofreCentavos);
         document.getElementById("user-role-badge").innerText = `${this.activeUser.nome} • ${this.activeUser.role}`;
         document.getElementById("session-select").innerHTML = DB.membros.map(m => `<option value="${m.id}" ${m.id === this.activeUser.id ? "selected" : ""}>👤 ${m.nome}</option>`).join("");
-        document.getElementById("f-adm-pix").value = DB.admPix || "";
+        
+        document.getElementById("ui-member-check-list").innerHTML = DB.membros.map(m => `<label style="display:block; margin: 5px 0;"><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>`).join("");
 
-        document.getElementById("ui-manage-members").innerHTML = DB.membros.map(m => `<div class="item-row"><span>${m.nome}</span><button style="border:none; color:red; background:none; cursor:pointer;" onclick="Engine.removeMember('${m.id}')">✖</button></div>`).join("");
-        document.getElementById("ui-member-check-list").innerHTML = DB.membros.map(m => `<label class="item-row" style="cursor:pointer"><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>`).join("");
-
-        // LISTA DE BAIXAS (ADM)
-        const abertas = (DB.contas || []).filter(c => c.status === "aberta").sort((a,b) => a.venc > b.venc ? 1 : -1);
-        document.getElementById("ui-baixas-gerais").innerHTML = abertas.map(c => `
-            <div class="parcela-item">
-                <div><b>${c.desc}</b><br><small>${Utils.formatBr(c.venc)}</small></div>
-                <button class="tag tag-pago" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button>
-            </div>
+        document.getElementById("ui-baixas-gerais").innerHTML = (DB.contas || []).filter(c => c.status === "aberta").slice(0,5).map(c => `
+            <div class="parcela-item"><span>${c.desc}</span><button class="tag tag-pago" onclick="Engine.darBaixa('${c.id}')">PAGAR</button></div>
         `).join("");
 
-        // HISTÓRICO
-        const quitadas = (DB.contas || []).filter(c => c.status === "quitada").sort((a,b) => b.dataFechamento > a.dataFechamento ? 1 : -1);
-        document.getElementById("ui-historico-detalhado").innerHTML = quitadas.map(c => `
-            <div class="hist-item">
-                <div><div style="font-weight:600">✅ ${c.desc}</div><small>${Utils.formatBr(c.venc)}</small></div>
-                <div style="text-align:right"><div style="color:var(--success); font-weight:700">${Utils.toR(c.total)}</div></div>
-            </div>
-        `).join("");
-
-        // MINHAS PARCELAS (INCLUI FUTURAS)
         const vis = this.activeUser.role === "ADMIN" ? (DB.parcelas || []) : (DB.parcelas || []).filter(p => p.membroId === this.activeUser.id);
-        document.getElementById("ui-minhas-parcelas").innerHTML = vis.map(p => {
-            const c = (DB.contas || []).find(x => x.id === p.contaId);
+        document.getElementById("ui-minhas-parcelas").innerHTML = vis.filter(p => !p.pago).map(p => {
+            const c = DB.contas.find(x => x.id === p.contaId);
             if(!c || c.status === "quitada") return "";
-            const atraso = !p.pago && Utils.hoje() > c.venc;
-            const val = p.pago ? p.valorPagoFinal : (atraso ? p.valorBase + 500 : p.valorBase);
             return `<div class="parcela-item">
-                <div>
-                    <div style="font-weight:600">${c.desc}</div>
-                    <div style="font-size:0.75rem; color:var(--sub)">${p.membroNome} • Venc: ${Utils.formatBr(c.venc)} ${atraso?'<span class="atraso-text">(+ R$ 5,00)</span>':''}</div>
-                </div>
-                <div style="text-align:right">
-                    <div style="font-weight:800; margin-bottom:5px">${Utils.toR(val)}</div>
-                    ${!p.pago ? `<button class="tag tag-pix" onclick="Engine.copyPix(${val})">PIX</button>` : ''}
-                    <button class="tag ${p.pago?'tag-pago':'tag-pendente'}" onclick="Engine.payParcela('${p.id}')">${p.pago?'OK':'PAGO'}</button>
-                </div>
+                <div><b>${c.desc}</b><br><small>${Utils.toR(p.valorBase)} - ${c.venc}</small></div>
+                <button class="tag tag-pendente" onclick="Engine.payParcela('${p.id}')">OK</button>
             </div>`;
         }).join("");
+
+        this.updateCharts();
     }
 };
 
