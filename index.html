@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rateio Grupo Ryan v6.8</title>
+    <title>Rateio Grupo Ryan v6.9</title>
     <style>
         :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --dark: #0f172a; --slate: #64748b; --bg: #0f172a; --card: #1e293b; --warning: #f59e0b; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; color: #fff; }
@@ -18,6 +18,7 @@
         .btn-s { background: var(--success); color: #fff; }
         .btn-ghost { background: transparent; color: var(--slate); border: 1px solid #334155; margin-top: 0; }
         .member-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #161e2e; border-radius: 12px; margin-bottom: 8px; }
+        .btn-del { background: #7f1d1d; color: #fff; border: none; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 0.8rem; }
         .tag { padding: 6px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; cursor: pointer; border: none; }
         .tag-pago { background: #064e3b; color: #10b981; }
         .tag-pendente { background: #7f1d1d; color: #f87171; }
@@ -41,10 +42,13 @@
     </div>
 
     <div id="view-admin" class="card hidden">
-        <h4>👥 Moradores</h4>
+        <h4>👥 Gerenciar Moradores</h4>
         <div id="ui-manage-members"></div>
-        <input id="f-new-mem" placeholder="Nome do Morador">
-        <button class="btn btn-p" onclick="Engine.addMember()">CADASTRAR MORADOR</button>
+        
+        <div style="margin-top:10px; border-top: 1px solid #334155; pt-10px">
+            <input id="f-new-mem" placeholder="Nome do Novo Morador">
+            <button class="btn btn-p" onclick="Engine.addMember()">CADASTRAR</button>
+        </div>
 
         <h4 style="margin-top:25px">📝 Novo Rateio</h4>
         <input id="f-desc" placeholder="Ex: Internet">
@@ -53,12 +57,10 @@
             <input id="f-date" type="date">
         </div>
         <div id="ui-member-check-list" style="margin-top:10px"></div>
-        <button class="btn btn-s" onclick="Engine.createMainBill()">GERAR RATEIO AGORA</button>
+        <button class="btn btn-s" onclick="Engine.createMainBill()">GERAR RATEIO</button>
 
         <h4 style="margin-top:25px">💰 Baixas</h4>
         <table id="ui-baixas-gerais"></table>
-        
-        <button class="btn" style="background: #334155; font-size: 0.7rem; margin-top: 40px;" onclick="Engine.resetAll()">Zerar Sistema (Cuidado)</button>
     </div>
 
     <div class="card">
@@ -119,22 +121,27 @@ const Engine = {
         this.save();
     },
 
+    removeMember(id) {
+        if (id === "u1") return alert("O administrador principal não pode ser removido!");
+        if (confirm("Deseja remover este morador da lista?")) {
+            DB.membros = DB.membros.filter(m => m.id !== id);
+            this.save();
+        }
+    },
+
     createMainBill() {
         const d = document.getElementById("f-desc").value;
         const v = Utils.toC(document.getElementById("f-val").value);
         const dt = document.getElementById("f-date").value;
         const cbs = document.querySelectorAll(".m-cb:checked");
 
-        if(!d || !v || !dt || cbs.length === 0) {
-            return alert("Preencha Descrição, Valor, Data e selecione os moradores!");
-        }
+        if(!d || !v || !dt || cbs.length === 0) return alert("Preencha tudo!");
 
         const cid = Utils.genId('c');
         DB.contas = DB.contas || [];
         DB.parcelas = DB.parcelas || [];
         
         DB.contas.push({id:cid, desc:d, total:v, venc:dt, status:"aberta"});
-        
         cbs.forEach(cb => {
             DB.parcelas.push({
                 id: Utils.genId('p'),
@@ -146,17 +153,10 @@ const Engine = {
             });
         });
 
-        alert("Rateio gerado com sucesso!");
+        alert("Rateio gerado!");
         document.getElementById("f-desc").value = "";
         document.getElementById("f-val").value = "";
         this.save();
-    },
-
-    resetAll() {
-        if(confirm("Isso vai apagar TUDO. Tem certeza?")) {
-            DB = { membros: [{id:"u1", nome:"Thiago", role:"ADMIN"}], contas: [], parcelas: [], cofreCentavos: 0 };
-            this.save();
-        }
     },
 
     payParcela(id) {
@@ -169,7 +169,7 @@ const Engine = {
 
     darBaixa(id) {
         const c = DB.contas.find(x => x.id === id);
-        if(DB.cofreCentavos < c.total) return alert("Saldo insuficiente no cofre!");
+        if(DB.cofreCentavos < c.total) return alert("Saldo insuficiente!");
         c.status = "quitada"; DB.cofreCentavos -= c.total;
         this.save();
     },
@@ -179,8 +179,7 @@ const Engine = {
         if (t?.role === "ADMIN" && prompt("Senha ADM:") !== this.ADMIN_PASS) return this.render();
         this.activeUser = t;
         localStorage.setItem("activeUserId", t.id);
-        if(t.role === "ADMIN") document.getElementById("view-admin").classList.remove("hidden");
-        else document.getElementById("view-admin").classList.add("hidden");
+        document.getElementById("view-admin").classList.toggle("hidden", t.role !== "ADMIN");
         this.render();
     },
 
@@ -190,7 +189,13 @@ const Engine = {
         document.getElementById("user-role-badge").innerText = `${this.activeUser.nome} • ${this.activeUser.role}`;
         document.getElementById("session-select").innerHTML = DB.membros.map(m => `<option value="${m.id}" ${m.id === this.activeUser.id ? "selected" : ""}>👤 ${m.nome}</option>`).join("");
         
-        document.getElementById("ui-manage-members").innerHTML = DB.membros.map(m => `<div class="member-row"><span>${m.nome}</span></div>`).join("");
+        // LISTA COM BOTÃO DE APAGAR INDIVIDUAL
+        document.getElementById("ui-manage-members").innerHTML = DB.membros.map(m => `
+            <div class="member-row">
+                <span>${m.nome}</span>
+                <button class="btn-del" onclick="Engine.removeMember('${m.id}')">✖</button>
+            </div>
+        `).join("");
         
         document.getElementById("ui-member-check-list").innerHTML = DB.membros.map(m => `
             <label class="member-row"><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>
