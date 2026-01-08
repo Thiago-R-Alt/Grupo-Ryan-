@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rateio Pro v4.5 - Grupo Ryan</title>
+    <title>Rateio Grupo Ryan v5.0</title>
     <style>
         :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --dark: #0f172a; --slate: #64748b; --bg: #0f172a; --card: #1e293b; --warning: #f59e0b; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; color: #fff; }
@@ -45,16 +45,14 @@
     </div>
 
     <div id="view-admin" class="card hidden">
-        <h4>📝 Novo Rateio Profissional</h4>
-        <input id="f-desc" placeholder="Conta (ex: Aluguel, Wi-fi)">
+        <h4>📝 Novo Rateio</h4>
+        <input id="f-desc" placeholder="Conta (ex: Aluguel)">
         <div style="display: flex; gap: 10px;">
             <input id="f-val" type="number" placeholder="Valor Total">
             <input id="f-date" type="date">
         </div>
-
         <p style="font-size: 0.75rem; margin: 15px 0 5px; color: var(--slate);">DIVISÃO (%):</p>
         <div id="ui-member-check-list"></div>
-        
         <button class="btn btn-s" onclick="Engine.createMainBill()">GERAR RATEIO</button>
 
         <h4 style="margin-top:25px">👥 Moradores</h4>
@@ -64,12 +62,11 @@
             <button class="btn btn-p" style="width: 50px; margin:0; padding:0" onclick="Engine.addMember()">+</button>
         </div>
 
-        <h4 style="margin-top:25px">💰 Baixas (Pagar Contas)</h4>
+        <h4 style="margin-top:25px">💰 Baixas</h4>
         <table id="ui-baixas-gerais"></table>
 
-        <h4 style="margin-top:25px">🛠️ Ferramentas</h4>
         <button class="btn btn-warning" onclick="Engine.exportReport()">📋 RELATÓRIO WHATSAPP</button>
-        <button class="btn btn-danger" onclick="Engine.resetAll()">⚠️ RESETAR TUDO (NUVEM)</button>
+        <button class="btn btn-danger" onclick="Engine.resetAll()">⚠️ RESETAR NUVEM</button>
     </div>
 
     <div class="card">
@@ -105,6 +102,7 @@ const Engine = {
 
     async init() {
         await this.load();
+        // Define o primeiro membro como padrão ao iniciar
         this.activeUser = DB.membros[0];
         this.render();
         setInterval(() => this.load(), 5000);
@@ -114,7 +112,14 @@ const Engine = {
         try {
             const res = await fetch(FIREBASE_URL);
             const data = await res.json();
-            if (data) { DB = data; this.render(); }
+            if (data) { 
+                DB = data; 
+                // Se o usuário ativo for removido por outro, volta ao primeiro
+                if(!DB.membros.find(m => m.id === this.activeUser?.id)) {
+                    this.activeUser = DB.membros[0];
+                }
+                this.render(); 
+            }
         } catch (e) { console.error("Erro de conexão"); }
     },
 
@@ -126,12 +131,17 @@ const Engine = {
     },
 
     switchUser(id) {
-        const t = DB.membros.find(m => m.id === id);
-        if (t && t.role === "ADMIN") {
-            const p = prompt("Senha Administrador:");
-            if (p !== this.ADMIN_PASS) { alert("Acesso Negado!"); this.render(); return; }
+        const target = DB.membros.find(m => m.id === id);
+        if (target && target.role === "ADMIN") {
+            const p = prompt("Senha de Administrador:");
+            if (p !== this.ADMIN_PASS) {
+                alert("Acesso Negado!");
+                this.render(); // Reseta o seletor visualmente
+                return;
+            }
         }
-        this.activeUser = t; this.render();
+        this.activeUser = target;
+        this.render();
     },
 
     addMember() {
@@ -157,14 +167,16 @@ const Engine = {
         const resto = 100 - (base * cbs.length);
         cbs.forEach((cb, i) => {
             const ip = document.getElementById("perc-" + cb.dataset.id);
-            ip.disabled = false;
-            ip.value = (i === 0) ? base + resto : base;
+            if(ip) {
+                ip.disabled = false;
+                ip.value = (i === 0) ? base + resto : base;
+            }
         });
     },
 
     createMainBill() {
         const d = document.getElementById("f-desc").value, v = Utils.toC(document.getElementById("f-val").value), dt = document.getElementById("f-date").value, cbs = document.querySelectorAll(".m-cb:checked");
-        if(!d || v<=0 || !dt || !cbs.length) return alert("Preencha todos os campos!");
+        if(!d || v<=0 || !dt || !cbs.length) return alert("Preencha tudo!");
         const cid = Utils.genId('c');
         DB.contas.push({id:cid, desc:d, total:v, venc:dt, status:"aberta"});
         cbs.forEach(cb => {
@@ -187,10 +199,10 @@ const Engine = {
 
     darBaixa(id) {
         const c = DB.contas.find(x => x.id === id);
-        if(DB.cofreCentavos < c.total) return alert("Saldo insuficiente no cofre!");
-        if(confirm(`Confirmar pagamento da conta: ${c.desc}?`)){
+        if(DB.cofreCentavos < c.total) return alert("Saldo insuficiente!");
+        if(confirm(`Baixar conta: ${c.desc}?`)){
             c.status = "quitada"; DB.cofreCentavos -= c.total;
-            this.log(`🏦 Baixa efetuada: ${c.desc}`, 'out');
+            this.log(`🏦 Baixa: ${c.desc}`, 'out');
             this.save();
         }
     },
@@ -204,12 +216,12 @@ const Engine = {
             });
             txt += `\n`;
         });
-        navigator.clipboard.writeText(txt).then(() => alert("Relatório copiado para o WhatsApp!"));
+        navigator.clipboard.writeText(txt).then(() => alert("Copiado!"));
     },
 
     log(m, t) { DB.logs.unshift({m, t, d: new Date().toLocaleTimeString()}); if(DB.logs.length > 8) DB.logs.pop(); },
 
-    resetAll() { if(confirm("CUIDADO! Apagar todos os dados da nuvem?")) { DB.contas = []; DB.parcelas = []; DB.cofreCentavos = 0; DB.logs = []; this.save(); }},
+    resetAll() { if(confirm("Apagar tudo da nuvem?")) { DB.contas = []; DB.parcelas = []; DB.cofreCentavos = 0; DB.logs = []; this.save(); }},
 
     render() {
         if(!this.activeUser) return;
@@ -218,7 +230,10 @@ const Engine = {
         document.getElementById("ui-cofre").innerText = Utils.toR(DB.cofreCentavos);
         document.getElementById("user-role-badge").innerText = `${this.activeUser.nome} • ${this.activeUser.role}`;
         
-        document.getElementById("session-select").innerHTML = DB.membros.map(m => `<option value="${m.id}" ${m.id === this.activeUser.id ? "selected" : ""}>👤 ${m.nome}</option>`).join("");
+        // Renderiza o seletor SEMPRE
+        document.getElementById("session-select").innerHTML = DB.membros.map(m => 
+            `<option value="${m.id}" ${m.id === this.activeUser.id ? "selected" : ""}>👤 ${m.nome}</option>`
+        ).join("");
         
         document.getElementById("ui-member-check-list").innerHTML = DB.membros.map(m => `
             <div class="member-row">
@@ -234,7 +249,7 @@ const Engine = {
 
         document.getElementById("ui-baixas-gerais").innerHTML = DB.contas.filter(c => c.status === "aberta").map(c => `
             <tr>
-                <td><b>${c.desc}</b><br><small style="color:var(--slate)">Alvo: ${Utils.toR(c.total)}</small></td>
+                <td><b>${c.desc}</b><br><small>Alvo: ${Utils.toR(c.total)}</small></td>
                 <td style="text-align:right"><button class="tag tag-pago" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button></td>
             </tr>
         `).join("");
@@ -254,22 +269,21 @@ const Engine = {
         document.getElementById("ui-logs").innerHTML = DB.logs.map(l => `<div class="log-item"><b>${l.m}</b> <span style="float:right; opacity:0.5">${l.d}</span></div>`).join("");
     }
 };
+
 const UI = { 
     toggleAdm: () => {
-        const el = document.getElementById("view-admin");
-        
-        // Verifica se o usuário atual tem permissão de ADMIN
         if (Engine.activeUser.role !== "ADMIN") {
-            const p = prompt("Acesso restrito. Digite a senha de Administrador:");
+            const p = prompt("Acesso ADM - Digite a senha:");
             if (p !== Engine.ADMIN_PASS) {
-                alert("Senha incorreta! Apenas administradores podem acessar esta área.");
+                alert("Senha incorreta!");
                 return;
             }
         }
-        
-        // Se for admin ou digitou a senha certa, abre o painel
-        el.classList.toggle("hidden");
+        document.getElementById("view-admin").classList.toggle("hidden");
     } 
 };
 
-
+Engine.init();
+</script>
+</body>
+</html>
