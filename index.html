@@ -3,49 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rateio Grupo Ryan v7.0</title>
+    <title>Financeiro Grupo Ryan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --dark: #0f172a; --slate: #64748b; --bg: #0f172a; --card: #1e293b; --warning: #f59e0b; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; color: #fff; }
-        .container { max-width: 500px; margin: 0 auto; padding: 15px; }
-        .header-status { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #fff; padding: 30px 20px; border-radius: 24px; text-align: center; margin-bottom: 20px; box-shadow: 0 10px 15px rgba(0,0,0,0.3); }
-        .val-total { font-size: 2.5rem; font-weight: 800; color: var(--success); margin: 5px 0; }
-        .card { background: var(--card); padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #334155; }
-        h4 { margin: 0 0 15px 0; font-size: 0.9rem; border-bottom: 1px solid #334155; padding-bottom: 8px; color: var(--slate); text-transform: uppercase; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #334155; border-radius: 12px; background: #0f172a; color: #fff; margin-top: 6px; box-sizing: border-box; }
-        .btn { cursor: pointer; border: none; border-radius: 12px; padding: 14px; font-weight: 700; width: 100%; display: block; font-size: 1rem; margin-top: 10px; text-align: center; }
-        .btn-p { background: var(--primary); color: #fff; }
-        .btn-s { background: var(--success); color: #fff; }
-        .btn-ghost { background: transparent; color: var(--slate); border: 1px solid #334155; margin-top: 0; }
-        .member-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #161e2e; border-radius: 12px; margin-bottom: 8px; }
-        .btn-del { background: #7f1d1d; color: #fff; border: none; border-radius: 8px; padding: 5px 10px; cursor: pointer; }
-        .tag { padding: 6px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; cursor: pointer; border: none; margin-left: 5px; }
+        :root { 
+            --primary: #4f46e5; --success: #10b981; --danger: #f43f5e; 
+            --bg: #090e1a; --card: #151c2c; --text: #f8fafc; --sub: #94a3b8;
+            --accent: #6366f1;
+        }
+        
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg); color: var(--text); margin: 0; padding-bottom: 60px; }
+        
+        .container { max-width: 480px; margin: 0 auto; padding: 20px; }
+        
+        /* Header & Saldo */
+        .header-status { 
+            background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%); 
+            padding: 35px 25px; border-radius: 30px; text-align: left; 
+            margin-bottom: 25px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+            position: relative; overflow: hidden;
+        }
+        .val-total { font-size: 2.2rem; font-weight: 800; margin: 8px 0; letter-spacing: -1px; }
+        .label-cofre { font-size: 0.75rem; font-weight: 600; opacity: 0.8; text-transform: uppercase; }
+        
+        /* Top Menu */
+        .top-nav { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; }
+        select { 
+            flex: 1; background: var(--card); border: 1px solid #2d3748; color: white;
+            padding: 12px; border-radius: 16px; font-weight: 600; outline: none;
+        }
+        
+        /* Cards */
+        .card { 
+            background: var(--card); border-radius: 24px; padding: 20px; 
+            margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05);
+        }
+        h4 { margin: 0 0 18px 0; font-size: 0.85rem; color: var(--sub); text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* Inputs & Buttons */
+        input { 
+            width: 100%; padding: 14px; background: #0f172a; border: 1px solid #1e293b;
+            border-radius: 14px; color: white; margin-top: 8px; font-size: 0.95rem;
+        }
+        .btn { cursor: pointer; border: none; border-radius: 14px; padding: 15px; font-weight: 700; width: 100%; transition: 0.3s; margin-top: 12px; }
+        .btn-p { background: var(--primary); color: white; }
+        .btn-s { background: var(--success); color: white; }
+        .btn-ghost { background: rgba(255,255,255,0.05); color: white; border: 1px solid #1e293b; width: auto; }
+
+        /* Rows */
+        .item-row { display: flex; align-items: center; justify-content: space-between; padding: 14px; background: rgba(255,255,255,0.03); border-radius: 18px; margin-bottom: 10px; }
+        .btn-del { background: rgba(244, 63, 94, 0.1); color: var(--danger); border: none; border-radius: 10px; padding: 8px 12px; cursor: pointer; font-weight: 800; }
+        
+        .parcela-item { border-bottom: 1px solid #1e293b; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
+        .tag { padding: 8px 14px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; cursor: pointer; border: none; text-transform: uppercase; }
         .tag-pago { background: #064e3b; color: #10b981; }
-        .tag-pendente { background: #7f1d1d; color: #f87171; }
-        .tag-pix { background: #32bcad; color: #fff; }
+        .tag-pendente { background: #450a0a; color: #f87171; }
+        .tag-pix { background: #0e7490; color: #fff; margin-right: 5px; }
+        
         .hidden { display: none !important; }
-        table { width: 100%; border-collapse: collapse; }
-        td { padding: 12px 5px; border-bottom: 1px solid #334155; font-size: 0.9rem; }
+        .atraso-text { color: var(--danger); font-size: 0.7rem; font-weight: 800; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div style="display:flex; gap:10px; margin-bottom:15px">
+    <div class="top-nav">
         <select id="session-select" onchange="Engine.switchUser(this.value)"></select>
-        <button class="btn btn-ghost" style="width:auto; padding: 8px 15px;" onclick="UI.toggleAdm()">⚙️ ADM</button>
+        <button class="btn btn-ghost" onclick="UI.toggleAdm()">⚙️ ADM</button>
     </div>
 
     <div class="header-status">
-        <small>SALDO NO COFRE</small>
+        <div class="label-cofre">Saldo no Cofre</div>
         <div class="val-total" id="ui-cofre">R$ 0,00</div>
-        <div id="user-role-badge" style="font-size: 0.8rem; color: var(--slate);">Sincronizando...</div>
+        <div id="user-role-badge" style="font-size: 0.8rem; font-weight: 600; opacity: 0.7;">Sincronizando...</div>
     </div>
 
     <div id="view-admin" class="card hidden">
         <h4>🔑 Minha Chave PIX</h4>
-        <input id="f-adm-pix" placeholder="Sua chave Pix para receber">
-        <button class="btn btn-p" onclick="Engine.updateAdmPix()">SALVAR MINHA CHAVE</button>
+        <input id="f-adm-pix" placeholder="Sua chave Pix">
+        <button class="btn btn-p" onclick="Engine.updateAdmPix()">SALVAR CHAVE</button>
 
         <h4 style="margin-top:25px">👥 Moradores</h4>
         <div id="ui-manage-members"></div>
@@ -61,13 +98,13 @@
         <div id="ui-member-check-list" style="margin-top:10px"></div>
         <button class="btn btn-s" onclick="Engine.createMainBill()">GERAR RATEIO</button>
 
-        <h4 style="margin-top:25px">💰 Contas para Baixa</h4>
-        <table id="ui-baixas-gerais"></table>
+        <h4 style="margin-top:25px">💰 Baixas</h4>
+        <div id="ui-baixas-gerais"></div>
     </div>
 
     <div class="card">
-        <h4>📋 Minhas Parcelas</h4>
-        <table id="ui-minhas-parcelas"></table>
+        <h4>📋 Extrato de Parcelas</h4>
+        <div id="ui-minhas-parcelas"></div>
     </div>
 </div>
 
@@ -106,7 +143,7 @@ const Engine = {
             const res = await fetch(FIREBASE_URL);
             const data = await res.json();
             if (data) { DB = data; this.render(); }
-        } catch (e) { console.error("Erro banco"); }
+        } catch (e) { }
     },
 
     async save() {
@@ -117,7 +154,7 @@ const Engine = {
     updateAdmPix() {
         DB.admPix = document.getElementById("f-adm-pix").value;
         this.save();
-        alert("Chave Pix salva!");
+        alert("Chave Pix Atualizada!");
     },
 
     addMember() {
@@ -129,8 +166,8 @@ const Engine = {
     },
 
     removeMember(id) {
-        if (id === "u1") return alert("O admin não pode ser removido!");
-        if (confirm("Remover morador?")) {
+        if (id === "u1") return alert("O administrador não pode ser removido!");
+        if (confirm("Remover este morador?")) {
             DB.membros = DB.membros.filter(m => m.id !== id);
             this.save();
         }
@@ -141,7 +178,6 @@ const Engine = {
         const v = Utils.toC(document.getElementById("f-val").value);
         const dt = document.getElementById("f-date").value;
         const cbs = document.querySelectorAll(".m-cb:checked");
-
         if(!d || !v || !dt || cbs.length === 0) return alert("Preencha tudo!");
 
         const cid = Utils.genId('c');
@@ -159,10 +195,7 @@ const Engine = {
                 pago: false
             });
         });
-
-        alert("Rateio gerado!");
-        document.getElementById("f-desc").value = "";
-        document.getElementById("f-val").value = "";
+        alert("Rateio Gerado!");
         this.save();
     },
 
@@ -177,14 +210,14 @@ const Engine = {
     },
 
     copyPix(valor) {
-        if(!DB.admPix) return alert("Cadastre sua chave Pix no ADM primeiro!");
+        if(!DB.admPix) return alert("Cadastre a chave Pix no ADM!");
         navigator.clipboard.writeText(DB.admPix);
-        alert("Chave Pix copiada!\nValor: " + Utils.toR(valor));
+        alert("Pix Copiado! Valor: " + Utils.toR(valor));
     },
 
     darBaixa(id) {
         const c = DB.contas.find(x => x.id === id);
-        if(DB.cofreCentavos < c.total) return alert("Cofre sem saldo para pagar o total!");
+        if(DB.cofreCentavos < c.total) return alert("Saldo insuficiente!");
         c.status = "quitada"; DB.cofreCentavos -= c.total;
         this.save();
     },
@@ -199,41 +232,43 @@ const Engine = {
 
     render() {
         if(!this.activeUser) return;
-        const isAdm = this.activeUser.role === "ADMIN";
         document.getElementById("ui-cofre").innerText = Utils.toR(DB.cofreCentavos);
         document.getElementById("user-role-badge").innerText = `${this.activeUser.nome} • ${this.activeUser.role}`;
         document.getElementById("session-select").innerHTML = DB.membros.map(m => `<option value="${m.id}" ${m.id === this.activeUser.id ? "selected" : ""}>👤 ${m.nome}</option>`).join("");
         document.getElementById("f-adm-pix").value = DB.admPix || "";
 
         document.getElementById("ui-manage-members").innerHTML = DB.membros.map(m => `
-            <div class="member-row">
-                <span>${m.nome}</span>
-                <button class="btn-del" onclick="Engine.removeMember('${m.id}')">✖</button>
-            </div>
+            <div class="item-row"><span>${m.nome}</span><button class="btn-del" onclick="Engine.removeMember('${m.id}')">✖</button></div>
         `).join("");
         
         document.getElementById("ui-member-check-list").innerHTML = DB.membros.map(m => `
-            <label class="member-row"><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>
+            <label class="item-row" style="cursor:pointer"><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>
         `).join("");
 
         document.getElementById("ui-baixas-gerais").innerHTML = (DB.contas || []).filter(c => c.status === "aberta").map(c => `
-            <tr><td><b>${c.desc}</b><br><small>Total: ${Utils.toR(c.total)}</small></td><td style="text-align:right"><button class="tag tag-pago" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button></td></tr>
+            <div class="parcela-item">
+                <div><b>${c.desc}</b><br><small>Total: ${Utils.toR(c.total)}</small></div>
+                <button class="tag tag-pago" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button>
+            </div>
         `).join("");
 
-        const vis = isAdm ? (DB.parcelas || []) : (DB.parcelas || []).filter(p => p.membroId === this.activeUser.id);
+        const vis = this.activeUser.role === "ADMIN" ? (DB.parcelas || []) : (DB.parcelas || []).filter(p => p.membroId === this.activeUser.id);
         document.getElementById("ui-minhas-parcelas").innerHTML = vis.map(p => {
             const c = (DB.contas || []).find(x => x.id === p.contaId);
             if(!c || c.status === "quitada") return "";
             const atraso = !p.pago && Utils.hoje() > c.venc;
-            const valorCalculado = p.pago ? p.valorPagoFinal : (atraso ? p.valorBase + 500 : p.valorBase);
-            return `<tr>
-                <td><b>${c.desc}</b><br><small>${p.membroNome} ${atraso?'(ATRASADO)':''}</small></td>
-                <td style="text-align:right"><b>${Utils.toR(valorCalculado)}</b></td>
-                <td style="text-align:right">
-                    ${!p.pago ? `<button class="tag tag-pix" onclick="Engine.copyPix(${valorCalculado})">PIX</button>` : ''}
+            const val = p.pago ? p.valorPagoFinal : (atraso ? p.valorBase + 500 : p.valorBase);
+            return `<div class="parcela-item">
+                <div>
+                    <div style="font-weight:600">${c.desc}</div>
+                    <div style="font-size:0.75rem; color:var(--sub)">${p.membroNome} ${atraso?'<span class="atraso-text">(+ R$ 5,00)</span>':''}</div>
+                </div>
+                <div style="text-align:right">
+                    <div style="font-weight:800; margin-bottom:5px">${Utils.toR(val)}</div>
+                    ${!p.pago ? `<button class="tag tag-pix" onclick="Engine.copyPix(${val})">PIX</button>` : ''}
                     <button class="tag ${p.pago?'tag-pago':'tag-pendente'}" onclick="Engine.payParcela('${p.id}')">${p.pago?'OK':'PAGO'}</button>
-                </td>
-            </tr>`;
+                </div>
+            </div>`;
         }).join("");
     }
 };
