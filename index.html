@@ -254,9 +254,22 @@ const Engine = {
         document.getElementById("ui-logs").innerHTML = DB.logs.map(l => `<div class="log-item"><b>${l.m}</b> <span style="float:right; opacity:0.5">${l.d}</span></div>`).join("");
     }
 };
+const UI = { 
+    toggleAdm: () => {
+        const el = document.getElementById("view-admin");
+        
+        // Verifica se o usuário atual tem permissão de ADMIN
+        if (Engine.activeUser.role !== "ADMIN") {
+            const p = prompt("Acesso restrito. Digite a senha de Administrador:");
+            if (p !== Engine.ADMIN_PASS) {
+                alert("Senha incorreta! Apenas administradores podem acessar esta área.");
+                return;
+            }
+        }
+        
+        // Se for admin ou digitou a senha certa, abre o painel
+        el.classList.toggle("hidden");
+    } 
+};
 
-const UI = { toggleAdm: () => document.getElementById("view-admin").classList.toggle("hidden") };
-Engine.init();
-</script>
-</body>
-</html>
+
