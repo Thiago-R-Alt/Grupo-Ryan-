@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rateio Grupo Ryan v6.7</title>
+    <title>Rateio Grupo Ryan v6.8</title>
     <style>
         :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --dark: #0f172a; --slate: #64748b; --bg: #0f172a; --card: #1e293b; --warning: #f59e0b; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; color: #fff; }
@@ -17,8 +17,10 @@
         .btn-p { background: var(--primary); color: #fff; }
         .btn-s { background: var(--success); color: #fff; }
         .btn-ghost { background: transparent; color: var(--slate); border: 1px solid #334155; margin-top: 0; }
-        .member-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #161e2e; border-radius: 12px; margin-bottom: 8px; border: 1px solid #334155; }
-        .btn-del { background: #7f1d1d; color: #fff; border: none; border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+        .member-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #161e2e; border-radius: 12px; margin-bottom: 8px; }
+        .tag { padding: 6px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; cursor: pointer; border: none; }
+        .tag-pago { background: #064e3b; color: #10b981; }
+        .tag-pendente { background: #7f1d1d; color: #f87171; }
         .hidden { display: none !important; }
         table { width: 100%; border-collapse: collapse; }
         td { padding: 12px 5px; border-bottom: 1px solid #334155; font-size: 0.9rem; }
@@ -33,33 +35,30 @@
     </div>
 
     <div class="header-status">
-        <small style="opacity: 0.7;">SALDO NO COFRE</small>
+        <small>SALDO NO COFRE</small>
         <div class="val-total" id="ui-cofre">R$ 0,00</div>
-        <div id="user-role-badge" style="font-size: 0.8rem; color: var(--slate);">Carregando...</div>
+        <div id="user-role-badge" style="font-size: 0.8rem; color: var(--slate);">Sincronizando...</div>
     </div>
 
-    <div id="view-admin" class="card">
-        <h4>👥 Moradores do Grupo</h4>
+    <div id="view-admin" class="card hidden">
+        <h4>👥 Moradores</h4>
         <div id="ui-manage-members"></div>
-        
-        <div style="margin-top:15px; padding:15px; background:rgba(255,255,255,0.05); border-radius:15px">
-            <h4 style="border:none">➕ Adicionar Novo</h4>
-            <input id="f-new-mem" placeholder="Nome do Morador">
-            <input id="f-new-pix" placeholder="Chave Pix (opcional)">
-            <button class="btn btn-p" onclick="Engine.addMember()">CADASTRAR MORADOR</button>
-        </div>
+        <input id="f-new-mem" placeholder="Nome do Morador">
+        <button class="btn btn-p" onclick="Engine.addMember()">CADASTRAR MORADOR</button>
 
-        <h4 style="margin-top:30px">📝 Criar Novo Rateio</h4>
-        <input id="f-desc" placeholder="Ex: Conta de Luz">
+        <h4 style="margin-top:25px">📝 Novo Rateio</h4>
+        <input id="f-desc" placeholder="Ex: Internet">
         <div style="display: flex; gap: 10px;">
             <input id="f-val" type="number" placeholder="Valor Total">
             <input id="f-date" type="date">
         </div>
         <div id="ui-member-check-list" style="margin-top:10px"></div>
-        <button class="btn btn-s" onclick="Engine.createMainBill()">GERAR DIVISÃO</button>
+        <button class="btn btn-s" onclick="Engine.createMainBill()">GERAR RATEIO AGORA</button>
 
-        <h4 style="margin-top:30px">💰 Baixas</h4>
+        <h4 style="margin-top:25px">💰 Baixas</h4>
         <table id="ui-baixas-gerais"></table>
+        
+        <button class="btn" style="background: #334155; font-size: 0.7rem; margin-top: 40px;" onclick="Engine.resetAll()">Zerar Sistema (Cuidado)</button>
     </div>
 
     <div class="card">
@@ -88,22 +87,13 @@ const Engine = {
 
     async init() {
         await this.load();
-        
-        // Se estiver vazio, cria o Thiago e deixa o ADM aberto
         if (DB.membros.length === 0) {
-            DB.membros = [{id:"u1", nome:"Thiago", role:"ADMIN", pix:""}];
+            DB.membros = [{id:"u1", nome:"Thiago", role:"ADMIN"}];
             await this.save();
-            document.getElementById("view-admin").classList.remove("hidden");
         }
-
         const savedId = localStorage.getItem("activeUserId");
         this.activeUser = DB.membros.find(m => m.id === savedId) || DB.membros[0];
-        
-        // Se já tem gente mas você não é admin, esconde o painel
-        if(DB.membros.length > 1 && this.activeUser.role !== "ADMIN") {
-            document.getElementById("view-admin").classList.add("hidden");
-        }
-
+        if(this.activeUser.role === "ADMIN") document.getElementById("view-admin").classList.remove("hidden");
         this.render();
         setInterval(() => this.load(), 5000);
     },
@@ -122,55 +112,51 @@ const Engine = {
     },
 
     addMember() {
-        const nome = document.getElementById("f-new-mem").value;
-        const pix = document.getElementById("f-new-pix").value;
-        if(!nome) return alert("Digite o nome!");
-
-        const novo = {
-            id: Utils.genId('u'),
-            nome: nome,
-            role: "MEMBRO",
-            pix: pix
-        };
-
-        DB.membros.push(novo);
+        const n = document.getElementById("f-new-mem").value;
+        if(!n) return;
+        DB.membros.push({id: Utils.genId('u'), nome: n, role: "MEMBRO"});
         document.getElementById("f-new-mem").value = "";
-        document.getElementById("f-new-pix").value = "";
         this.save();
-    },
-
-    removeMember(id) {
-        if (id === "u1") return alert("O administrador não pode ser removido.");
-        if (confirm("Remover este morador?")) {
-            DB.membros = DB.membros.filter(m => m.id !== id);
-            this.save();
-        }
-    },
-
-    switchUser(id) {
-        const target = DB.membros.find(m => m.id === id);
-        if (target?.role === "ADMIN" && DB.membros.length > 1) {
-            if (prompt("Senha ADM:") !== this.ADMIN_PASS) return this.render();
-        }
-        this.activeUser = target;
-        localStorage.setItem("activeUserId", target.id);
-        
-        // Esconde ou mostra ADM ao trocar usuário
-        if(target.role === "ADMIN") document.getElementById("view-admin").classList.remove("hidden");
-        else document.getElementById("view-admin").classList.add("hidden");
-        
-        this.render();
     },
 
     createMainBill() {
-        const d = document.getElementById("f-desc").value, v = Utils.toC(document.getElementById("f-val").value), dt = document.getElementById("f-date").value, cbs = document.querySelectorAll(".m-cb:checked");
-        if(!d || v <= 0 || !cbs.length) return alert("Preencha tudo!");
+        const d = document.getElementById("f-desc").value;
+        const v = Utils.toC(document.getElementById("f-val").value);
+        const dt = document.getElementById("f-date").value;
+        const cbs = document.querySelectorAll(".m-cb:checked");
+
+        if(!d || !v || !dt || cbs.length === 0) {
+            return alert("Preencha Descrição, Valor, Data e selecione os moradores!");
+        }
+
         const cid = Utils.genId('c');
+        DB.contas = DB.contas || [];
+        DB.parcelas = DB.parcelas || [];
+        
         DB.contas.push({id:cid, desc:d, total:v, venc:dt, status:"aberta"});
+        
         cbs.forEach(cb => {
-            DB.parcelas.push({id:Utils.genId('p'), contaId:cid, membroId:cb.dataset.id, membroNome:cb.value, valorBase:Math.round(v/cbs.length), pago:false});
+            DB.parcelas.push({
+                id: Utils.genId('p'),
+                contaId: cid,
+                membroId: cb.dataset.id,
+                membroNome: cb.value,
+                valorBase: Math.round(v / cbs.length),
+                pago: false
+            });
         });
+
+        alert("Rateio gerado com sucesso!");
+        document.getElementById("f-desc").value = "";
+        document.getElementById("f-val").value = "";
         this.save();
+    },
+
+    resetAll() {
+        if(confirm("Isso vai apagar TUDO. Tem certeza?")) {
+            DB = { membros: [{id:"u1", nome:"Thiago", role:"ADMIN"}], contas: [], parcelas: [], cofreCentavos: 0 };
+            this.save();
+        }
     },
 
     payParcela(id) {
@@ -183,54 +169,54 @@ const Engine = {
 
     darBaixa(id) {
         const c = DB.contas.find(x => x.id === id);
-        if(DB.cofreCentavos < c.total) return alert("Cofre sem saldo suficiente!");
+        if(DB.cofreCentavos < c.total) return alert("Saldo insuficiente no cofre!");
         c.status = "quitada"; DB.cofreCentavos -= c.total;
         this.save();
+    },
+
+    switchUser(id) {
+        const t = DB.membros.find(m => m.id === id);
+        if (t?.role === "ADMIN" && prompt("Senha ADM:") !== this.ADMIN_PASS) return this.render();
+        this.activeUser = t;
+        localStorage.setItem("activeUserId", t.id);
+        if(t.role === "ADMIN") document.getElementById("view-admin").classList.remove("hidden");
+        else document.getElementById("view-admin").classList.add("hidden");
+        this.render();
     },
 
     render() {
         if(!this.activeUser) return;
         document.getElementById("ui-cofre").innerText = Utils.toR(DB.cofreCentavos);
         document.getElementById("user-role-badge").innerText = `${this.activeUser.nome} • ${this.activeUser.role}`;
-        
         document.getElementById("session-select").innerHTML = DB.membros.map(m => `<option value="${m.id}" ${m.id === this.activeUser.id ? "selected" : ""}>👤 ${m.nome}</option>`).join("");
         
-        document.getElementById("ui-manage-members").innerHTML = DB.membros.map(m => `
-            <div class="member-row">
-                <span><b>${m.nome}</b><br><small>${m.pix || 'Sem Pix'}</small></span>
-                <button class="btn-del" onclick="Engine.removeMember('${m.id}')">REMOVER</button>
-            </div>
-        `).join("");
-
+        document.getElementById("ui-manage-members").innerHTML = DB.membros.map(m => `<div class="member-row"><span>${m.nome}</span></div>`).join("");
+        
         document.getElementById("ui-member-check-list").innerHTML = DB.membros.map(m => `
             <label class="member-row"><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>
         `).join("");
 
-        document.getElementById("ui-baixas-gerais").innerHTML = DB.contas.filter(c => c.status === "aberta").map(c => `
+        document.getElementById("ui-baixas-gerais").innerHTML = (DB.contas || []).filter(c => c.status === "aberta").map(c => `
             <tr><td><b>${c.desc}</b></td><td style="text-align:right"><button class="tag tag-pago" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button></td></tr>
         `).join("");
 
-        const vis = this.activeUser.role === "ADMIN" ? DB.parcelas : DB.parcelas.filter(p => p.membroId === this.activeUser.id);
+        const vis = this.activeUser.role === "ADMIN" ? (DB.parcelas || []) : (DB.parcelas || []).filter(p => p.membroId === this.activeUser.id);
         document.getElementById("ui-minhas-parcelas").innerHTML = vis.map(p => {
             const c = DB.contas.find(x => x.id === p.contaId);
             if(!c || c.status === "quitada") return "";
-            const atraso = !p.pago && Utils.hoje() > c.venc;
-            const val = p.pago ? p.valorPagoFinal : (atraso ? p.valorBase + 500 : p.valorBase);
             return `<tr>
                 <td><b>${c.desc}</b><br><small>${p.membroNome}</small></td>
-                <td style="text-align:right"><b>${Utils.toR(val)}</b></td>
-                <td style="text-align:right"><button class="tag ${p.pago?'tag-pago':'tag-pendente'}" onclick="Engine.payParcela('${p.id}')">${p.pago?'OK':'CONFIRMAR'}</button></td>
+                <td style="text-align:right"><b>${Utils.toR(p.pago?p.valorPagoFinal:p.valorBase)}</b></td>
+                <td style="text-align:right"><button class="tag ${p.pago?'tag-pago':'tag-pendente'}" onclick="Engine.payParcela('${p.id}')">${p.pago?'OK':'PAGAR'}</button></td>
             </tr>`;
         }).join("");
     }
 };
 
-const UI = {
-    toggleAdm: () => {
-        if (Engine.activeUser.role !== "ADMIN" && prompt("Senha ADM:") !== Engine.ADMIN_PASS) return;
-        document.getElementById("view-admin").classList.toggle("hidden");
-    }
-};
+const UI = { toggleAdm: () => {
+    if (Engine.activeUser.role !== "ADMIN" && prompt("Senha:") !== Engine.ADMIN_PASS) return;
+    document.getElementById("view-admin").classList.toggle("hidden");
+}};
 
 Engine.init();
 </script>
