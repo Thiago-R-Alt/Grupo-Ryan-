@@ -14,43 +14,26 @@
         }
         * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background: var(--bg-body); color: var(--text-main); margin: 0; padding-bottom: 40px; }
-        
-        /* Top Header do Modelo */
         .top-bar { background: var(--card-bg); padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
         .logo { font-weight: 800; font-size: 1.2rem; color: var(--sidebar-purple); }
-        
         .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
-
-        /* Estilo dos Cards do Modelo */
         .card { background: var(--card-bg); border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid var(--border); }
         h4 { margin: 0 0 20px 0; font-size: 1rem; font-weight: 600; color: var(--text-main); }
-
-        /* Dashboard Grid */
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-
-        /* Botões Estilizados */
-        .btn { cursor: pointer; border: none; border-radius: 10px; padding: 12px 20px; font-weight: 600; transition: 0.3s; font-size: 0.9rem; }
+        .btn { cursor: pointer; border: none; border-radius: 10px; padding: 12px 20px; font-weight: 700; transition: 0.3s; font-size: 0.9rem; }
         .btn-p { background: var(--sidebar-purple); color: white; }
         .btn-s { background: var(--success); color: white; }
         .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-sub); }
-
-        /* Inputs do Modelo */
-        input, select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; margin-top: 8px; background: #fafafa; }
-
-        /* Timeline (Função Nova do Modelo) */
+        input, select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; margin-top: 8px; background: #fafafa; outline: none; }
         .timeline { border-left: 2px solid var(--border); margin-left: 10px; padding-left: 20px; }
         .timeline-item { position: relative; margin-bottom: 20px; }
         .timeline-item::before { content: ""; position: absolute; left: -27px; top: 5px; width: 12px; height: 12px; background: var(--sidebar-purple); border-radius: 50%; border: 3px solid white; }
-        .time-text { font-size: 0.8rem; color: var(--text-sub); }
-
-        /* Tabela de Parcelas */
         .table-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border); }
-        .status-badge { padding: 5px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .status-badge { padding: 6px 14px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; cursor: pointer; }
         .status-pago { background: rgba(69, 179, 107, 0.1); color: var(--success); }
         .status-pendente { background: rgba(255, 96, 96, 0.1); color: var(--danger); }
-
+        .atraso-aviso { color: var(--danger); font-size: 0.7rem; font-weight: 800; display: block; }
         .hidden { display: none !important; }
-        @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -64,13 +47,12 @@
 </div>
 
 <div class="container">
-    
     <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
         <div class="card" style="text-align: center;">
             <div style="color:var(--text-sub); font-size:0.8rem">Saldo em Caixa</div>
             <div style="font-size: 1.5rem; font-weight: 700; color: var(--sidebar-purple);" id="ui-cofre">R$ 0,00</div>
         </div>
-        <div class="card" id="user-info-card" style="text-align: center;">
+        <div class="card" style="text-align: center;">
             <div style="color:var(--text-sub); font-size:0.8rem">Usuário Ativo</div>
             <div style="font-size: 1.1rem; font-weight: 700;" id="user-role-badge">...</div>
         </div>
@@ -81,11 +63,9 @@
             <h4>📊 Gastos da Casa (Mês)</h4>
             <canvas id="chartCasa" height="200"></canvas>
         </div>
-        
         <div class="card">
             <h4>🔔 Atividades Recentes</h4>
-            <div id="ui-timeline" class="timeline">
-                </div>
+            <div id="ui-timeline" class="timeline"></div>
         </div>
     </div>
 
@@ -94,7 +74,7 @@
         <div class="grid" style="grid-template-columns: 1fr 1fr;">
             <div>
                 <label>Descrição do Gasto</label>
-                <input id="f-desc" placeholder="Ex: Aluguel">
+                <input id="f-desc" placeholder="Ex: Internet">
                 <label>Valor Total</label>
                 <input id="f-val" type="number" placeholder="0,00">
             </div>
@@ -106,30 +86,30 @@
                     <option value="1">Pagamento Único</option>
                     <option value="2">2x no Cartão</option>
                     <option value="3">3x no Cartão</option>
+                    <option value="4">4x no Cartão</option>
                     <option value="12">12x no Cartão</option>
                 </select>
             </div>
         </div>
         <div id="ui-member-check-list" style="margin:15px 0; display:flex; gap:15px; flex-wrap:wrap"></div>
         <button class="btn btn-p" onclick="Engine.createMainBill()">PUBLICAR RATEIO</button>
-        
-        <h4 style="margin-top:30px">Pendentes de Baixa (Saída de Caixa)</h4>
+        <h4 style="margin-top:30px">Baixas Pendentes</h4>
         <div id="ui-baixas-gerais"></div>
+        <button class="btn" style="background:transparent; color:#ccc; font-size:0.6rem; margin-top:20px" onclick="Engine.resetAll()">Zerar Sistema</button>
     </div>
 
     <div class="card">
-        <h4>📋 Minhas Contas e Rateios</h4>
+        <h4>📋 Contas à Pagar</h4>
         <div id="ui-minhas-parcelas"></div>
     </div>
 
     <div class="card">
-        <h4>⌛ Histórico de Pagamentos</h4>
+        <h4>⌛ Histórico de Quitadas</h4>
         <div id="ui-historico-detalhado"></div>
     </div>
 </div>
 
 <script>
-// Mantendo a mesma base de dados e funções para não apagar nada
 const FIREBASE_URL = "https://grupo-ryan-default-rtdb.firebaseio.com/dados.json";
 let DB = { membros: [], contas: [], parcelas: [], logs: [], cofreCentavos: 0, admPix: "" };
 let chartCasa;
@@ -172,28 +152,38 @@ const Engine = {
         this.render();
     },
 
-    // NOVA FUNÇÃO: Adicionar log de atividade
     addLog(msg) {
         if(!DB.logs) DB.logs = [];
         DB.logs.unshift({ msg: msg, time: new Date().toLocaleTimeString() });
         if(DB.logs.length > 5) DB.logs.pop();
     },
 
+    resetAll() {
+        if(confirm("Deseja apagar tudo?")) {
+            DB = { membros: [{id:"u1", nome:"Thiago", role:"ADMIN"}], contas: [], parcelas: [], logs: [], cofreCentavos: 0, admPix: "" };
+            this.save();
+        }
+    },
+
     createMainBill() {
-        const d = document.getElementById("f-desc").value, vT = Utils.toC(document.getElementById("f-val").value), 
-              dt = document.getElementById("f-date").value, vz = parseInt(document.getElementById("f-vezes").value),
+        const dEl = document.getElementById("f-desc"), vEl = document.getElementById("f-val"), 
+              dtEl = document.getElementById("f-date"), vzEl = document.getElementById("f-vezes"),
               cbs = document.querySelectorAll(".m-cb:checked");
-        if(!d || !vT || !dt || cbs.length === 0) return alert("Erro nos campos!");
         
-        const vM = Math.round(vT / vz);
+        if(!dEl.value || !vEl.value || !dtEl.value || cbs.length === 0) return alert("Preencha tudo!");
+        
+        const vT = Utils.toC(vEl.value), vz = parseInt(vzEl.value), vM = Math.round(vT / vz);
+
         for(let i=0; i < vz; i++) {
-            const cid = Utils.genId('c'), dataV = Utils.addMes(dt, i);
-            DB.contas.push({id:cid, desc: vz > 1 ? `${d} (${i+1}/${vz})` : d, total:vM, venc:dataV, status:"aberta"});
+            const cid = Utils.genId('c'), dataV = Utils.addMes(dtEl.value, i);
+            DB.contas.push({id:cid, desc: vz > 1 ? `${dEl.value} (${i+1}/${vz})` : dEl.value, total:vM, venc:dataV, status:"aberta"});
             cbs.forEach(cb => {
                 DB.parcelas.push({id: Utils.genId('p'), contaId: cid, membroId: cb.dataset.id, membroNome: cb.value, valorBase: Math.round(vM / cbs.length), pago: false});
             });
         }
-        this.addLog(`Rateio de "${d}" criado por ${this.activeUser.nome}`);
+        this.addLog(`Novo rateio: ${dEl.value}`);
+        // LIMPAR AUTOMATICAMENTE
+        dEl.value = ""; vEl.value = ""; dtEl.value = "";
         this.save();
     },
 
@@ -201,7 +191,8 @@ const Engine = {
         const p = DB.parcelas.find(x => x.id === id);
         if (p.pago) return;
         const c = DB.contas.find(x => x.id === p.contaId);
-        p.pago = true; p.valorPagoFinal = p.valorBase + (Utils.hoje() > c.venc ? 500 : 0);
+        const multa = Utils.hoje() > c.venc ? 500 : 0;
+        p.pago = true; p.valorPagoFinal = p.valorBase + multa;
         DB.cofreCentavos += p.valorPagoFinal;
         this.addLog(`${p.membroNome} pagou ${c.desc}`);
         this.save();
@@ -212,7 +203,7 @@ const Engine = {
         if(DB.cofreCentavos < c.total) return alert("Saldo insuficiente!");
         c.status = "quitada"; c.dataFechamento = Utils.hoje();
         DB.cofreCentavos -= c.total;
-        this.addLog(`Conta ${c.desc} baixada no sistema`);
+        this.addLog(`Baixa: ${c.desc}`);
         this.save();
     },
 
@@ -220,7 +211,7 @@ const Engine = {
         const ctx = document.getElementById('chartCasa').getContext('2d');
         chartCasa = new Chart(ctx, {
             type: 'bar',
-            data: { labels: [], datasets: [{ label: 'Gasto R$', data: [], backgroundColor: '#6c5dd3', borderRadius: 8 }] },
+            data: { labels: [], datasets: [{ label: 'R$', data: [], backgroundColor: '#6c5dd3', borderRadius: 6 }] },
             options: { responsive: true, plugins: { legend: { display: false } } }
         });
     },
@@ -236,55 +227,39 @@ const Engine = {
         document.getElementById("ui-cofre").innerText = Utils.toR(DB.cofreCentavos);
         document.getElementById("user-role-badge").innerText = this.activeUser.nome;
         document.getElementById("session-select").innerHTML = DB.membros.map(m => `<option value="${m.id}" ${m.id === this.activeUser.id ? "selected" : ""}>👤 ${m.nome}</option>`).join("");
-        
-        document.getElementById("ui-member-check-list").innerHTML = DB.membros.map(m => `
-            <label style="font-size:0.8rem; font-weight:600"><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>
-        `).join("");
+        document.getElementById("ui-member-check-list").innerHTML = DB.membros.map(m => `<label style="font-size:0.8rem; font-weight:600"><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>`).join("");
+        document.getElementById("ui-timeline").innerHTML = (DB.logs || []).map(l => `<div class="timeline-item"><div style="font-weight:600; font-size:0.85rem">${l.msg}</div><div style="font-size:0.7rem; color:var(--text-sub)">${l.time}</div></div>`).join("");
 
-        // Histórico de Atividades (NOVO)
-        document.getElementById("ui-timeline").innerHTML = (DB.logs || []).map(l => `
-            <div class="timeline-item">
-                <div style="font-weight:600; font-size:0.9rem">${l.msg}</div>
-                <div class="time-text">Hoje às ${l.time}</div>
-            </div>
-        `).join("");
-
-        // Parcelas
+        // LISTA DE PARCELAS COM NOME E MULTA
         const vis = this.activeUser.role === "ADMIN" ? (DB.parcelas || []) : (DB.parcelas || []).filter(p => p.membroId === this.activeUser.id);
         document.getElementById("ui-minhas-parcelas").innerHTML = vis.filter(p => !p.pago).map(p => {
             const c = DB.contas.find(x => x.id === p.contaId);
             if(!c || c.status === "quitada") return "";
+            const atraso = Utils.hoje() > c.venc;
+            const valorFinal = atraso ? p.valorBase + 500 : p.valorBase;
             return `
             <div class="table-row">
                 <div>
-                    <div style="font-weight:600">${c.desc}</div>
-                    <div style="font-size:0.75rem; color:var(--text-sub)">Venc: ${c.venc}</div>
+                    <div style="font-weight:600">${c.desc} - <span style="color:var(--sidebar-purple)">${p.membroNome}</span></div>
+                    <div style="font-size:0.75rem; color:var(--text-sub)">Venc: ${c.venc.split('-').reverse().join('/')}</div>
+                    ${atraso ? '<span class="atraso-aviso">⚠️ ATRASADO (+ R$ 5,00)</span>' : ''}
                 </div>
                 <div style="text-align:right">
-                    <div style="font-weight:700">${Utils.toR(p.valorBase)}</div>
-                    <span class="status-badge status-pendente" onclick="Engine.payParcela('${p.id}')" style="cursor:pointer">Pagar</span>
+                    <div style="font-weight:700">${Utils.toR(valorFinal)}</div>
+                    <span class="status-badge status-pendente" onclick="Engine.payParcela('${p.id}')">OK</span>
                 </div>
             </div>`;
         }).join("");
 
-        // Histórico de Quitadas
-        const quitadas = (DB.contas || []).filter(c => c.status === "quitada").slice(0, 5);
-        document.getElementById("ui-historico-detalhado").innerHTML = quitadas.map(c => `
-            <div class="table-row">
-                <span>✅ ${c.desc}</span>
-                <span style="font-weight:700; color:var(--success)">${Utils.toR(c.total)}</span>
-            </div>
-        `).join("");
+        document.getElementById("ui-historico-detalhado").innerHTML = (DB.contas || []).filter(c => c.status === "quitada").slice(0, 5).map(c => `
+            <div class="table-row"><span>✅ ${c.desc}</span><span style="font-weight:700; color:var(--success)">${Utils.toR(c.total)}</span></div>
+        `).join("") || "Sem histórico.";
 
-        // Baixas ADM
         document.getElementById("ui-baixas-gerais").innerHTML = (DB.contas || []).filter(c => c.status === "aberta").map(c => `
-            <div class="table-row">
-                <span>${c.desc}</span>
-                <button class="btn btn-s" style="padding: 5px 15px;" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button>
-            </div>
+            <div class="table-row"><span>${c.desc}</span><button class="btn btn-s" style="padding: 5px 15px;" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button></div>
         `).join("");
 
-        // Gráfico
+        // Gráfico do Mês
         const cat = {}, mesA = new Date().getMonth();
         (DB.contas || []).filter(c => new Date(c.venc).getMonth() === mesA).forEach(c => {
             const n = c.desc.split('(')[0].trim();
