@@ -29,7 +29,6 @@
         .btn-p { background: var(--primary); color: white; }
         .btn-s { background: var(--success); color: white; }
         .btn-ghost { background: rgba(255,255,255,0.05); color: white; border: 1px solid #1e293b; width: auto; }
-        .btn-reset { background: transparent; color: #475569; border: 1px solid #1e293b; font-size: 0.7rem; margin-top: 40px; }
         .item-row { display: flex; align-items: center; justify-content: space-between; padding: 14px; background: rgba(255,255,255,0.03); border-radius: 18px; margin-bottom: 10px; }
         .btn-del { background: rgba(244, 63, 94, 0.1); color: var(--danger); border: none; border-radius: 10px; padding: 8px 12px; cursor: pointer; }
         .parcela-item { border-bottom: 1px solid #1e293b; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
@@ -37,8 +36,10 @@
         .tag-pago { background: #064e3b; color: #10b981; }
         .tag-pendente { background: #450a0a; color: #f87171; }
         .tag-pix { background: #0e7490; color: #fff; margin-right: 5px; }
-        .hidden { display: none !important; }
         .atraso-text { color: var(--danger); font-size: 0.7rem; font-weight: 800; }
+        .hist-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .hist-item:last-child { border: none; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
@@ -50,38 +51,41 @@
     </div>
 
     <div class="header-status">
-        <small style="opacity:0.8">SALDO NO COFRE</small>
+        <small style="opacity:0.8; font-weight: 600;">SALDO EM CAIXA</small>
         <div class="val-total" id="ui-cofre">R$ 0,00</div>
-        <div id="user-role-badge" style="font-size: 0.8rem; font-weight: 600; opacity: 0.7;">Sincronizando...</div>
+        <div id="user-role-badge" style="font-size: 0.8rem; font-weight: 600; opacity: 0.7;">Conectando...</div>
     </div>
 
     <div id="view-admin" class="card hidden">
-        <h4>🔑 Minha Chave PIX</h4>
+        <h4>🔑 Chave PIX Principal</h4>
         <input id="f-adm-pix" placeholder="Sua chave Pix">
         <button class="btn btn-p" onclick="Engine.updateAdmPix()">SALVAR CHAVE</button>
+        
         <h4 style="margin-top:25px">👥 Moradores</h4>
         <div id="ui-manage-members"></div>
         <input id="f-new-mem" placeholder="Nome do Novo Morador">
         <button class="btn btn-p" onclick="Engine.addMember()" style="background:#334155">ADICIONAR</button>
-        <h4 style="margin-top:25px">📝 Novo Rateio</h4>
-        <input id="f-desc" placeholder="Ex: Internet">
-        <div style="display: flex; gap: 10px;"><input id="f-val" type="number" placeholder="Total"><input id="f-date" type="date"></div>
+        
+        <h4 style="margin-top:25px">📝 Criar Rateio</h4>
+        <input id="f-desc" placeholder="Ex: Conta de Luz">
+        <div style="display: flex; gap: 10px;"><input id="f-val" type="number" placeholder="Valor Total"><input id="f-date" type="date"></div>
         <div id="ui-member-check-list" style="margin-top:10px"></div>
-        <button class="btn btn-s" onclick="Engine.createMainBill()">GERAR RATEIO</button>
-        <h4 style="margin-top:25px">💰 Contas em Aberto</h4>
+        <button class="btn btn-s" onclick="Engine.createMainBill()">PUBLICAR NO GRUPO</button>
+        
+        <h4 style="margin-top:25px">💰 Baixas (Encerrar Conta)</h4>
         <div id="ui-baixas-gerais"></div>
 
-        <button class="btn btn-reset" onclick="Engine.resetAll()">Zerar Sistema (Apaga Tudo)</button>
+        <button class="btn" style="background:transparent; border:1px solid #1e293b; color:#475569; font-size:0.7rem; margin-top:40px;" onclick="Engine.resetAll()">Zerar Banco de Dados</button>
     </div>
 
     <div class="card">
-        <h4>📋 Parcelas em Aberto</h4>
+        <h4>📋 Minhas Parcelas</h4>
         <div id="ui-minhas-parcelas"></div>
     </div>
 
     <div class="card">
-        <h4>⌛ Histórico de Pagos</h4>
-        <div id="ui-historico-quitadas" style="opacity: 0.7; font-size: 0.9rem;"></div>
+        <h4>⌛ Histórico de Contas Quitadas</h4>
+        <div id="ui-historico-detalhado"></div>
     </div>
 </div>
 
@@ -93,7 +97,8 @@ const Utils = {
     toC: v => Math.round(parseFloat(v)*100),
     toR: c => (c/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}),
     genId: p => p+'_'+Math.random().toString(36).substr(2,9),
-    hoje: () => new Date().toISOString().split('T')[0]
+    hoje: () => new Date().toISOString().split('T')[0],
+    formatBr: (data) => data.split('-').reverse().join('/')
 };
 
 const Engine = {
@@ -125,16 +130,14 @@ const Engine = {
         this.render();
     },
 
-    // FUNÇÃO PARA LIMPAR TUDO
     resetAll() {
-        if(confirm("ATENÇÃO: Isso vai apagar todos os moradores, contas e saldo. Tem certeza?")) {
+        if(confirm("Deseja mesmo apagar tudo?")) {
             DB = { membros: [{id:"u1", nome:"Thiago", role:"ADMIN"}], contas: [], parcelas: [], cofreCentavos: 0, admPix: "" };
             this.save();
-            alert("Sistema resetado!");
         }
     },
 
-    updateAdmPix() { DB.admPix = document.getElementById("f-adm-pix").value; this.save(); alert("Pix Salvo!"); },
+    updateAdmPix() { DB.admPix = document.getElementById("f-adm-pix").value; this.save(); alert("Chave Pix Atualizada!"); },
     
     addMember() {
         const n = document.getElementById("f-new-mem").value;
@@ -145,18 +148,18 @@ const Engine = {
     },
 
     removeMember(id) {
-        if (id === "u1") return alert("Admin não pode ser removido!");
-        if (confirm("Remover morador?")) { DB.membros = DB.membros.filter(m => m.id !== id); this.save(); }
+        if (id === "u1") return alert("O Admin principal não pode ser removido!");
+        if (confirm("Remover este morador?")) { DB.membros = DB.membros.filter(m => m.id !== id); this.save(); }
     },
 
     createMainBill() {
         const d = document.getElementById("f-desc").value, v = Utils.toC(document.getElementById("f-val").value), dt = document.getElementById("f-date").value, cbs = document.querySelectorAll(".m-cb:checked");
-        if(!d || !v || !dt || cbs.length === 0) return alert("Preencha tudo!");
+        if(!d || !v || !dt || cbs.length === 0) return alert("Preencha Descrição, Valor, Data e escolha os moradores!");
         const cid = Utils.genId('c');
         DB.contas = DB.contas || []; DB.parcelas = DB.parcelas || [];
         DB.contas.push({id:cid, desc:d, total:v, venc:dt, status:"aberta"});
         cbs.forEach(cb => { DB.parcelas.push({id: Utils.genId('p'), contaId: cid, membroId: cb.dataset.id, membroNome: cb.value, valorBase: Math.round(v / cbs.length), pago: false}); });
-        this.save(); alert("Rateio Gerado!");
+        this.save(); alert("Rateio publicado com sucesso!");
     },
 
     payParcela(id) {
@@ -164,22 +167,22 @@ const Engine = {
         if (p.pago) return;
         const c = DB.contas.find(x => x.id === p.contaId);
         const multa = Utils.hoje() > c.venc ? 500 : 0;
-        p.pago = true; 
-        p.valorPagoFinal = p.valorBase + multa;
+        p.pago = true; p.valorPagoFinal = p.valorBase + multa;
         DB.cofreCentavos += p.valorPagoFinal;
         this.save();
     },
 
     copyPix(valor) {
-        if(!DB.admPix) return alert("Cadastre a chave Pix no ADM!");
+        if(!DB.admPix) return alert("Cadastre a chave Pix no painel ADM!");
         navigator.clipboard.writeText(DB.admPix);
-        alert("Pix Copiado! Valor: " + Utils.toR(valor));
+        alert("Copiado! Valor: " + Utils.toR(valor));
     },
 
     darBaixa(id) {
         const c = DB.contas.find(x => x.id === id);
-        if(DB.cofreCentavos < c.total) return alert("Saldo insuficiente!");
-        c.status = "quitada"; DB.cofreCentavos -= c.total;
+        if(DB.cofreCentavos < c.total) return alert("Saldo insuficiente no caixa!");
+        c.status = "quitada"; c.dataFechamento = Utils.hoje();
+        DB.cofreCentavos -= c.total;
         this.save();
     },
 
@@ -203,18 +206,25 @@ const Engine = {
 
         document.getElementById("ui-baixas-gerais").innerHTML = (DB.contas || []).filter(c => c.status === "aberta").map(c => `
             <div class="parcela-item">
-                <div><b>${c.desc}</b><br><small>Total: ${Utils.toR(c.total)}</small></div>
+                <div><b>${c.desc}</b><br><small style="color:var(--sub)">Total: ${Utils.toR(c.total)}</small></div>
                 <button class="tag tag-pago" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button>
             </div>
         `).join("");
 
-        const quitadas = (DB.contas || []).filter(c => c.status === "quitada");
-        document.getElementById("ui-historico-quitadas").innerHTML = quitadas.length ? quitadas.map(c => `
-            <div style="border-bottom: 1px solid #1e293b; padding: 10px 0; display:flex; justify-content:space-between">
-                <span>✅ ${c.desc}</span>
-                <span style="font-weight:bold; color:var(--success)">${Utils.toR(c.total)}</span>
+        // HISTÓRICO MAIS DETALHADO
+        const quitadas = (DB.contas || []).filter(c => c.status === "quitada").sort((a,b) => b.dataFechamento > a.dataFechamento ? 1 : -1);
+        document.getElementById("ui-historico-detalhado").innerHTML = quitadas.length ? quitadas.map(c => `
+            <div class="hist-item">
+                <div>
+                    <div style="font-weight:600; color:#fff">✅ ${c.desc}</div>
+                    <div style="font-size:0.7rem; color:var(--sub)">Vencimento: ${Utils.formatBr(c.venc)}</div>
+                </div>
+                <div style="text-align:right">
+                    <div style="font-weight:700; color:var(--success)">${Utils.toR(c.total)}</div>
+                    <div style="font-size:0.6rem; color:var(--sub)">Pago em ${Utils.formatBr(c.dataFechamento || c.venc)}</div>
+                </div>
             </div>
-        `).join("") : "Nenhuma conta quitada.";
+        `).join("") : `<div style="color:var(--sub); font-size:0.8rem;">Ainda não há histórico de contas quitadas.</div>`;
 
         const vis = this.activeUser.role === "ADMIN" ? (DB.parcelas || []) : (DB.parcelas || []).filter(p => p.membroId === this.activeUser.id);
         document.getElementById("ui-minhas-parcelas").innerHTML = vis.map(p => {
