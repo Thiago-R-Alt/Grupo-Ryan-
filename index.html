@@ -3,187 +3,286 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finexy - Grupo Ryan</title>
+    <title>Finexy Cloud Enterprise - Liberty Group</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg: #f0f2f5; --card-bg: #ffffff; --primary: #1a1d1f;
-            --accent: #6c5dd3; --success: #45b36b; --danger: #ef4444;
-            --text: #1a1d1f; --sub: #6f767e; --border: #efefef;
+            --bg: #f4f7fe; --card: #ffffff; --primary: #111c44;
+            --accent: #4318ff; --success: #05cd99; --danger: #ee5d50;
+            --warning: #ffb800; --text: #1b2559; --sub: #a3aed0;
+            --border: #e9edf7; --shadow: 0 20px 40px rgba(0,0,0,0.05);
         }
-        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg); color: var(--text); margin: 0; padding: 10px; }
-
-        /* Navbar */
-        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px; max-width: 1200px; margin: 0 auto; }
-        .nav-links { display: flex; gap: 20px; background: white; padding: 8px 20px; border-radius: 12px; border: 1px solid var(--border); }
-        .nav-item { font-size: 0.85rem; font-weight: 700; cursor: pointer; color: var(--sub); text-decoration: none; border: none; background: none; }
-        .nav-item:hover { color: var(--accent); }
-
-        .container { max-width: 1200px; margin: 0 auto; padding: 10px; }
-        .card { background: var(--card-bg); border-radius: 24px; padding: 24px; margin-bottom: 24px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; transition: 0.2s ease; }
+        body { background: var(--bg); margin: 0; color: var(--text); padding-bottom: 50px; }
         
-        /* Grid Layout */
-        .main-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; }
-
-        /* Cartão Virtual */
-        .v-card { background: #1a1d1f; border-radius: 20px; padding: 25px; color: white; height: 180px; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 24px; }
-        .v-card-chip { width: 45px; height: 32px; background: #edbc5a; border-radius: 6px; }
-
-        /* Tabela "Recent Activities" - Estilo Profissional */
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th { text-align: left; padding: 12px; color: var(--sub); font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid var(--border); }
-        td { padding: 16px 12px; font-size: 0.9rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        /* HEADER */
+        .header { background: rgba(255,255,255,0.85); backdrop-filter: blur(15px); padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .brand { font-size: 1.6rem; font-weight: 800; color: var(--primary); letter-spacing: -1px; }
+        .brand span { color: var(--accent); }
         
-        .status-pill { padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer; border: none; }
-        .st-pending { background: #fff1e6; color: #ff944d; }
-        .st-multa { background: #fee2e2; color: #ef4444; }
-        .st-done { background: #eaf8f0; color: #45b36b; }
+        .nav-menu { display: flex; gap: 10px; background: #f4f7fe; padding: 6px; border-radius: 16px; }
+        .nav-link { border: none; background: none; padding: 10px 20px; border-radius: 12px; font-weight: 700; color: var(--sub); cursor: pointer; font-size: 0.85rem; }
+        .nav-link.active { background: #fff; color: var(--accent); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
 
-        /* Inputs e ADM */
-        input, select { background: #f4f4f4; border: 1px solid var(--border); padding: 12px; border-radius: 12px; width: 100%; margin-top: 5px; outline: none; }
-        .btn-p { background: var(--primary); color: white; padding: 14px 24px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; width: 100%; }
+        .user-auth { display: flex; align-items: center; gap: 15px; }
+        select#session-select { border: 1px solid var(--border); border-radius: 10px; padding: 8px; font-weight: 700; color: var(--primary); outline: none; background: white; cursor: pointer; }
 
-        .progress-cont { width: 100%; height: 8px; background: #efefef; border-radius: 10px; margin: 15px 0; }
-        .progress-bar { height: 100%; background: var(--accent); border-radius: 10px; width: 0%; transition: 0.5s; }
+        /* MAIN CONTENT */
+        .container { max-width: 1440px; margin: 35px auto; padding: 0 25px; }
+        .dashboard-grid { display: grid; grid-template-columns: 340px 1fr 300px; gap: 30px; }
+
+        /* CARDS */
+        .card { background: var(--card); border-radius: 30px; padding: 25px; border: 1px solid var(--border); margin-bottom: 25px; box-shadow: var(--shadow); position: relative; }
+        .card h3 { margin: 0 0 22px 0; font-size: 1.2rem; font-weight: 800; color: var(--primary); }
+        
+        /* WALLET - CARTÕES REAIS */
+        .card-real { height: 190px; border-radius: 24px; padding: 25px; color: white; margin-bottom: 20px; position: relative; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 12px 24px rgba(67, 24, 255, 0.25); cursor: pointer; transform-style: preserve-3d; }
+        .card-real:hover { transform: translateY(-5px) rotateX(5deg); }
+        .card-chip { width: 45px; height: 35px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); border-radius: 8px; }
+        .card-label { font-size: 0.75rem; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; font-weight: 600; }
+        .card-val { font-size: 1.6rem; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        
+        /* TABLE SYSTEM */
+        .table-res { width: 100%; overflow-x: auto; border-radius: 20px; }
+        table { width: 100%; border-collapse: collapse; min-width: 750px; }
+        th { text-align: left; padding: 18px; color: var(--sub); font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid var(--bg); font-weight: 800; }
+        td { padding: 20px 18px; border-bottom: 1px solid var(--border); font-size: 0.95rem; font-weight: 500; }
+
+        /* BADGES & ACTIONS */
+        .badge { padding: 8px 16px; border-radius: 12px; font-size: 0.75rem; font-weight: 800; border: none; cursor: pointer; }
+        .badge-wait { background: #fff8e6; color: #ffb800; }
+        .badge-late { background: #ffebeb; color: var(--danger); animation: pulse 1.5s infinite; }
+        .badge-success { background: #e6fff5; color: var(--success); }
+        
+        .btn-p { background: var(--accent); color: white; border: none; padding: 16px 24px; border-radius: 16px; font-weight: 800; width: 100%; cursor: pointer; box-shadow: 0 10px 20px rgba(67, 24, 255, 0.2); }
+        .btn-p:hover { background: #3311cc; transform: translateY(-2px); }
+
+        /* FORM CONTROLS */
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+        .input-box { display: flex; flex-direction: column; gap: 8px; }
+        .input-box label { font-size: 0.8rem; font-weight: 800; color: var(--primary); padding-left: 5px; }
+        input, select { padding: 14px; border: 1px solid var(--border); border-radius: 14px; background: #f7f9ff; font-size: 0.9rem; outline: none; font-weight: 600; color: var(--primary); }
+        input:focus { border-color: var(--accent); background: #fff; }
+
+        /* LISTS & HISTORY */
+        .log-container { max-height: 450px; overflow-y: auto; padding-right: 5px; }
+        .log-row { padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; border-radius: 12px; margin-bottom: 5px; }
+        .log-row:hover { background: #fcfcff; }
+        .log-tag { font-size: 0.65rem; font-weight: 900; padding: 4px 8px; border-radius: 6px; margin-bottom: 5px; display: inline-block; }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(17, 28, 68, 0.7); backdrop-filter: blur(8px); z-index: 2000; align-items: center; justify-content: center; }
+        .modal-card { background: white; border-radius: 35px; width: 90%; max-width: 750px; padding: 40px; max-height: 90vh; overflow-y: auto; }
 
         .hidden { display: none !important; }
-        @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+        
+        @media (max-width: 1200px) { .dashboard-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-<div class="navbar">
-    <div style="font-weight: 800; font-size: 1.4rem;">Finexy</div>
-    <div class="nav-links">
-        <button class="nav-item" onclick="location.reload()">Overview</button>
-        <button class="nav-item" onclick="UI.toggleAdm()">Manage</button>
-        <button class="nav-item" onclick="UI.report()">Reports</button>
+<div class="header">
+    <div class="brand">FINEXY<span>.</span>PRO</div>
+    <div class="nav-menu">
+        <button class="nav-link active" onclick="location.reload()">Overview</button>
+        <button class="nav-link" onclick="UI.toggleAdm()">Manage</button>
+        <button class="nav-link" onclick="UI.showReport()">Full Reports</button>
     </div>
-    <select id="session-select" onchange="Engine.switchUser(this.value)" style="width: auto; margin:0; border:none; background:none; font-weight:700;"></select>
+    <div class="user-auth">
+        <div style="text-align: right">
+            <div id="u-name" style="font-weight: 800; font-size: 0.9rem">User</div>
+            <div id="u-role" style="color: var(--sub); font-size: 0.7rem">Role</div>
+        </div>
+        <select id="session-select" onchange="Engine.switchUser(this.value)"></select>
+    </div>
 </div>
 
 <div class="container">
-    <div style="margin-bottom: 30px;">
-        <h2 id="welcome-txt">Good morning, Thiago</h2>
-        <p style="color: var(--sub); margin-top: -10px;">Monitor house progress and status.</p>
-    </div>
-
-    <div class="main-grid">
-        <div>
+    <div class="dashboard-grid">
+        
+        <div class="side-col">
             <div class="card">
-                <small style="color:var(--sub)">Total Balance</small>
-                <div style="font-size: 2rem; font-weight: 800; margin: 10px 0;" id="ui-cofre">R$ 0,00</div>
-                <div class="progress-cont"><div class="progress-bar" id="ui-bar"></div></div>
-                <small id="ui-perc" style="font-weight: 600; color: var(--accent);">0% atingido</small>
+                <h3>💳 Cartões do Grupo</h3>
+                <div id="ui-cards-list"></div>
+                <button class="btn-p" style="background: var(--bg); color: var(--accent); box-shadow: none; border: 2px dashed var(--accent);" onclick="UI.openModal('modal-add-card')">+ Novo Cartão Real</button>
             </div>
 
-            <div class="v-card">
-                <div class="v-card-chip"></div>
-                <div>
-                    <div style="font-size: 1.2rem; font-weight: 600; letter-spacing: 1px;" id="ui-card-name">CARREGANDO...</div>
-                    <div style="font-size: 0.7rem; opacity: 0.6; margin-top: 5px;">MEMBER ACCOUNT</div>
+            <div class="card" style="background: linear-gradient(135deg, #1b2559 0%, #111c44 100%); color: white;">
+                <h3 style="color: white">💰 Cofre Liberty</h3>
+                <div style="font-size: 0.7rem; opacity: 0.7; text-transform: uppercase;">Saldo em mãos</div>
+                <div id="ui-total-cofre" style="font-size: 2.2rem; font-weight: 800; margin: 10px 0;">R$ 0,00</div>
+                <div style="height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; margin: 20px 0;">
+                    <div id="ui-progress-bar" style="height: 100%; background: var(--success); width: 0%; transition: 1s;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 700;">
+                    <span id="ui-perc-val">0% Arrecadado</span>
                 </div>
             </div>
         </div>
 
-        <div class="card">
-            <h4>Total de Gastos (Mês)</h4>
-            <div style="height: 250px;"><canvas id="chartCasa"></canvas></div>
+        <div class="main-col">
+            <div id="view-admin" class="card hidden" style="border: 2px solid var(--accent);">
+                <h3 style="color: var(--accent);">⚙️ Gestão Administrativa</h3>
+                <div class="form-grid">
+                    <div class="input-box">
+                        <label>Descrição do Gasto</label>
+                        <input id="f-desc" placeholder="Ex: Internet Starlink">
+                    </div>
+                    <div class="input-box">
+                        <label>Valor Total (R$)</label>
+                        <input id="f-val" type="number" step="0.01" placeholder="0,00">
+                    </div>
+                    <div class="input-box">
+                        <label>Data de Vencimento</label>
+                        <input id="f-date" type="date">
+                    </div>
+                    <div class="input-box">
+                        <label>Pagar com qual Cartão?</label>
+                        <select id="f-card-select"></select>
+                    </div>
+                    <div class="input-box">
+                        <label>Parcelas</label>
+                        <select id="f-parcelas">
+                            <option value="1">À vista</option>
+                            <option value="2">2x</option>
+                            <option value="3">3x</option>
+                            <option value="12">12x</option>
+                        </select>
+                    </div>
+                    <div class="input-box">
+                        <label>Participantes</label>
+                        <div id="ui-member-checks" style="display: flex; gap: 10px; flex-wrap: wrap; padding: 10px; background: white; border-radius: 12px; border: 1px solid var(--border);"></div>
+                    </div>
+                </div>
+                <button class="btn-p" style="margin-top: 25px" onclick="Engine.createRateio()">Lançar Rateio no Sistema</button>
+
+                <h4 style="margin-top: 35px">✅ Baixas e Liquidações (Saída de Caixa)</h4>
+                <div id="ui-baixas-lista" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;"></div>
+            </div>
+
+            <div class="card">
+                <h3>🔔 Cobranças Pendentes</h3>
+                <div class="table-res">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Membro</th>
+                                <th>Valor</th>
+                                <th>Status</th>
+                                <th>Vencimento</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ui-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📜 Histórico de Auditoria (Logs)</h3>
+                <div class="log-container" id="ui-logs-list"></div>
+            </div>
+        </div>
+
+        <div class="chart-col">
+            <div class="card">
+                <h3>📊 Categorias</h3>
+                <div style="height: 220px;"><canvas id="chartDoughnut"></canvas></div>
+            </div>
+            <div class="card">
+                <h3>📈 Performance</h3>
+                <div style="height: 220px;"><canvas id="chartBar"></canvas></div>
+            </div>
         </div>
     </div>
+</div>
 
-    <div id="view-admin" class="card hidden">
-        <h4 style="color:var(--accent)">🔑 Painel de Controle (ADM)</h4>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <div>
-                <label>O que comprou?</label>
-                <input id="f-desc" placeholder="Ex: Geladeira">
+<div id="modal-add-card" class="modal">
+    <div class="modal-card">
+        <h3>Cadastrar Cartão de Crédito Real</h3>
+        <div class="form-grid">
+            <div class="input-box">
+                <label>Apelido do Cartão</label>
+                <input id="c-nome" placeholder="Ex: Nubank Ryan">
             </div>
-            <div>
-                <label>Qual valor?</label>
-                <input id="f-val" type="number" placeholder="0,00">
+            <div class="input-box">
+                <label>Limite Total</label>
+                <input id="c-limite" type="number" placeholder="R$ 0,00">
             </div>
-            <div>
-                <label>Vencimento</label>
-                <input id="f-date" type="date">
+            <div class="input-box">
+                <label>Dia de Vencimento</label>
+                <input id="c-venc" type="number" placeholder="Dia 01 a 31">
             </div>
-            <div>
-                <label>Parcelas (Cartão)</label>
-                <select id="f-vezes">
-                    <option value="1">Pagamento Único</option>
-                    <option value="2">2x no Cartão</option>
-                    <option value="3">3x no Cartão</option>
-                    <option value="4">4x no Cartão</option>
-                    <option value="12">12x no Cartão</option>
+            <div class="input-box">
+                <label>Cor do Cartão</label>
+                <select id="c-cor">
+                    <option value="linear-gradient(135deg, #820ad1 0%, #4c0677 100%)">Nubank Roxo</option>
+                    <option value="linear-gradient(135deg, #ff6b00 0%, #ff9e00 100%)">Inter Laranja</option>
+                    <option value="linear-gradient(135deg, #0f172a 0%, #334155 100%)">Black Elite</option>
+                    <option value="linear-gradient(135deg, #4318ff 0%, #b085ff 100%)">Finexy Blue</option>
                 </select>
             </div>
         </div>
-        <div id="ui-members-check" style="margin: 20px 0; display: flex; gap: 15px; flex-wrap: wrap;"></div>
-        <button class="btn-p" onclick="Engine.createBill()">Lançar Rateio</button>
-        
-        <h4 style="margin-top: 30px;">Dar Baixa em Contas (Sair do Cofre)</h4>
-        <div id="ui-baixas"></div>
-    </div>
-
-    <div class="card">
-        <h4>Recent Activities</h4>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Atividade / Descrição</th>
-                        <th>Membro</th>
-                        <th>Preço</th>
-                        <th>Status</th>
-                        <th>Vencimento</th>
-                    </tr>
-                </thead>
-                <tbody id="ui-atividades"></tbody>
-            </table>
+        <div style="display: flex; gap: 15px; margin-top: 30px;">
+            <button class="btn-p" onclick="Engine.saveNewCard()">Salvar Cartão</button>
+            <button class="btn-p" style="background: var(--bg); color: var(--text);" onclick="UI.closeModal('modal-add-card')">Cancelar</button>
         </div>
     </div>
+</div>
 
-    <div class="card">
-        <h4>Histórico de Quitadas</h4>
-        <div id="ui-historico"></div>
+<div id="modal-report" class="modal">
+    <div class="modal-card">
+        <h3>Relatório de Fluxo de Caixa</h3>
+        <div id="report-view-content"></div>
+        <button class="btn-p" style="margin-top: 30px" onclick="UI.closeModal('modal-report')">Fechar</button>
     </div>
 </div>
 
 <script>
+// --- CORE CONFIGURATION ---
 const FIREBASE_URL = "https://grupo-ryan-default-rtdb.firebaseio.com/dados.json";
-let DB = { membros: [], contas: [], parcelas: [], cofreCentavos: 0 };
-let chartCasa;
+let DB = { membros: [], contas: [], parcelas: [], cartoes: [], logs: [], cofreCentavos: 0 };
+let dChart, bChart;
 
 const Utils = {
-    toC: v => Math.round(parseFloat(v)*100),
-    toR: c => (c/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}),
-    genId: p => p+'_'+Math.random().toString(36).substr(2,9),
+    toC: v => Math.round(parseFloat(v || 0) * 100),
+    toR: c => ( (c || 0) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+    genId: p => p + '_' + Math.random().toString(36).substr(2, 9),
     hoje: () => new Date().toISOString().split('T')[0],
-    addMes: (ds, m) => { let d = new Date(ds + 'T12:00:00'); d.setMonth(d.getMonth() + m); return d.toISOString().split('T')[0]; }
+    addMes: (d, m) => { let x = new Date(d + 'T12:00:00'); x.setMonth(x.getMonth() + m); return x.toISOString().split('T')[0]; }
 };
 
 const Engine = {
-    activeUser: null,
     PASS: "1234",
+    activeUser: null,
 
     async init() {
         await this.load();
         this.initCharts();
-        const savedId = localStorage.getItem("activeUserId");
-        this.activeUser = DB.membros.find(m => m.id === savedId) || DB.membros[0];
+        const sid = localStorage.getItem("activeUserId");
+        this.activeUser = DB.membros.find(m => m.id === sid) || DB.membros[0];
         this.render();
         setInterval(() => this.load(), 5000);
     },
 
     async load() {
         try {
-            const res = await fetch(FIREBASE_URL);
-            const data = await res.json();
-            if (data) { DB = data; this.render(); }
-        } catch (e) {}
+            let r = await fetch(FIREBASE_URL);
+            let d = await r.json();
+            if (d) { 
+                // Garantir que arrays existem para evitar erros de render
+                DB.membros = d.membros || [];
+                DB.contas = d.contas || [];
+                DB.parcelas = d.parcelas || [];
+                DB.cartoes = d.cartoes || [];
+                DB.logs = d.logs || [];
+                DB.cofreCentavos = d.cofreCentavos || 0;
+                this.render(); 
+            }
+        } catch (e) { console.error("Falha na sincronização"); }
     },
 
     async save() {
@@ -191,118 +290,199 @@ const Engine = {
         this.render();
     },
 
-    createBill() {
-        const d = document.getElementById("f-desc"), v = document.getElementById("f-val"), 
-              dt = document.getElementById("f-date"), vz = document.getElementById("f-vezes"),
-              cbs = document.querySelectorAll(".m-cb:checked");
-        if(!d.value || !v.value || !dt.value || cbs.length === 0) return alert("Preencha tudo!");
-        const vT = Utils.toC(v.value), vezes = parseInt(vz.value), vM = Math.round(vT / vezes);
-        for(let i=0; i < vezes; i++) {
-            const cid = Utils.genId('c'), dv = Utils.addMes(dt.value, i);
-            DB.contas.push({id:cid, desc: vezes > 1 ? `${d.value} (${i+1}/${vezes})` : d.value, total:vM, venc:dv, status:"aberta"});
-            cbs.forEach(cb => {
-                DB.parcelas.push({id: Utils.genId('p'), contaId: cid, membroId: cb.dataset.id, membroNome: cb.value, valorBase: Math.round(vM / cbs.length), pago: false});
-            });
-        }
-        d.value = ""; v.value = "";
+    addLog(tipo, msg, valor) {
+        if (!DB.logs) DB.logs = [];
+        DB.logs.unshift({ id: Date.now(), tipo, msg, valor, user: this.activeUser.nome, data: new Date().toLocaleString() });
+        if (DB.logs.length > 150) DB.logs.pop();
+    },
+
+    saveNewCard() {
+        const n = document.getElementById("c-nome").value, l = document.getElementById("c-limite").value;
+        const v = document.getElementById("c-venc").value, c = document.getElementById("c-cor").value;
+        if (!n || !l) return alert("Preencha o nome e limite!");
+        
+        DB.cartoes.push({ id: Utils.genId('crd'), nome: n, limite: Utils.toC(l), venc: v, cor: c, fatura: 0 });
+        this.addLog("CADASTRO", `Novo cartão ${n} adicionado`, Utils.toC(l));
+        UI.closeModal('modal-add-card');
         this.save();
     },
 
-    pay(id) {
+    createRateio() {
+        const d = document.getElementById("f-desc").value, v = document.getElementById("f-val").value;
+        const dt = document.getElementById("f-date").value, ct = document.getElementById("f-card-select").value;
+        const vz = parseInt(document.getElementById("f-parcelas").value), cbs = document.querySelectorAll(".m-cb:checked");
+
+        if (!d || !v || !dt || !cbs.length) return alert("Preencha todos os campos e selecione os membros.");
+
+        const vt = Utils.toC(v), vm = Math.round(vt / vz);
+
+        // CORREÇÃO NAN: Inicializa a fatura caso não exista
+        if (ct) {
+            const card = DB.cartoes.find(x => x.id === ct);
+            if (card) {
+                if (isNaN(card.fatura)) card.fatura = 0;
+                card.fatura += vt;
+            }
+        }
+
+        for (let i = 0; i < vz; i++) {
+            const cid = Utils.genId("cnt"), dv = Utils.addMes(dt, i);
+            DB.contas.push({ id: cid, desc: vz > 1 ? `${d} (${i+1}/${vz})` : d, total: vm, venc: dv, status: "aberta", cartaoId: ct });
+            cbs.forEach(cb => {
+                DB.parcelas.push({ id: Utils.genId("prc"), contaId: cid, membroId: cb.dataset.id, membroNome: cb.value, valorBase: Math.round(vm / cbs.length), pago: false });
+            });
+        }
+        this.addLog("RATEIO", `Rateio ${d} criado por ${this.activeUser.nome}`, vt);
+        document.getElementById("f-val").value = "";
+        this.save();
+    },
+
+    payParcela(id) {
         const p = DB.parcelas.find(x => x.id === id);
-        if (p.pago) return;
+        if (!p || p.pago) return;
         const c = DB.contas.find(x => x.id === p.contaId);
         const multa = Utils.hoje() > c.venc ? 500 : 0;
-        p.pago = true; p.valorPagoFinal = p.valorBase + multa;
-        DB.cofreCentavos += p.valorPagoFinal;
+        p.pago = true;
+        p.valorFinal = p.valorBase + multa;
+        DB.cofreCentavos += p.valorFinal;
+        this.addLog("RECEBIMENTO", `${p.membroNome} pagou ${c.desc}`, p.valorFinal);
         this.save();
     },
 
     darBaixa(id) {
         const c = DB.contas.find(x => x.id === id);
-        if(DB.cofreCentavos < c.total) return alert("Saldo insuficiente!");
-        c.status = "quitada"; c.dataFechamento = Utils.hoje();
+        if (DB.cofreCentavos < c.total) return alert("Cofre insuficiente!");
+        c.status = "quitada";
         DB.cofreCentavos -= c.total;
+        
+        // Estornar valor da fatura visual do cartão
+        if (c.cartaoId) {
+            const card = DB.cartoes.find(x => x.id === c.cartaoId);
+            if (card && !isNaN(card.fatura)) card.fatura -= c.total;
+        }
+        this.addLog("BAIXA", `Liquidado pagamento de ${c.desc}`, c.total);
         this.save();
     },
 
-    initCharts() {
-        const ctx = document.getElementById('chartCasa').getContext('2d');
-        chartCasa = new Chart(ctx, {
-            type: 'bar', data: { labels: [], datasets: [{ data: [], backgroundColor: '#6c5dd3', borderRadius: 8 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-        });
+    switchUser(id) {
+        const u = DB.membros.find(m => m.id === id);
+        if (u.role === "ADMIN" && prompt("Senha:") !== this.PASS) return this.render();
+        this.activeUser = u; localStorage.setItem("activeUserId", id);
+        this.render();
     },
 
-    switchUser(id) {
-        const t = DB.membros.find(m => m.id === id);
-        if(t.role === "ADMIN") {
-            if(prompt("Senha:") !== this.PASS) return this.render();
-        }
-        this.activeUser = t; localStorage.setItem("activeUserId", t.id); this.render();
+    initCharts() {
+        const cfg = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
+        dChart = new Chart(document.getElementById("chartDoughnut"), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: ['#4318ff', '#05cd99', '#ee5d50', '#ffb800'] }] }, options: cfg });
+        bChart = new Chart(document.getElementById("chartBar"), { type: 'bar', data: { labels: [], datasets: [{ data: [], backgroundColor: '#4318ff', borderRadius: 8 }] }, options: cfg });
     },
 
     render() {
-        if(!this.activeUser) return;
-        document.getElementById("ui-cofre").innerText = Utils.toR(DB.cofreCentavos);
-        document.getElementById("welcome-txt").innerText = `Good morning, ${this.activeUser.nome}`;
-        document.getElementById("ui-card-name").innerText = this.activeUser.nome.toUpperCase();
-        document.getElementById("session-select").innerHTML = DB.membros.map(m => `<option value="${m.id}" ${m.id === this.activeUser.id ? "selected" : ""}>${m.nome}</option>`).join("");
-        document.getElementById("ui-members-check").innerHTML = DB.membros.map(m => `<label style="font-size:0.8rem; font-weight:600"><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>`).join("");
+        if (!this.activeUser) return;
+        document.getElementById("u-name").innerText = this.activeUser.nome;
+        document.getElementById("u-role").innerText = this.activeUser.role;
+        document.getElementById("ui-total-cofre").innerText = Utils.toR(DB.cofreCentavos);
+        document.getElementById("session-select").innerHTML = DB.membros.map(m => `<option value="${m.id}" ${m.id === this.activeUser.id ? 'selected' : ''}>${m.nome}</option>`).join("");
+        document.getElementById("ui-member-checks").innerHTML = DB.membros.map(m => `<label style="font-size:0.75rem; font-weight:700"><input class="m-cb" type="checkbox" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>`).join("");
 
-        // Tabela Activities
-        const vis = this.activeUser.role === "ADMIN" ? DB.parcelas : DB.parcelas.filter(p => p.membroId === this.activeUser.id);
-        document.getElementById("ui-atividades").innerHTML = vis.filter(p => !p.pago).map(p => {
+        // Cartões
+        document.getElementById("ui-cards-list").innerHTML = DB.cartoes.map(c => `
+            <div class="card-real" style="background: ${c.cor}">
+                <div style="display:flex; justify-content:space-between; align-items:center">
+                    <div class="card-chip"></div>
+                    <div style="font-weight:900; letter-spacing:2px; font-style:italic">VISA</div>
+                </div>
+                <div>
+                    <div class="card-label">${c.nome}</div>
+                    <div class="card-val">${Utils.toR(c.fatura || 0)}</div>
+                    <div style="font-size:0.6rem; opacity:0.8; margin-top:5px">LIMITE: ${Utils.toR(c.limite)} | VENC: DIA ${c.venc}</div>
+                </div>
+            </div>
+        `).join("");
+        document.getElementById("f-card-select").innerHTML = `<option value="">Dinheiro vivo</option>` + DB.cartoes.map(c => `<option value="${c.id}">${c.nome}</option>`).join("");
+
+        // Tabela Atividades
+        const isAdm = this.activeUser.role === "ADMIN";
+        const parcelas = isAdm ? DB.parcelas : DB.parcelas.filter(p => p.membroId === this.activeUser.id);
+        
+        document.getElementById("ui-table-body").innerHTML = parcelas.filter(p => !p.pago).map(p => {
             const c = DB.contas.find(x => x.id === p.contaId);
-            if(!c || c.status === "quitada") return "";
-            const atraso = Utils.hoje() > c.venc;
+            if (!c || c.status === "quitada") return "";
+            const late = Utils.hoje() > c.venc;
             return `<tr>
                 <td><b>${c.desc}</b></td>
                 <td>${p.membroNome}</td>
-                <td style="font-weight:700">${Utils.toR(atraso ? p.valorBase + 500 : p.valorBase)}</td>
-                <td><button class="status-pill ${atraso ? 'st-multa' : 'st-pending'}" onclick="Engine.pay('${p.id}')">${atraso ? 'MULTA' : 'PENDING'}</button></td>
+                <td style="font-weight:800; color:${late ? 'var(--danger)' : 'inherit'}">${Utils.toR(late ? p.valorBase + 500 : p.valorBase)}</td>
+                <td><span class="badge ${late ? 'badge-late' : 'badge-wait'}">${late ? 'MULTA' : 'PENDENTE'}</span></td>
                 <td>${c.venc.split('-').reverse().join('/')}</td>
+                <td><button class="badge badge-success" onclick="Engine.payParcela('${p.id}')">PAGAR</button></td>
             </tr>`;
         }).join("");
 
-        // Histórico
-        document.getElementById("ui-historico").innerHTML = (DB.contas || []).filter(c => c.status === "quitada").slice(0, 5).map(c => `
-            <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--border)">
-                <span>✅ ${c.desc}</span><b>${Utils.toR(c.total)}</b>
-            </div>
-        `).join("");
-
         // Baixas ADM
-        document.getElementById("ui-baixas").innerHTML = (DB.contas || []).filter(c => c.status === "aberta").map(c => `
-            <div style="display:flex; justify-content:space-between; margin-top:10px">
-                <span>${c.desc}</span><button class="status-pill st-done" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button>
+        document.getElementById("ui-baixas-lista").innerHTML = DB.contas.filter(c => c.status === "aberta").map(c => `
+            <div style="padding:15px; background:#f7f9ff; border-radius:15px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border)">
+                <span style="font-size:0.8rem"><b>${c.desc}</b><br>${Utils.toR(c.total)}</span>
+                <button class="badge badge-success" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button>
             </div>
         `).join("");
 
-        // Progresso e Gráfico
-        const totalMes = DB.contas.reduce((acc, cur) => acc + cur.total, 0);
-        const perc = totalMes > 0 ? (DB.cofreCentavos / totalMes) * 100 : 0;
-        document.getElementById("ui-bar").style.width = Math.min(perc, 100) + "%";
-        document.getElementById("ui-perc").innerText = `${Math.round(perc)}% arrecadado para as contas`;
+        // Logs
+        document.getElementById("ui-logs-list").innerHTML = DB.logs.map(l => `
+            <div class="log-row">
+                <div>
+                    <div class="log-tag" style="background:${l.tipo === 'BAIXA' ? '#ffebeb' : '#e6fff5'}; color:${l.tipo === 'BAIXA' ? 'var(--danger)' : 'var(--success)'}">${l.tipo}</div>
+                    <div style="font-weight:700; font-size:0.85rem">${l.msg}</div>
+                    <div style="font-size:0.65rem; color:var(--sub)">${l.data} por ${l.user}</div>
+                </div>
+                <div style="font-weight:800">${Utils.toR(l.valor)}</div>
+            </div>
+        `).join("");
 
-        const cat = {};
-        DB.contas.forEach(c => { cat[c.desc.split('(')[0]] = (cat[c.desc.split('(')[0]] || 0) + (c.total / 100); });
-        chartCasa.data.labels = Object.keys(cat); chartCasa.data.datasets[0].data = Object.values(cat); chartCasa.update();
+        // Charts
+        const totalMes = DB.contas.reduce((a, b) => a + b.total, 0);
+        document.getElementById("ui-progress-bar").style.width = Math.min((DB.cofreCentavos / (totalMes || 1)) * 100, 100) + "%";
+        document.getElementById("ui-perc-val").innerText = Math.round((DB.cofreCentavos / (totalMes || 1)) * 100) + "% Arrecadado";
+
+        const stats = {}; DB.contas.forEach(c => stats[c.desc.substring(0,8)] = (stats[c.desc.substring(0,8)] || 0) + c.total/100);
+        dChart.data.labels = Object.keys(stats); dChart.data.datasets[0].data = Object.values(stats); dChart.update();
+        bChart.data.labels = Object.keys(stats).slice(-5); bChart.data.datasets[0].data = Object.values(stats).slice(-5); bChart.update();
     }
 };
 
 const UI = {
-    toggleAdm: () => {
-        if(Engine.activeUser.role !== "ADMIN" && prompt("Senha:") !== Engine.PASS) return;
+    toggleAdm() {
+        if (Engine.activeUser.role !== "ADMIN" && prompt("Acesso Restrito:") !== Engine.PASS) return;
         document.getElementById("view-admin").classList.toggle("hidden");
     },
-    report: () => {
-        const total = (DB.contas || []).reduce((a, b) => a + b.total, 0);
-        alert(`Relatório Mensal:\nTotal de Gastos Planejados: ${Utils.toR(total)}\nTotal Arrecadado no Cofre: ${Utils.toR(DB.cofreCentavos)}`);
+    openModal(id) { document.getElementById(id).style.display = 'flex'; },
+    closeModal(id) { document.getElementById(id).style.display = 'none'; },
+    showReport() {
+        const total = DB.contas.reduce((a, b) => a + b.total, 0);
+        const arrecadado = DB.cofreCentavos;
+        const baixas = DB.contas.filter(c => c.status === "quitada").reduce((a,b) => a+b.total, 0);
+        
+        document.getElementById("report-view-content").innerHTML = `
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px">
+                <div class="card" style="margin:0; background:#f7f9ff"> <small>Gasto Total Criado</small> <h3>${Utils.toR(total)}</h3> </div>
+                <div class="card" style="margin:0; background:#f0fdf4"> <small>Total Pago (Baixado)</small> <h3>${Utils.toR(baixas)}</h3> </div>
+                <div class="card" style="margin:0; background:#e0e7ff"> <small>Arrecadado Membros</small> <h3>${Utils.toR(arrecadado)}</h3> </div>
+                <div class="card" style="margin:0; background:#fef2f2"> <small>Saldo Devido aos Vendedores</small> <h3>${Utils.toR(total - baixas)}</h3> </div>
+            </div>
+            <h4 style="margin:25px 0 10px 0">Contribuição por Membro</h4>
+            ${DB.membros.map(m => {
+                const totalM = DB.parcelas.filter(p => p.membroId === m.id && p.pago).reduce((a,b) => a+b.valorFinal, 0);
+                return `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee">
+                    <span>${m.nome}</span><b>${Utils.toR(totalM)}</b>
+                </div>`;
+            }).join("")}
+        `;
+        this.openModal('modal-report');
     }
 };
 
 Engine.init();
 </script>
+
 </body>
 </html>
