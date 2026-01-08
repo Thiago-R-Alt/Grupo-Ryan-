@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rateio Grupo Ryan v5.0</title>
+    <title>Rateio Grupo Ryan v5.1</title>
     <style>
         :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --dark: #0f172a; --slate: #64748b; --bg: #0f172a; --card: #1e293b; --warning: #f59e0b; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; color: #fff; }
@@ -102,8 +102,17 @@ const Engine = {
 
     async init() {
         await this.load();
-        // Define o primeiro membro como padrão ao iniciar
-        this.activeUser = DB.membros[0];
+        
+        // RECUPERA O ÚLTIMO USUÁRIO LOGADO NO APARELHO
+        const savedUser = sessionStorage.getItem("activeUser");
+        if (savedUser) {
+            const parsed = JSON.parse(savedUser);
+            // Verifica se esse usuário ainda existe no banco
+            this.activeUser = DB.membros.find(m => m.id === parsed.id) || DB.membros[0];
+        } else {
+            this.activeUser = DB.membros[0];
+        }
+        
         this.render();
         setInterval(() => this.load(), 5000);
     },
@@ -114,10 +123,6 @@ const Engine = {
             const data = await res.json();
             if (data) { 
                 DB = data; 
-                // Se o usuário ativo for removido por outro, volta ao primeiro
-                if(!DB.membros.find(m => m.id === this.activeUser?.id)) {
-                    this.activeUser = DB.membros[0];
-                }
                 this.render(); 
             }
         } catch (e) { console.error("Erro de conexão"); }
@@ -136,11 +141,13 @@ const Engine = {
             const p = prompt("Senha de Administrador:");
             if (p !== this.ADMIN_PASS) {
                 alert("Acesso Negado!");
-                this.render(); // Reseta o seletor visualmente
+                this.render(); 
                 return;
             }
         }
         this.activeUser = target;
+        // SALVA NA MEMÓRIA DA SESSÃO
+        sessionStorage.setItem("activeUser", JSON.stringify(target));
         this.render();
     },
 
@@ -180,7 +187,8 @@ const Engine = {
         const cid = Utils.genId('c');
         DB.contas.push({id:cid, desc:d, total:v, venc:dt, status:"aberta"});
         cbs.forEach(cb => {
-            const p = parseInt(document.getElementById("perc-" + cb.dataset.id).value);
+            const ip = document.getElementById("perc-" + cb.dataset.id);
+            const p = ip ? parseInt(ip.value) : 0;
             DB.parcelas.push({id:Utils.genId('p'), contaId:cid, membroId:cb.dataset.id, membroNome:cb.value, valorBase:Math.round(v*(p/100)), pago:false});
         });
         this.log(`🚀 Novo Rateio: ${d}`, 'neutro');
@@ -216,7 +224,7 @@ const Engine = {
             });
             txt += `\n`;
         });
-        navigator.clipboard.writeText(txt).then(() => alert("Copiado!"));
+        navigator.clipboard.writeText(txt).then(() => alert("Relatório copiado!"));
     },
 
     log(m, t) { DB.logs.unshift({m, t, d: new Date().toLocaleTimeString()}); if(DB.logs.length > 8) DB.logs.pop(); },
@@ -230,7 +238,6 @@ const Engine = {
         document.getElementById("ui-cofre").innerText = Utils.toR(DB.cofreCentavos);
         document.getElementById("user-role-badge").innerText = `${this.activeUser.nome} • ${this.activeUser.role}`;
         
-        // Renderiza o seletor SEMPRE
         document.getElementById("session-select").innerHTML = DB.membros.map(m => 
             `<option value="${m.id}" ${m.id === this.activeUser.id ? "selected" : ""}>👤 ${m.nome}</option>`
         ).join("");
