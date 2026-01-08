@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rateio Grupo Ryan v6.9</title>
+    <title>Rateio Grupo Ryan v7.0</title>
     <style>
         :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --dark: #0f172a; --slate: #64748b; --bg: #0f172a; --card: #1e293b; --warning: #f59e0b; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; color: #fff; }
@@ -18,10 +18,11 @@
         .btn-s { background: var(--success); color: #fff; }
         .btn-ghost { background: transparent; color: var(--slate); border: 1px solid #334155; margin-top: 0; }
         .member-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #161e2e; border-radius: 12px; margin-bottom: 8px; }
-        .btn-del { background: #7f1d1d; color: #fff; border: none; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 0.8rem; }
-        .tag { padding: 6px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; cursor: pointer; border: none; }
+        .btn-del { background: #7f1d1d; color: #fff; border: none; border-radius: 8px; padding: 5px 10px; cursor: pointer; }
+        .tag { padding: 6px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; cursor: pointer; border: none; margin-left: 5px; }
         .tag-pago { background: #064e3b; color: #10b981; }
         .tag-pendente { background: #7f1d1d; color: #f87171; }
+        .tag-pix { background: #32bcad; color: #fff; }
         .hidden { display: none !important; }
         table { width: 100%; border-collapse: collapse; }
         td { padding: 12px 5px; border-bottom: 1px solid #334155; font-size: 0.9rem; }
@@ -42,16 +43,17 @@
     </div>
 
     <div id="view-admin" class="card hidden">
-        <h4>👥 Gerenciar Moradores</h4>
+        <h4>🔑 Minha Chave PIX</h4>
+        <input id="f-adm-pix" placeholder="Sua chave Pix para receber">
+        <button class="btn btn-p" onclick="Engine.updateAdmPix()">SALVAR MINHA CHAVE</button>
+
+        <h4 style="margin-top:25px">👥 Moradores</h4>
         <div id="ui-manage-members"></div>
-        
-        <div style="margin-top:10px; border-top: 1px solid #334155; pt-10px">
-            <input id="f-new-mem" placeholder="Nome do Novo Morador">
-            <button class="btn btn-p" onclick="Engine.addMember()">CADASTRAR</button>
-        </div>
+        <input id="f-new-mem" placeholder="Nome do Novo Morador">
+        <button class="btn btn-p" onclick="Engine.addMember()" style="background:#334155">ADICIONAR MORADOR</button>
 
         <h4 style="margin-top:25px">📝 Novo Rateio</h4>
-        <input id="f-desc" placeholder="Ex: Internet">
+        <input id="f-desc" placeholder="Ex: Aluguel">
         <div style="display: flex; gap: 10px;">
             <input id="f-val" type="number" placeholder="Valor Total">
             <input id="f-date" type="date">
@@ -59,7 +61,7 @@
         <div id="ui-member-check-list" style="margin-top:10px"></div>
         <button class="btn btn-s" onclick="Engine.createMainBill()">GERAR RATEIO</button>
 
-        <h4 style="margin-top:25px">💰 Baixas</h4>
+        <h4 style="margin-top:25px">💰 Contas para Baixa</h4>
         <table id="ui-baixas-gerais"></table>
     </div>
 
@@ -74,7 +76,7 @@ const b1 = "https://grupo-ryan-";
 const b2 = "default-rtdb.firebaseio.com/dados.json";
 const FIREBASE_URL = b1 + b2;
 
-let DB = { membros: [], contas: [], parcelas: [], cofreCentavos: 0 };
+let DB = { membros: [], contas: [], parcelas: [], cofreCentavos: 0, admPix: "" };
 
 const Utils = {
     toC: v => Math.round(parseFloat(v)*100),
@@ -95,7 +97,6 @@ const Engine = {
         }
         const savedId = localStorage.getItem("activeUserId");
         this.activeUser = DB.membros.find(m => m.id === savedId) || DB.membros[0];
-        if(this.activeUser.role === "ADMIN") document.getElementById("view-admin").classList.remove("hidden");
         this.render();
         setInterval(() => this.load(), 5000);
     },
@@ -104,13 +105,19 @@ const Engine = {
         try {
             const res = await fetch(FIREBASE_URL);
             const data = await res.json();
-            if (data && data.membros) { DB = data; this.render(); }
+            if (data) { DB = data; this.render(); }
         } catch (e) { console.error("Erro banco"); }
     },
 
     async save() {
         await fetch(FIREBASE_URL, { method: 'PUT', body: JSON.stringify(DB) });
         this.render();
+    },
+
+    updateAdmPix() {
+        DB.admPix = document.getElementById("f-adm-pix").value;
+        this.save();
+        alert("Chave Pix salva!");
     },
 
     addMember() {
@@ -122,8 +129,8 @@ const Engine = {
     },
 
     removeMember(id) {
-        if (id === "u1") return alert("O administrador principal não pode ser removido!");
-        if (confirm("Deseja remover este morador da lista?")) {
+        if (id === "u1") return alert("O admin não pode ser removido!");
+        if (confirm("Remover morador?")) {
             DB.membros = DB.membros.filter(m => m.id !== id);
             this.save();
         }
@@ -162,14 +169,22 @@ const Engine = {
     payParcela(id) {
         const p = DB.parcelas.find(x => x.id === id);
         const c = DB.contas.find(x => x.id === p.contaId);
-        p.pago = true; p.valorPagoFinal = p.valorBase + (Utils.hoje() > c.venc ? 500 : 0);
+        const multa = Utils.hoje() > c.venc ? 500 : 0;
+        p.pago = true; 
+        p.valorPagoFinal = p.valorBase + multa;
         DB.cofreCentavos += p.valorPagoFinal;
         this.save();
     },
 
+    copyPix(valor) {
+        if(!DB.admPix) return alert("Cadastre sua chave Pix no ADM primeiro!");
+        navigator.clipboard.writeText(DB.admPix);
+        alert("Chave Pix copiada!\nValor: " + Utils.toR(valor));
+    },
+
     darBaixa(id) {
         const c = DB.contas.find(x => x.id === id);
-        if(DB.cofreCentavos < c.total) return alert("Saldo insuficiente!");
+        if(DB.cofreCentavos < c.total) return alert("Cofre sem saldo para pagar o total!");
         c.status = "quitada"; DB.cofreCentavos -= c.total;
         this.save();
     },
@@ -179,17 +194,17 @@ const Engine = {
         if (t?.role === "ADMIN" && prompt("Senha ADM:") !== this.ADMIN_PASS) return this.render();
         this.activeUser = t;
         localStorage.setItem("activeUserId", t.id);
-        document.getElementById("view-admin").classList.toggle("hidden", t.role !== "ADMIN");
         this.render();
     },
 
     render() {
         if(!this.activeUser) return;
+        const isAdm = this.activeUser.role === "ADMIN";
         document.getElementById("ui-cofre").innerText = Utils.toR(DB.cofreCentavos);
         document.getElementById("user-role-badge").innerText = `${this.activeUser.nome} • ${this.activeUser.role}`;
         document.getElementById("session-select").innerHTML = DB.membros.map(m => `<option value="${m.id}" ${m.id === this.activeUser.id ? "selected" : ""}>👤 ${m.nome}</option>`).join("");
-        
-        // LISTA COM BOTÃO DE APAGAR INDIVIDUAL
+        document.getElementById("f-adm-pix").value = DB.admPix || "";
+
         document.getElementById("ui-manage-members").innerHTML = DB.membros.map(m => `
             <div class="member-row">
                 <span>${m.nome}</span>
@@ -202,17 +217,22 @@ const Engine = {
         `).join("");
 
         document.getElementById("ui-baixas-gerais").innerHTML = (DB.contas || []).filter(c => c.status === "aberta").map(c => `
-            <tr><td><b>${c.desc}</b></td><td style="text-align:right"><button class="tag tag-pago" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button></td></tr>
+            <tr><td><b>${c.desc}</b><br><small>Total: ${Utils.toR(c.total)}</small></td><td style="text-align:right"><button class="tag tag-pago" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button></td></tr>
         `).join("");
 
-        const vis = this.activeUser.role === "ADMIN" ? (DB.parcelas || []) : (DB.parcelas || []).filter(p => p.membroId === this.activeUser.id);
+        const vis = isAdm ? (DB.parcelas || []) : (DB.parcelas || []).filter(p => p.membroId === this.activeUser.id);
         document.getElementById("ui-minhas-parcelas").innerHTML = vis.map(p => {
-            const c = DB.contas.find(x => x.id === p.contaId);
+            const c = (DB.contas || []).find(x => x.id === p.contaId);
             if(!c || c.status === "quitada") return "";
+            const atraso = !p.pago && Utils.hoje() > c.venc;
+            const valorCalculado = p.pago ? p.valorPagoFinal : (atraso ? p.valorBase + 500 : p.valorBase);
             return `<tr>
-                <td><b>${c.desc}</b><br><small>${p.membroNome}</small></td>
-                <td style="text-align:right"><b>${Utils.toR(p.pago?p.valorPagoFinal:p.valorBase)}</b></td>
-                <td style="text-align:right"><button class="tag ${p.pago?'tag-pago':'tag-pendente'}" onclick="Engine.payParcela('${p.id}')">${p.pago?'OK':'PAGAR'}</button></td>
+                <td><b>${c.desc}</b><br><small>${p.membroNome} ${atraso?'(ATRASADO)':''}</small></td>
+                <td style="text-align:right"><b>${Utils.toR(valorCalculado)}</b></td>
+                <td style="text-align:right">
+                    ${!p.pago ? `<button class="tag tag-pix" onclick="Engine.copyPix(${valorCalculado})">PIX</button>` : ''}
+                    <button class="tag ${p.pago?'tag-pago':'tag-pendente'}" onclick="Engine.payParcela('${p.id}')">${p.pago?'OK':'PAGO'}</button>
+                </td>
             </tr>`;
         }).join("");
     }
