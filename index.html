@@ -8,144 +8,149 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg: #e0e5ec;
-            --card-bg: #e0e5ec;
-            --shadow: 9px 9px 16px rgb(163,177,198,0.6), -9px -9px 16px rgba(255,255,255, 0.5);
-            --inner-shadow: inset 6px 6px 12px #a3b1c6, inset -6px -6px 12px #ffffff;
-            --primary: #2d3436;
-            --accent: #ff7675;
-            --success: #55efc4;
-            --danger: #ff7675;
-            --text: #2d3436;
-            --sub-text: #636e72;
+            --bg: #f0f2f5; --card-bg: #ffffff; --primary: #1a1d1f;
+            --accent: #6c5dd3; --success: #45b36b; --danger: #ef4444;
+            --text: #1a1d1f; --sub: #6f767e; --border: #efefef;
         }
-
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        body { background: var(--bg); color: var(--text); margin: 0; padding: 10px; }
 
-        /* Navbar do Print */
-        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; margin-bottom: 30px; }
-        .nav-menu { display: flex; gap: 20px; background: rgba(255,255,255,0.3); padding: 10px 25px; border-radius: 50px; box-shadow: var(--shadow); }
-        .nav-item { font-size: 0.85rem; font-weight: 600; cursor: pointer; color: var(--sub-text); }
-        .nav-item.active { color: var(--primary); background: white; padding: 5px 15px; border-radius: 20px; }
+        /* Navbar */
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px; max-width: 1200px; margin: 0 auto; }
+        .nav-links { display: flex; gap: 20px; background: white; padding: 8px 20px; border-radius: 12px; border: 1px solid var(--border); }
+        .nav-item { font-size: 0.85rem; font-weight: 700; cursor: pointer; color: var(--sub); text-decoration: none; border: none; background: none; }
+        .nav-item:hover { color: var(--accent); }
 
-        .container { max-width: 1200px; margin: 0 auto; }
-        .grid-main { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 25px; }
-
-        /* Card Neumorphism */
-        .card { background: var(--card-bg); border-radius: 30px; padding: 25px; box-shadow: var(--shadow); margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.2); }
+        .container { max-width: 1200px; margin: 0 auto; padding: 10px; }
+        .card { background: var(--card-bg); border-radius: 24px; padding: 24px; margin-bottom: 24px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
         
-        /* Cartão Virtual do Print */
-        .virtual-card { background: linear-gradient(135deg, #2d3436 0%, #000000 100%); border-radius: 20px; padding: 20px; color: white; position: relative; overflow: hidden; height: 160px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-        .card-chip { width: 40px; height: 30px; background: #f1c40f; border-radius: 5px; margin-bottom: 20px; }
+        /* Grid Layout */
+        .main-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; }
 
-        /* Status Pills */
-        .status { padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
-        .status-pendente { background: #ffeaa7; color: #d35400; }
-        .status-multa { background: #ff7675; color: white; }
-        .status-pago { background: #55efc4; color: #00b894; }
+        /* Cartão Virtual */
+        .v-card { background: #1a1d1f; border-radius: 20px; padding: 25px; color: white; height: 180px; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 24px; }
+        .v-card-chip { width: 45px; height: 32px; background: #edbc5a; border-radius: 6px; }
 
-        /* Tabela Profissional */
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th { text-align: left; font-size: 0.75rem; color: var(--sub-text); padding: 10px; border-bottom: 1px solid rgba(0,0,0,0.05); }
-        td { padding: 15px 10px; font-size: 0.85rem; border-bottom: 1px solid rgba(0,0,0,0.02); }
+        /* Tabela "Recent Activities" - Estilo Profissional */
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { text-align: left; padding: 12px; color: var(--sub); font-size: 0.75rem; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+        td { padding: 16px 12px; font-size: 0.9rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        
+        .status-pill { padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer; border: none; }
+        .st-pending { background: #fff1e6; color: #ff944d; }
+        .st-multa { background: #fee2e2; color: #ef4444; }
+        .st-done { background: #eaf8f0; color: #45b36b; }
 
-        /* Inputs e Botões */
-        input, select { background: var(--bg); border: none; padding: 12px; border-radius: 12px; box-shadow: var(--inner-shadow); width: 100%; margin-top: 10px; outline: none; }
-        .btn { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 15px; font-weight: 700; cursor: pointer; box-shadow: var(--shadow); transition: 0.2s; }
-        .btn:active { box-shadow: var(--inner-shadow); }
+        /* Inputs e ADM */
+        input, select { background: #f4f4f4; border: 1px solid var(--border); padding: 12px; border-radius: 12px; width: 100%; margin-top: 5px; outline: none; }
+        .btn-p { background: var(--primary); color: white; padding: 14px 24px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; width: 100%; }
 
-        .progress-bar { width: 100%; height: 10px; background: #cbd5e0; border-radius: 10px; margin: 15px 0; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: 1s; }
+        .progress-cont { width: 100%; height: 8px; background: #efefef; border-radius: 10px; margin: 15px 0; }
+        .progress-bar { height: 100%; background: var(--accent); border-radius: 10px; width: 0%; transition: 0.5s; }
 
         .hidden { display: none !important; }
-        @media (max-width: 900px) { .grid-main { grid-template-columns: 1fr; } }
+        @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-    <div class="navbar">
-        <div style="font-weight: 800; font-size: 1.4rem;">Finexy.</div>
-        <div class="nav-menu">
-            <div class="nav-item active">Overview</div>
-            <div class="nav-item" onclick="UI.toggleAdm()">Manage</div>
-            <div class="nav-item">Reports</div>
+<div class="navbar">
+    <div style="font-weight: 800; font-size: 1.4rem;">Finexy</div>
+    <div class="nav-links">
+        <button class="nav-item" onclick="location.reload()">Overview</button>
+        <button class="nav-item" onclick="UI.toggleAdm()">Manage</button>
+        <button class="nav-item" onclick="UI.report()">Reports</button>
+    </div>
+    <select id="session-select" onchange="Engine.switchUser(this.value)" style="width: auto; margin:0; border:none; background:none; font-weight:700;"></select>
+</div>
+
+<div class="container">
+    <div style="margin-bottom: 30px;">
+        <h2 id="welcome-txt">Good morning, Thiago</h2>
+        <p style="color: var(--sub); margin-top: -10px;">Monitor house progress and status.</p>
+    </div>
+
+    <div class="main-grid">
+        <div>
+            <div class="card">
+                <small style="color:var(--sub)">Total Balance</small>
+                <div style="font-size: 2rem; font-weight: 800; margin: 10px 0;" id="ui-cofre">R$ 0,00</div>
+                <div class="progress-cont"><div class="progress-bar" id="ui-bar"></div></div>
+                <small id="ui-perc" style="font-weight: 600; color: var(--accent);">0% atingido</small>
+            </div>
+
+            <div class="v-card">
+                <div class="v-card-chip"></div>
+                <div>
+                    <div style="font-size: 1.2rem; font-weight: 600; letter-spacing: 1px;" id="ui-card-name">CARREGANDO...</div>
+                    <div style="font-size: 0.7rem; opacity: 0.6; margin-top: 5px;">MEMBER ACCOUNT</div>
+                </div>
+            </div>
         </div>
-        <div id="session-info">
-            <select id="session-select" onchange="Engine.switchUser(this.value)" style="width: auto; box-shadow: none; background: transparent;"></select>
+
+        <div class="card">
+            <h4>Total de Gastos (Mês)</h4>
+            <div style="height: 250px;"><canvas id="chartCasa"></canvas></div>
         </div>
     </div>
 
-    <div class="container">
-        <div style="margin-bottom: 30px;">
-            <h1 id="welcome-msg">Good morning, User</h1>
-            <p style="color: var(--sub-text);">Stay on top of your house tasks and progress.</p>
-        </div>
-
-        <div class="grid-main">
+    <div id="view-admin" class="card hidden">
+        <h4 style="color:var(--accent)">🔑 Painel de Controle (ADM)</h4>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
             <div>
-                <div class="card">
-                    <h4>Total Balance</h4>
-                    <div style="font-size: 1.8rem; font-weight: 800;" id="ui-cofre">R$ 0,00</div>
-                    <div class="progress-bar"><div class="progress-fill" id="ui-progress"></div></div>
-                    <small id="ui-meta-text">0% do gasto mensal atingido</small>
-                </div>
-
-                <div class="virtual-card">
-                    <div class="card-chip"></div>
-                    <div style="font-size: 1.1rem; letter-spacing: 2px;" id="user-card-name">RYAN MEMBER</div>
-                    <div style="margin-top: 20px; font-size: 0.7rem; opacity: 0.7;">MEMBRO ATIVO</div>
-                </div>
+                <label>O que comprou?</label>
+                <input id="f-desc" placeholder="Ex: Geladeira">
             </div>
-
-            <div class="card" style="grid-column: span 2;">
-                <h4>Total de Gastos (Mês)</h4>
-                <div style="height: 250px;">
-                    <canvas id="chartCasa"></canvas>
-                </div>
+            <div>
+                <label>Qual valor?</label>
+                <input id="f-val" type="number" placeholder="0,00">
             </div>
-        </div>
-
-        <div id="view-admin" class="card hidden">
-            <h4>⚙️ Administração do Grupo</h4>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <input id="f-desc" placeholder="Descrição do Gasto">
-                <input id="f-val" type="number" placeholder="Valor Total">
+            <div>
+                <label>Vencimento</label>
                 <input id="f-date" type="date">
+            </div>
+            <div>
+                <label>Parcelas (Cartão)</label>
                 <select id="f-vezes">
                     <option value="1">Pagamento Único</option>
                     <option value="2">2x no Cartão</option>
                     <option value="3">3x no Cartão</option>
+                    <option value="4">4x no Cartão</option>
                     <option value="12">12x no Cartão</option>
                 </select>
             </div>
-            <div id="ui-member-check-list" style="margin: 20px 0; display: flex; gap: 15px;"></div>
-            <button class="btn" onclick="Engine.createMainBill()">PUBLICAR RATEIO</button>
-            <div id="ui-baixas-gerais" style="margin-top: 20px;"></div>
         </div>
+        <div id="ui-members-check" style="margin: 20px 0; display: flex; gap: 15px; flex-wrap: wrap;"></div>
+        <button class="btn-p" onclick="Engine.createBill()">Lançar Rateio</button>
+        
+        <h4 style="margin-top: 30px;">Dar Baixa em Contas (Sair do Cofre)</h4>
+        <div id="ui-baixas"></div>
+    </div>
 
-        <div class="card">
-            <h4>Recent Activities</h4>
+    <div class="card">
+        <h4>Recent Activities</h4>
+        <div class="table-container">
             <table>
                 <thead>
                     <tr>
-                        <th>ATIVIDADE</th>
-                        <th>MEMBRO</th>
-                        <th>PREÇO</th>
-                        <th>STATUS</th>
-                        <th>VENCIMENTO</th>
+                        <th>Atividade / Descrição</th>
+                        <th>Membro</th>
+                        <th>Preço</th>
+                        <th>Status</th>
+                        <th>Vencimento</th>
                     </tr>
                 </thead>
-                <tbody id="ui-atividades-tabela">
-                    </tbody>
+                <tbody id="ui-atividades"></tbody>
             </table>
         </div>
-
-        <div class="card">
-            <h4>Histórico de Contas Pagas</h4>
-            <div id="ui-historico-detalhado"></div>
-        </div>
     </div>
+
+    <div class="card">
+        <h4>Histórico de Quitadas</h4>
+        <div id="ui-historico"></div>
+    </div>
+</div>
 
 <script>
 const FIREBASE_URL = "https://grupo-ryan-default-rtdb.firebaseio.com/dados.json";
@@ -157,16 +162,13 @@ const Utils = {
     toR: c => (c/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}),
     genId: p => p+'_'+Math.random().toString(36).substr(2,9),
     hoje: () => new Date().toISOString().split('T')[0],
-    addMes: (dataStr, meses) => {
-        let d = new Date(dataStr + 'T12:00:00');
-        d.setMonth(d.getMonth() + meses);
-        return d.toISOString().split('T')[0];
-    }
+    addMes: (ds, m) => { let d = new Date(ds + 'T12:00:00'); d.setMonth(d.getMonth() + m); return d.toISOString().split('T')[0]; }
 };
 
 const Engine = {
     activeUser: null,
-    
+    PASS: "1234",
+
     async init() {
         await this.load();
         this.initCharts();
@@ -189,27 +191,24 @@ const Engine = {
         this.render();
     },
 
-    createMainBill() {
+    createBill() {
         const d = document.getElementById("f-desc"), v = document.getElementById("f-val"), 
               dt = document.getElementById("f-date"), vz = document.getElementById("f-vezes"),
               cbs = document.querySelectorAll(".m-cb:checked");
-        
         if(!d.value || !v.value || !dt.value || cbs.length === 0) return alert("Preencha tudo!");
-        
         const vT = Utils.toC(v.value), vezes = parseInt(vz.value), vM = Math.round(vT / vezes);
-
         for(let i=0; i < vezes; i++) {
-            const cid = Utils.genId('c'), dataV = Utils.addMes(dt.value, i);
-            DB.contas.push({id:cid, desc: vezes > 1 ? `${d.value} (${i+1}/${vezes})` : d.value, total:vM, venc:dataV, status:"aberta"});
+            const cid = Utils.genId('c'), dv = Utils.addMes(dt.value, i);
+            DB.contas.push({id:cid, desc: vezes > 1 ? `${d.value} (${i+1}/${vezes})` : d.value, total:vM, venc:dv, status:"aberta"});
             cbs.forEach(cb => {
                 DB.parcelas.push({id: Utils.genId('p'), contaId: cid, membroId: cb.dataset.id, membroNome: cb.value, valorBase: Math.round(vM / cbs.length), pago: false});
             });
         }
-        d.value = ""; v.value = ""; 
+        d.value = ""; v.value = "";
         this.save();
     },
 
-    payParcela(id) {
+    pay(id) {
         const p = DB.parcelas.find(x => x.id === id);
         if (p.pago) return;
         const c = DB.contas.find(x => x.id === p.contaId);
@@ -221,7 +220,7 @@ const Engine = {
 
     darBaixa(id) {
         const c = DB.contas.find(x => x.id === id);
-        if(DB.cofreCentavos < c.total) return alert("Saldo insuficiente no cofre!");
+        if(DB.cofreCentavos < c.total) return alert("Saldo insuficiente!");
         c.status = "quitada"; c.dataFechamento = Utils.hoje();
         DB.cofreCentavos -= c.total;
         this.save();
@@ -230,73 +229,79 @@ const Engine = {
     initCharts() {
         const ctx = document.getElementById('chartCasa').getContext('2d');
         chartCasa = new Chart(ctx, {
-            type: 'bar',
-            data: { labels: [], datasets: [{ label: 'Gasto R$', data: [], backgroundColor: '#2d3436', borderRadius: 10 }] },
-            options: { responsive: true, maintainAspectRatio: false }
+            type: 'bar', data: { labels: [], datasets: [{ data: [], backgroundColor: '#6c5dd3', borderRadius: 8 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
         });
     },
 
     switchUser(id) {
         const t = DB.membros.find(m => m.id === id);
+        if(t.role === "ADMIN") {
+            if(prompt("Senha:") !== this.PASS) return this.render();
+        }
         this.activeUser = t; localStorage.setItem("activeUserId", t.id); this.render();
     },
 
     render() {
         if(!this.activeUser) return;
         document.getElementById("ui-cofre").innerText = Utils.toR(DB.cofreCentavos);
-        document.getElementById("welcome-msg").innerText = `Good morning, ${this.activeUser.nome}`;
-        document.getElementById("user-card-name").innerText = this.activeUser.nome.toUpperCase();
+        document.getElementById("welcome-txt").innerText = `Good morning, ${this.activeUser.nome}`;
+        document.getElementById("ui-card-name").innerText = this.activeUser.nome.toUpperCase();
         document.getElementById("session-select").innerHTML = DB.membros.map(m => `<option value="${m.id}" ${m.id === this.activeUser.id ? "selected" : ""}>${m.nome}</option>`).join("");
-        document.getElementById("ui-member-check-list").innerHTML = DB.membros.map(m => `<label><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>`).join("");
+        document.getElementById("ui-members-check").innerHTML = DB.membros.map(m => `<label style="font-size:0.8rem; font-weight:600"><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>`).join("");
 
-        // Tabela de Atividades (Igual ao Print)
-        const parcelasVisiveis = this.activeUser.role === "ADMIN" ? DB.parcelas : DB.parcelas.filter(p => p.membroId === this.activeUser.id);
-        document.getElementById("ui-atividades-tabela").innerHTML = parcelasVisiveis.filter(p => !p.pago).map(p => {
+        // Tabela Activities
+        const vis = this.activeUser.role === "ADMIN" ? DB.parcelas : DB.parcelas.filter(p => p.membroId === this.activeUser.id);
+        document.getElementById("ui-atividades").innerHTML = vis.filter(p => !p.pago).map(p => {
             const c = DB.contas.find(x => x.id === p.contaId);
             if(!c || c.status === "quitada") return "";
             const atraso = Utils.hoje() > c.venc;
-            return `
-                <tr>
-                    <td><b>${c.desc}</b></td>
-                    <td>${p.membroNome}</td>
-                    <td>${Utils.toR(atraso ? p.valorBase + 500 : p.valorBase)}</td>
-                    <td><span class="status ${atraso ? 'status-multa' : 'status-pendente'}" onclick="Engine.payParcela('${p.id}')" style="cursor:pointer">${atraso ? 'MULTA' : 'PENDING'}</span></td>
-                    <td>${c.venc.split('-').reverse().join('/')}</td>
-                </tr>
-            `;
+            return `<tr>
+                <td><b>${c.desc}</b></td>
+                <td>${p.membroNome}</td>
+                <td style="font-weight:700">${Utils.toR(atraso ? p.valorBase + 500 : p.valorBase)}</td>
+                <td><button class="status-pill ${atraso ? 'st-multa' : 'st-pending'}" onclick="Engine.pay('${p.id}')">${atraso ? 'MULTA' : 'PENDING'}</button></td>
+                <td>${c.venc.split('-').reverse().join('/')}</td>
+            </tr>`;
         }).join("");
 
         // Histórico
-        const quitadas = (DB.contas || []).filter(c => c.status === "quitada").slice(0, 5);
-        document.getElementById("ui-historico-detalhado").innerHTML = quitadas.map(c => `
-            <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid rgba(0,0,0,0.05)">
+        document.getElementById("ui-historico").innerHTML = (DB.contas || []).filter(c => c.status === "quitada").slice(0, 5).map(c => `
+            <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--border)">
                 <span>✅ ${c.desc}</span><b>${Utils.toR(c.total)}</b>
             </div>
         `).join("");
 
         // Baixas ADM
-        document.getElementById("ui-baixas-gerais").innerHTML = (DB.contas || []).filter(c => c.status === "aberta").map(c => `
+        document.getElementById("ui-baixas").innerHTML = (DB.contas || []).filter(c => c.status === "aberta").map(c => `
             <div style="display:flex; justify-content:space-between; margin-top:10px">
-                <span>${c.desc} (${Utils.toR(c.total)})</span>
-                <button class="status status-pago" onclick="Engine.darBaixa('${c.id}')" style="border:none; cursor:pointer">BAIXAR</button>
+                <span>${c.desc}</span><button class="status-pill st-done" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button>
             </div>
         `).join("");
 
-        // Atualizar Barra de Progresso e Gráfico
+        // Progresso e Gráfico
         const totalMes = DB.contas.reduce((acc, cur) => acc + cur.total, 0);
-        const progresso = totalMes > 0 ? (DB.cofreCentavos / totalMes) * 100 : 0;
-        document.getElementById("ui-progress").style.width = Math.min(progresso, 100) + "%";
-        document.getElementById("ui-meta-text").innerText = `${Math.round(progresso)}% do total arrecadado`;
+        const perc = totalMes > 0 ? (DB.cofreCentavos / totalMes) * 100 : 0;
+        document.getElementById("ui-bar").style.width = Math.min(perc, 100) + "%";
+        document.getElementById("ui-perc").innerText = `${Math.round(perc)}% arrecadado para as contas`;
 
         const cat = {};
         DB.contas.forEach(c => { cat[c.desc.split('(')[0]] = (cat[c.desc.split('(')[0]] || 0) + (c.total / 100); });
-        chartCasa.data.labels = Object.keys(cat);
-        chartCasa.data.datasets[0].data = Object.values(cat);
-        chartCasa.update();
+        chartCasa.data.labels = Object.keys(cat); chartCasa.data.datasets[0].data = Object.values(cat); chartCasa.update();
     }
 };
 
-const UI = { toggleAdm: () => document.getElementById("view-admin").classList.toggle("hidden") };
+const UI = {
+    toggleAdm: () => {
+        if(Engine.activeUser.role !== "ADMIN" && prompt("Senha:") !== Engine.PASS) return;
+        document.getElementById("view-admin").classList.toggle("hidden");
+    },
+    report: () => {
+        const total = (DB.contas || []).reduce((a, b) => a + b.total, 0);
+        alert(`Relatório Mensal:\nTotal de Gastos Planejados: ${Utils.toR(total)}\nTotal Arrecadado no Cofre: ${Utils.toR(DB.cofreCentavos)}`);
+    }
+};
+
 Engine.init();
 </script>
 </body>
