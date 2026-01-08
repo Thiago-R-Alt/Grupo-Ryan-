@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rateio Grupo Ryan v6.1</title>
+    <title>Rateio Grupo Ryan v6.2</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --dark: #0f172a; --slate: #64748b; --bg: #0f172a; --card: #1e293b; --warning: #f59e0b; }
@@ -24,24 +24,10 @@
         .tag-pago { background: #064e3b; color: #10b981; }
         .tag-pendente { background: #7f1d1d; color: #f87171; }
         .member-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #161e2e; border-radius: 12px; margin-bottom: 8px; }
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: #fff; color: #000; padding: 20px; border-radius: 24px; width: 90%; max-width: 350px; text-align: center; }
-        #qrcode-container { display: flex; justify-content: center; margin: 15px 0; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
-
-<div id="pix-modal" class="modal hidden">
-    <div class="modal-content">
-        <h3>Pagar via Pix</h3>
-        <p id="pix-destinatario" style="font-size: 0.8rem;"></p>
-        <div id="qrcode-container"></div>
-        <input id="pix-copia-cola" readonly style="background: #f1f5f9; color: #334155; font-size: 0.7rem; border: 1px dashed #cbd5e1; width: 100%;">
-        <button class="btn btn-p" onclick="UI.copyPix()">Copiar Código Pix</button>
-        <button class="btn btn-ghost" onclick="UI.closePix()">Fechar</button>
-    </div>
-</div>
 
 <div class="container">
     <div style="display:flex; gap:10px; margin-bottom:15px">
@@ -52,11 +38,19 @@
     <div class="header-status">
         <small>SALDO NO COFRE</small>
         <div class="val-total" id="ui-cofre">R$ 0,00</div>
-        <div id="user-role-badge" style="font-size: 0.8rem; color: var(--slate);">Carregando...</div>
+        <div id="user-role-badge" style="font-size: 0.8rem; color: var(--slate);">Sincronizando...</div>
     </div>
 
-    <div id="view-admin" class="card hidden">
-        <h4>📝 Novo Rateio</h4>
+    <div id="view-admin" class="card">
+        <h4>👥 Cadastrar Moradores</h4>
+        <div id="ui-manage-members"></div>
+        <div class="card" style="background:#0f172a; padding:10px; border: 1px solid var(--primary);">
+            <input id="f-new-mem" placeholder="Nome do Morador">
+            <input id="f-new-pix" placeholder="Chave Pix (opcional)" style="margin-top:5px">
+            <button class="btn btn-p" onclick="Engine.addMember()">Adicionar Morador</button>
+        </div>
+
+        <h4 style="margin-top:20px">📝 Novo Rateio</h4>
         <input id="f-desc" placeholder="Ex: Aluguel">
         <div style="display: flex; gap: 10px;">
             <input id="f-val" type="number" placeholder="Valor">
@@ -65,17 +59,8 @@
         <div id="ui-member-check-list" style="margin-top:10px"></div>
         <button class="btn btn-s" onclick="Engine.createMainBill()">GERAR RATEIO</button>
 
-        <h4 style="margin-top:25px">👥 Moradores e Pix</h4>
-        <div id="ui-manage-members"></div>
-        <div class="card" style="background:#0f172a; padding:10px">
-            <input id="f-new-mem" placeholder="Nome" style="margin:0">
-            <input id="f-new-pix" placeholder="Chave Pix" style="margin-top:5px">
-            <button class="btn btn-p" onclick="Engine.addMember()">Adicionar</button>
-        </div>
-
         <h4>💰 Baixas</h4>
         <table id="ui-baixas-gerais"></table>
-        <button class="btn btn-danger" onclick="Engine.resetAll()" style="font-size: 0.7rem;">RESETAR TUDO</button>
     </div>
 
     <div class="card">
@@ -90,7 +75,7 @@ const b2 = "default-rtdb.firebaseio.com/dados.json";
 const FIREBASE_URL = b1 + b2;
 
 let DB = { 
-    membros: [{id:"u1",nome:"Thiago",role:"ADMIN",pix:""}], 
+    membros: [], 
     contas: [], parcelas: [], cofreCentavos: 0 
 };
 
@@ -108,14 +93,17 @@ const Engine = {
     async init() {
         await this.load();
         
-        // CORREÇÃO: Tenta recuperar o usuário salvo APÓS o DB carregar
-        const savedUserId = localStorage.getItem("activeUserId");
-        if (savedUserId) {
-            const found = DB.membros.find(m => m.id === savedUserId);
-            this.activeUser = found || DB.membros[0];
-        } else {
-            this.activeUser = DB.membros[0];
+        // Se após o load não houver membros, cria o Thiago Admin automaticamente
+        if (DB.membros.length === 0) {
+            DB.membros.push({id:"u1", nome:"Thiago", role:"ADMIN", pix:""});
+            await this.save();
         }
+
+        const savedUserId = localStorage.getItem("activeUserId");
+        this.activeUser = DB.membros.find(m => m.id === savedUserId) || DB.membros[0];
+        
+        // Se for admin, começa com painel aberto para facilitar
+        if(this.activeUser.role === "ADMIN") document.getElementById("view-admin").classList.remove("hidden");
         
         this.render();
         setInterval(() => this.load(), 5000);
@@ -125,46 +113,53 @@ const Engine = {
         try {
             const res = await fetch(FIREBASE_URL);
             const data = await res.json();
-            if (data) { 
+            if (data && data.membros) { 
                 DB = data; 
-                // Se o usuário logado sumiu do banco (removido), volta pro Thiago
                 if (this.activeUser && !DB.membros.find(m => m.id === this.activeUser.id)) {
                     this.activeUser = DB.membros[0];
                 }
                 this.render(); 
             }
-        } catch (e) { console.error("Erro rede"); }
+        } catch (e) { console.error("Erro banco"); }
     },
 
     async save() {
-        await fetch(FIREBASE_URL, { method: 'PUT', body: JSON.stringify(DB) });
-        this.render();
+        try {
+            await fetch(FIREBASE_URL, { method: 'PUT', body: JSON.stringify(DB) });
+            this.render();
+        } catch (e) { alert("Erro ao salvar!"); }
     },
 
     switchUser(id) {
         const t = DB.membros.find(m => m.id === id);
         if (t?.role === "ADMIN") {
             if (prompt("Senha ADM:") !== this.ADMIN_PASS) {
-                this.render(); // Reseta visualmente o select
+                this.render();
                 return;
             }
         }
         this.activeUser = t;
-        localStorage.setItem("activeUserId", t.id); // Salva apenas o ID para ser mais robusto
+        localStorage.setItem("activeUserId", t.id);
         this.render();
     },
 
     addMember() {
-        const n = document.getElementById("f-new-mem").value, p = document.getElementById("f-new-pix").value;
-        if(!n) return;
-        DB.membros.push({id: Utils.genId('u'), nome: n, role: "MEMBRO", pix: p});
-        document.getElementById("f-new-mem").value = ""; document.getElementById("f-new-pix").value = "";
+        const n = document.getElementById("f-new-mem").value;
+        const p = document.getElementById("f-new-pix").value;
+        if(!n) return alert("Digite o nome");
+        
+        // O primeiro membro a ser adicionado manualmente (se o Thiago sumir) será ADMIN
+        const role = DB.membros.length === 0 ? "ADMIN" : "MEMBRO";
+        
+        DB.membros.push({id: Utils.genId('u'), nome: n, role: role, pix: p});
+        document.getElementById("f-new-mem").value = "";
+        document.getElementById("f-new-pix").value = "";
         this.save();
     },
 
     createMainBill() {
         const d = document.getElementById("f-desc").value, v = Utils.toC(document.getElementById("f-val").value), dt = document.getElementById("f-date").value, cbs = document.querySelectorAll(".m-cb:checked");
-        if(!d || v <= 0 || !cbs.length) return alert("Preencha tudo");
+        if(!d || v <= 0 || !cbs.length) return alert("Preencha os dados e selecione quem participa");
         const cid = Utils.genId('c');
         DB.contas.push({id:cid, desc:d, total:v, venc:dt, status:"aberta", criadoPor: this.activeUser.id});
         cbs.forEach(cb => {
@@ -184,68 +179,33 @@ const Engine = {
 
     darBaixa(id) {
         const c = DB.contas.find(x => x.id === id);
-        if(DB.cofreCentavos < c.total) return alert("Saldo insuficiente!");
+        if(DB.cofreCentavos < c.total) return alert("Cofre não tem saldo suficiente!");
         c.status = "quitada"; DB.cofreCentavos -= c.total;
         this.save();
     },
 
-    resetAll() { if(confirm("Apagar tudo?")) { DB.contas=[]; DB.parcelas=[]; DB.cofreCentavos=0; this.save(); } }
-};
-
-const UI = {
-    toggleAdm: () => {
-        if (Engine.activeUser.role !== "ADMIN") {
-            if (prompt("Senha ADM:") !== Engine.ADMIN_PASS) return;
-        }
-        document.getElementById("view-admin").classList.toggle("hidden");
-    },
-
-    showPix(parcelaId) {
-        const p = DB.parcelas.find(x => x.id === parcelaId);
-        const c = DB.contas.find(x => x.id === p.contaId);
-        const recebedor = DB.membros.find(m => m.id === c.criadoPor) || DB.membros[0];
-        
-        if(!recebedor.pix) return alert("Recebedor sem chave Pix!");
-
-        const valor = (p.valorBase + (Utils.hoje() > c.venc ? 500 : 0)) / 100;
-        const payload = `00020126330014BR.GOV.BCB.PIX01${recebedor.pix.length}${recebedor.pix}520400005303986540${valor.toFixed(2)}5802BR5910${recebedor.nome.substring(0,10)}6009SAO PAULO62070503***6304`;
-
-        document.getElementById("pix-modal").classList.remove("hidden");
-        document.getElementById("pix-destinatario").innerText = `Para: ${recebedor.nome}`;
-        document.getElementById("pix-copia-cola").value = payload;
-        
-        const qrContainer = document.getElementById("qrcode-container");
-        qrContainer.innerHTML = "";
-        new QRCode(qrContainer, { text: payload, width: 200, height: 200 });
-    },
-
-    closePix: () => document.getElementById("pix-modal").classList.add("hidden"),
-    copyPix: () => {
-        const cp = document.getElementById("pix-copia-cola");
-        cp.select(); document.execCommand("copy"); alert("Copiado!");
-    },
-
     render() {
-        if(!Engine.activeUser) return;
-        const isAdm = Engine.activeUser.role === "ADMIN";
-        document.getElementById("ui-cofre").innerText = Utils.toR(DB.cofreCentavos);
-        document.getElementById("user-role-badge").innerText = `${Engine.activeUser.nome} • ${Engine.activeUser.role}`;
+        if(!this.activeUser) return;
+        const isAdm = this.activeUser.role === "ADMIN";
         
-        document.getElementById("session-select").innerHTML = DB.membros.map(m => `<option value="${m.id}" ${m.id === Engine.activeUser.id ? "selected" : ""}>👤 ${m.nome}</option>`).join("");
+        document.getElementById("ui-cofre").innerText = Utils.toR(DB.cofreCentavos);
+        document.getElementById("user-role-badge").innerText = `${this.activeUser.nome} • ${this.activeUser.role}`;
+        
+        document.getElementById("session-select").innerHTML = DB.membros.map(m => `<option value="${m.id}" ${m.id === this.activeUser.id ? "selected" : ""}>👤 ${m.nome}</option>`).join("");
         
         document.getElementById("ui-member-check-list").innerHTML = DB.membros.map(m => `
             <label class="member-row"><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>
         `).join("");
 
         document.getElementById("ui-manage-members").innerHTML = DB.membros.map(m => `
-            <div class="member-row"><span>${m.nome} <small>(${m.pix || 'N/A'})</small></span></div>
+            <div class="member-row"><span>${m.nome} <small>(${m.pix || 's/ Pix'})</small></span></div>
         `).join("");
 
         document.getElementById("ui-baixas-gerais").innerHTML = DB.contas.filter(c => c.status === "aberta").map(c => `
             <tr><td><b>${c.desc}</b><br><small>${Utils.toR(c.total)}</small></td><td style="text-align:right"><button class="tag tag-pago" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button></td></tr>
         `).join("");
 
-        const vis = isAdm ? DB.parcelas : DB.parcelas.filter(p => p.membroId === Engine.activeUser.id);
+        const vis = isAdm ? DB.parcelas : DB.parcelas.filter(p => p.membroId === this.activeUser.id);
         document.getElementById("ui-minhas-parcelas").innerHTML = vis.map(p => {
             const c = DB.contas.find(x => x.id === p.contaId);
             if(!c || c.status === "quitada") return "";
@@ -254,13 +214,19 @@ const UI = {
                 <td><b>${c.desc}</b></td>
                 <td><b>${Utils.toR(p.pago?p.valorPagoFinal:(atraso?p.valorBase+500:p.valorBase))}</b></td>
                 <td style="text-align:right">
-                    ${p.pago ? '<span class="tag tag-pago">OK</span>' : `
-                        <button class="tag tag-pendente" onclick="Engine.payParcela('${p.id}')">PAGAR</button>
-                        <button class="tag" style="background:#32bcad; color:#fff;" onclick="UI.showPix('${p.id}')">PIX</button>
-                    `}
+                    ${p.pago ? '<span class="tag tag-pago">OK</span>' : `<button class="tag tag-pendente" onclick="Engine.payParcela('${p.id}')">PAGAR</button>`}
                 </td>
             </tr>`;
         }).join("");
+    }
+};
+
+const UI = {
+    toggleAdm: () => {
+        if (Engine.activeUser.role !== "ADMIN") {
+            if (prompt("Senha ADM:") !== Engine.ADMIN_PASS) return;
+        }
+        document.getElementById("view-admin").classList.toggle("hidden");
     }
 };
 
