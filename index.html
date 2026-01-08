@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rateio Grupo Ryan v6.6</title>
+    <title>Rateio Grupo Ryan v6.7</title>
     <style>
         :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --dark: #0f172a; --slate: #64748b; --bg: #0f172a; --card: #1e293b; --warning: #f59e0b; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; color: #fff; }
@@ -13,19 +13,15 @@
         .card { background: var(--card); padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #334155; }
         h4 { margin: 0 0 15px 0; font-size: 0.9rem; border-bottom: 1px solid #334155; padding-bottom: 8px; color: var(--slate); text-transform: uppercase; }
         input, select { width: 100%; padding: 12px; border: 1px solid #334155; border-radius: 12px; background: #0f172a; color: #fff; margin-top: 6px; box-sizing: border-box; }
-        .btn { cursor: pointer; border: none; border-radius: 12px; padding: 14px; font-weight: 700; width: 100%; display: block; font-size: 1rem; margin-top: 10px; text-align: center; text-decoration: none; }
+        .btn { cursor: pointer; border: none; border-radius: 12px; padding: 14px; font-weight: 700; width: 100%; display: block; font-size: 1rem; margin-top: 10px; text-align: center; }
         .btn-p { background: var(--primary); color: #fff; }
         .btn-s { background: var(--success); color: #fff; }
-        .btn-pix { background: #32bcad; color: #fff; font-size: 0.7rem; padding: 8px; margin-top: 5px; border-radius: 8px; border: none; cursor: pointer; }
         .btn-ghost { background: transparent; color: var(--slate); border: 1px solid #334155; margin-top: 0; }
+        .member-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #161e2e; border-radius: 12px; margin-bottom: 8px; border: 1px solid #334155; }
+        .btn-del { background: #7f1d1d; color: #fff; border: none; border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+        .hidden { display: none !important; }
         table { width: 100%; border-collapse: collapse; }
         td { padding: 12px 5px; border-bottom: 1px solid #334155; font-size: 0.9rem; }
-        .tag { padding: 6px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; cursor: pointer; border: none; }
-        .tag-pago { background: #064e3b; color: #10b981; }
-        .tag-pendente { background: #7f1d1d; color: #f87171; }
-        .member-row { display: flex; align-items: center; justify-content: space-between; padding: 10px; background: #161e2e; border-radius: 12px; margin-bottom: 8px; }
-        .btn-del { background: none; border: none; color: var(--danger); font-weight: bold; cursor: pointer; padding: 5px 10px; }
-        .hidden { display: none !important; }
     </style>
 </head>
 <body>
@@ -39,28 +35,30 @@
     <div class="header-status">
         <small style="opacity: 0.7;">SALDO NO COFRE</small>
         <div class="val-total" id="ui-cofre">R$ 0,00</div>
-        <div id="user-role-badge" style="font-size: 0.8rem; color: var(--slate);">Sincronizando...</div>
+        <div id="user-role-badge" style="font-size: 0.8rem; color: var(--slate);">Carregando...</div>
     </div>
 
-    <div id="view-admin" class="card hidden">
-        <h4>👥 Gerenciar Moradores</h4>
+    <div id="view-admin" class="card">
+        <h4>👥 Moradores do Grupo</h4>
         <div id="ui-manage-members"></div>
-        <div class="card" style="background:#0f172a; padding:10px; border: 1px solid var(--primary);">
+        
+        <div style="margin-top:15px; padding:15px; background:rgba(255,255,255,0.05); border-radius:15px">
+            <h4 style="border:none">➕ Adicionar Novo</h4>
             <input id="f-new-mem" placeholder="Nome do Morador">
-            <input id="f-new-pix" placeholder="Chave Pix do Morador" style="margin-top:5px">
-            <button class="btn btn-p" onclick="Engine.addMember()">ADICIONAR MORADOR</button>
+            <input id="f-new-pix" placeholder="Chave Pix (opcional)">
+            <button class="btn btn-p" onclick="Engine.addMember()">CADASTRAR MORADOR</button>
         </div>
 
-        <h4 style="margin-top:25px">📝 Novo Rateio</h4>
-        <input id="f-desc" placeholder="Conta (ex: Aluguel)">
+        <h4 style="margin-top:30px">📝 Criar Novo Rateio</h4>
+        <input id="f-desc" placeholder="Ex: Conta de Luz">
         <div style="display: flex; gap: 10px;">
             <input id="f-val" type="number" placeholder="Valor Total">
             <input id="f-date" type="date">
         </div>
         <div id="ui-member-check-list" style="margin-top:10px"></div>
-        <button class="btn btn-s" onclick="Engine.createMainBill()">GERAR RATEIO</button>
+        <button class="btn btn-s" onclick="Engine.createMainBill()">GERAR DIVISÃO</button>
 
-        <h4 style="margin-top:25px">💰 Baixas (Contas Pagas)</h4>
+        <h4 style="margin-top:30px">💰 Baixas</h4>
         <table id="ui-baixas-gerais"></table>
     </div>
 
@@ -75,10 +73,7 @@ const b1 = "https://grupo-ryan-";
 const b2 = "default-rtdb.firebaseio.com/dados.json";
 const FIREBASE_URL = b1 + b2;
 
-let DB = { 
-    membros: [{id:"u1",nome:"Thiago",role:"ADMIN",pix:""}], 
-    contas: [], parcelas: [], cofreCentavos: 0 
-};
+let DB = { membros: [], contas: [], parcelas: [], cofreCentavos: 0 };
 
 const Utils = {
     toC: v => Math.round(parseFloat(v)*100),
@@ -94,15 +89,21 @@ const Engine = {
     async init() {
         await this.load();
         
-        // Se após carregar não houver ninguém, cria o Thiago
-        if (!DB.membros || DB.membros.length === 0) {
-            DB.membros = [{id:"u1",nome:"Thiago",role:"ADMIN",pix:""}];
+        // Se estiver vazio, cria o Thiago e deixa o ADM aberto
+        if (DB.membros.length === 0) {
+            DB.membros = [{id:"u1", nome:"Thiago", role:"ADMIN", pix:""}];
             await this.save();
+            document.getElementById("view-admin").classList.remove("hidden");
         }
 
-        const savedUserId = localStorage.getItem("activeUserId");
-        this.activeUser = DB.membros.find(m => m.id === savedUserId) || DB.membros[0];
+        const savedId = localStorage.getItem("activeUserId");
+        this.activeUser = DB.membros.find(m => m.id === savedId) || DB.membros[0];
         
+        // Se já tem gente mas você não é admin, esconde o painel
+        if(DB.membros.length > 1 && this.activeUser.role !== "ADMIN") {
+            document.getElementById("view-admin").classList.add("hidden");
+        }
+
         this.render();
         setInterval(() => this.load(), 5000);
     },
@@ -111,10 +112,7 @@ const Engine = {
         try {
             const res = await fetch(FIREBASE_URL);
             const data = await res.json();
-            if (data && data.membros) { 
-                DB = data; 
-                this.render(); 
-            }
+            if (data && data.membros) { DB = data; this.render(); }
         } catch (e) { console.error("Erro banco"); }
     },
 
@@ -123,43 +121,50 @@ const Engine = {
         this.render();
     },
 
-    switchUser(id) {
-        const target = DB.membros.find(m => m.id === id);
-        if (target?.role === "ADMIN" && prompt("Senha:") !== this.ADMIN_PASS) return this.render();
-        this.activeUser = target;
-        localStorage.setItem("activeUserId", target.id);
-        this.render();
-    },
-
     addMember() {
-        const n = document.getElementById("f-new-mem").value;
-        const p = document.getElementById("f-new-pix").value;
-        if(!n) return alert("Digite o nome");
-        DB.membros.push({id: Utils.genId('u'), nome: n, role: "MEMBRO", pix: p});
-        document.getElementById("f-new-mem").value = ""; 
+        const nome = document.getElementById("f-new-mem").value;
+        const pix = document.getElementById("f-new-pix").value;
+        if(!nome) return alert("Digite o nome!");
+
+        const novo = {
+            id: Utils.genId('u'),
+            nome: nome,
+            role: "MEMBRO",
+            pix: pix
+        };
+
+        DB.membros.push(novo);
+        document.getElementById("f-new-mem").value = "";
         document.getElementById("f-new-pix").value = "";
         this.save();
     },
 
     removeMember(id) {
-        if (id === "u1") return alert("Thiago não pode ser removido!");
+        if (id === "u1") return alert("O administrador não pode ser removido.");
         if (confirm("Remover este morador?")) {
             DB.membros = DB.membros.filter(m => m.id !== id);
             this.save();
         }
     },
 
-    copyPix(valor, membroIdVencido) {
-        // Pega a chave pix de quem criou a conta (ou do Thiago se não achar)
-        const recebedor = DB.membros.find(m => m.id === "u1");
-        if(!recebedor?.pix) return alert("Thiago não cadastrou sua chave Pix no ADM!");
-        navigator.clipboard.writeText(recebedor.pix);
-        alert(`Chave Pix copiada: ${recebedor.pix}\nValor: ${Utils.toR(valor)}`);
+    switchUser(id) {
+        const target = DB.membros.find(m => m.id === id);
+        if (target?.role === "ADMIN" && DB.membros.length > 1) {
+            if (prompt("Senha ADM:") !== this.ADMIN_PASS) return this.render();
+        }
+        this.activeUser = target;
+        localStorage.setItem("activeUserId", target.id);
+        
+        // Esconde ou mostra ADM ao trocar usuário
+        if(target.role === "ADMIN") document.getElementById("view-admin").classList.remove("hidden");
+        else document.getElementById("view-admin").classList.add("hidden");
+        
+        this.render();
     },
 
     createMainBill() {
         const d = document.getElementById("f-desc").value, v = Utils.toC(document.getElementById("f-val").value), dt = document.getElementById("f-date").value, cbs = document.querySelectorAll(".m-cb:checked");
-        if(!d || v<=0 || !dt || !cbs.length) return alert("Preencha tudo!");
+        if(!d || v <= 0 || !cbs.length) return alert("Preencha tudo!");
         const cid = Utils.genId('c');
         DB.contas.push({id:cid, desc:d, total:v, venc:dt, status:"aberta"});
         cbs.forEach(cb => {
@@ -171,15 +176,14 @@ const Engine = {
     payParcela(id) {
         const p = DB.parcelas.find(x => x.id === id);
         const c = DB.contas.find(x => x.id === p.contaId);
-        const mult = Utils.hoje() > c.venc ? 500 : 0;
-        p.pago = true; p.valorPagoFinal = p.valorBase + mult;
+        p.pago = true; p.valorPagoFinal = p.valorBase + (Utils.hoje() > c.venc ? 500 : 0);
         DB.cofreCentavos += p.valorPagoFinal;
         this.save();
     },
 
     darBaixa(id) {
         const c = DB.contas.find(x => x.id === id);
-        if(DB.cofreCentavos < c.total) return alert("Saldo insuficiente!");
+        if(DB.cofreCentavos < c.total) return alert("Cofre sem saldo suficiente!");
         c.status = "quitada"; DB.cofreCentavos -= c.total;
         this.save();
     },
@@ -191,16 +195,15 @@ const Engine = {
         
         document.getElementById("session-select").innerHTML = DB.membros.map(m => `<option value="${m.id}" ${m.id === this.activeUser.id ? "selected" : ""}>👤 ${m.nome}</option>`).join("");
         
-        // Lista de Gerenciamento no ADM
         document.getElementById("ui-manage-members").innerHTML = DB.membros.map(m => `
             <div class="member-row">
-                <span>${m.nome} <small style="display:block; font-size:0.7rem; color:var(--slate)">${m.pix || 'sem pix'}</small></span>
-                <button class="btn-del" onclick="Engine.removeMember('${m.id}')">✖</button>
+                <span><b>${m.nome}</b><br><small>${m.pix || 'Sem Pix'}</small></span>
+                <button class="btn-del" onclick="Engine.removeMember('${m.id}')">REMOVER</button>
             </div>
         `).join("");
 
         document.getElementById("ui-member-check-list").innerHTML = DB.membros.map(m => `
-            <label style="display:block; margin-bottom:8px"><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>
+            <label class="member-row"><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>
         `).join("");
 
         document.getElementById("ui-baixas-gerais").innerHTML = DB.contas.filter(c => c.status === "aberta").map(c => `
@@ -215,19 +218,19 @@ const Engine = {
             const val = p.pago ? p.valorPagoFinal : (atraso ? p.valorBase + 500 : p.valorBase);
             return `<tr>
                 <td><b>${c.desc}</b><br><small>${p.membroNome}</small></td>
-                <td style="text-align:right"><b>${Utils.toR(val)}</b>
-                    ${!p.pago ? `<button class="btn btn-pix" onclick="Engine.copyPix(${val})">PIX</button>` : ''}
-                </td>
+                <td style="text-align:right"><b>${Utils.toR(val)}</b></td>
                 <td style="text-align:right"><button class="tag ${p.pago?'tag-pago':'tag-pendente'}" onclick="Engine.payParcela('${p.id}')">${p.pago?'OK':'CONFIRMAR'}</button></td>
             </tr>`;
         }).join("");
     }
 };
 
-const UI = { toggleAdm: () => {
-    if (Engine.activeUser.role !== "ADMIN" && prompt("Senha:") !== Engine.ADMIN_PASS) return;
-    document.getElementById("view-admin").classList.toggle("hidden");
-}};
+const UI = {
+    toggleAdm: () => {
+        if (Engine.activeUser.role !== "ADMIN" && prompt("Senha ADM:") !== Engine.ADMIN_PASS) return;
+        document.getElementById("view-admin").classList.toggle("hidden");
+    }
+};
 
 Engine.init();
 </script>
