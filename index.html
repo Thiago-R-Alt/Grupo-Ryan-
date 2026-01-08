@@ -3,99 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financeiro Grupo Ryan</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>Liberty Finance - Grupo Ryan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { 
-            --primary: #4f46e5; --success: #10b981; --danger: #f43f5e; 
-            --bg: #090e1a; --card: #151c2c; --text: #f8fafc; --sub: #94a3b8;
+            --bg-body: #f4f7fa; --sidebar-purple: #6c5dd3; --text-main: #11142d;
+            --text-sub: #808191; --card-bg: #ffffff; --border: #e4e4e4;
+            --success: #45b36b; --danger: #ff6060; --blue: #3f8cff;
         }
-        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg); color: var(--text); margin: 0; padding-bottom: 60px; }
-        .container { max-width: 480px; margin: 0 auto; padding: 20px; }
-        .header-status { background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%); padding: 30px 25px; border-radius: 30px; margin-bottom: 25px; }
-        .val-total { font-size: 2.2rem; font-weight: 800; }
-        .top-nav { display: flex; gap: 12px; margin-bottom: 20px; }
-        select, input { background: var(--card); border: 1px solid #2d3748; color: white; padding: 12px; border-radius: 16px; width: 100%; outline: none; }
-        .card { background: var(--card); border-radius: 24px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); }
-        h4 { margin: 0 0 15px 0; font-size: 0.8rem; color: var(--sub); text-transform: uppercase; letter-spacing: 1px; }
-        .btn { cursor: pointer; border: none; border-radius: 14px; padding: 15px; font-weight: 700; width: 100%; margin-top: 10px; }
-        .btn-p { background: var(--primary); color: white; }
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg-body); color: var(--text-main); margin: 0; padding-bottom: 40px; }
+        
+        /* Top Header do Modelo */
+        .top-bar { background: var(--card-bg); padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .logo { font-weight: 800; font-size: 1.2rem; color: var(--sidebar-purple); }
+        
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+
+        /* Estilo dos Cards do Modelo */
+        .card { background: var(--card-bg); border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid var(--border); }
+        h4 { margin: 0 0 20px 0; font-size: 1rem; font-weight: 600; color: var(--text-main); }
+
+        /* Dashboard Grid */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+
+        /* Botões Estilizados */
+        .btn { cursor: pointer; border: none; border-radius: 10px; padding: 12px 20px; font-weight: 600; transition: 0.3s; font-size: 0.9rem; }
+        .btn-p { background: var(--sidebar-purple); color: white; }
         .btn-s { background: var(--success); color: white; }
-        .parcela-item { border-bottom: 1px solid #1e293b; padding: 12px 0; display: flex; justify-content: space-between; align-items: center; }
-        .tag { padding: 6px 12px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; cursor: pointer; border: none; }
-        .tag-pago { background: #064e3b; color: #10b981; }
-        .tag-pendente { background: #450a0a; color: #f87171; }
-        .chart-container { position: relative; height: 200px; margin-bottom: 20px; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-sub); }
+
+        /* Inputs do Modelo */
+        input, select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; margin-top: 8px; background: #fafafa; }
+
+        /* Timeline (Função Nova do Modelo) */
+        .timeline { border-left: 2px solid var(--border); margin-left: 10px; padding-left: 20px; }
+        .timeline-item { position: relative; margin-bottom: 20px; }
+        .timeline-item::before { content: ""; position: absolute; left: -27px; top: 5px; width: 12px; height: 12px; background: var(--sidebar-purple); border-radius: 50%; border: 3px solid white; }
+        .time-text { font-size: 0.8rem; color: var(--text-sub); }
+
+        /* Tabela de Parcelas */
+        .table-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border); }
+        .status-badge { padding: 5px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .status-pago { background: rgba(69, 179, 107, 0.1); color: var(--success); }
+        .status-pendente { background: rgba(255, 96, 96, 0.1); color: var(--danger); }
+
         .hidden { display: none !important; }
-        .hist-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }
+        @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
+<div class="top-bar">
+    <div class="logo">LibertyUI <span style="color:var(--text-sub); font-weight:400">| Ryan</span></div>
+    <div style="display:flex; gap:10px">
+        <select id="session-select" onchange="Engine.switchUser(this.value)" style="width:auto; margin:0"></select>
+        <button class="btn btn-outline" onclick="UI.toggleAdm()">⚙️</button>
+    </div>
+</div>
+
 <div class="container">
-    <div class="top-nav">
-        <select id="session-select" onchange="Engine.switchUser(this.value)"></select>
-        <button class="btn" style="width: auto; background: #1e293b; color: white;" onclick="UI.toggleAdm()">⚙️ ADM</button>
-    </div>
-
-    <div class="header-status">
-        <small style="opacity:0.8; font-weight: 600;">SALDO EM CAIXA</small>
-        <div class="val-total" id="ui-cofre">R$ 0,00</div>
-        <div id="user-role-badge" style="font-size: 0.8rem; opacity: 0.7;">Sincronizando...</div>
-    </div>
-
-    <div class="card">
-        <h4>📊 Gastos da Casa (Mês Atual)</h4>
-        <div class="chart-container"><canvas id="chartCasa"></canvas></div>
-        <h4 style="margin-top:20px">👤 Divisão de Consumo</h4>
-        <div class="chart-container"><canvas id="chartPessoas"></canvas></div>
-    </div>
-
-    <div id="view-admin" class="card hidden">
-        <h4>📝 Novo Rateio / Parcelamento</h4>
-        <input id="f-desc" placeholder="Ex: Internet">
-        <div style="display: flex; gap: 8px; margin-top: 8px;">
-            <input id="f-val" type="number" placeholder="Valor Total">
-            <input id="f-date" type="date">
+    
+    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+        <div class="card" style="text-align: center;">
+            <div style="color:var(--text-sub); font-size:0.8rem">Saldo em Caixa</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: var(--sidebar-purple);" id="ui-cofre">R$ 0,00</div>
         </div>
-        <select id="f-vezes" style="margin-top: 8px;">
-            <option value="1">1x (Normal)</option>
-            <option value="2">2x no Cartão</option>
-            <option value="3">3x no Cartão</option>
-            <option value="4">4x no Cartão</option>
-            <option value="12">12x no Cartão</option>
-        </select>
-        <div id="ui-member-check-list" style="margin-top:10px"></div>
-        <button class="btn btn-s" onclick="Engine.createMainBill()">PUBLICAR</button>
-        <h4 style="margin-top:20px">💰 Baixas</h4>
+        <div class="card" id="user-info-card" style="text-align: center;">
+            <div style="color:var(--text-sub); font-size:0.8rem">Usuário Ativo</div>
+            <div style="font-size: 1.1rem; font-weight: 700;" id="user-role-badge">...</div>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <h4>📊 Gastos da Casa (Mês)</h4>
+            <canvas id="chartCasa" height="200"></canvas>
+        </div>
+        
+        <div class="card">
+            <h4>🔔 Atividades Recentes</h4>
+            <div id="ui-timeline" class="timeline">
+                </div>
+        </div>
+    </div>
+
+    <div id="view-admin" class="card hidden" style="border-top: 4px solid var(--sidebar-purple);">
+        <h4>⚙️ Gestão Administrativa</h4>
+        <div class="grid" style="grid-template-columns: 1fr 1fr;">
+            <div>
+                <label>Descrição do Gasto</label>
+                <input id="f-desc" placeholder="Ex: Aluguel">
+                <label>Valor Total</label>
+                <input id="f-val" type="number" placeholder="0,00">
+            </div>
+            <div>
+                <label>Data Vencimento</label>
+                <input id="f-date" type="date">
+                <label>Parcelamento</label>
+                <select id="f-vezes">
+                    <option value="1">Pagamento Único</option>
+                    <option value="2">2x no Cartão</option>
+                    <option value="3">3x no Cartão</option>
+                    <option value="12">12x no Cartão</option>
+                </select>
+            </div>
+        </div>
+        <div id="ui-member-check-list" style="margin:15px 0; display:flex; gap:15px; flex-wrap:wrap"></div>
+        <button class="btn btn-p" onclick="Engine.createMainBill()">PUBLICAR RATEIO</button>
+        
+        <h4 style="margin-top:30px">Pendentes de Baixa (Saída de Caixa)</h4>
         <div id="ui-baixas-gerais"></div>
-        <button class="btn" style="font-size: 0.6rem; opacity: 0.5;" onclick="Engine.resetAll()">Zerar Sistema</button>
     </div>
 
     <div class="card">
-        <h4>📋 Minhas Contas / Pendentes</h4>
+        <h4>📋 Minhas Contas e Rateios</h4>
         <div id="ui-minhas-parcelas"></div>
     </div>
 
     <div class="card">
-        <h4>⌛ Histórico de Contas Pagas</h4>
+        <h4>⌛ Histórico de Pagamentos</h4>
         <div id="ui-historico-detalhado"></div>
     </div>
 </div>
 
 <script>
+// Mantendo a mesma base de dados e funções para não apagar nada
 const FIREBASE_URL = "https://grupo-ryan-default-rtdb.firebaseio.com/dados.json";
-let DB = { membros: [], contas: [], parcelas: [], cofreCentavos: 0, admPix: "" };
-let chartCasa, chartPessoas;
+let DB = { membros: [], contas: [], parcelas: [], logs: [], cofreCentavos: 0, admPix: "" };
+let chartCasa;
 
 const Utils = {
     toC: v => Math.round(parseFloat(v)*100),
     toR: c => (c/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}),
     genId: p => p+'_'+Math.random().toString(36).substr(2,9),
     hoje: () => new Date().toISOString().split('T')[0],
-    formatBr: (d) => d.split('-').reverse().join('/'),
     addMes: (dataStr, meses) => {
         let d = new Date(dataStr + 'T12:00:00');
         d.setMonth(d.getMonth() + meses);
@@ -129,11 +172,19 @@ const Engine = {
         this.render();
     },
 
+    // NOVA FUNÇÃO: Adicionar log de atividade
+    addLog(msg) {
+        if(!DB.logs) DB.logs = [];
+        DB.logs.unshift({ msg: msg, time: new Date().toLocaleTimeString() });
+        if(DB.logs.length > 5) DB.logs.pop();
+    },
+
     createMainBill() {
         const d = document.getElementById("f-desc").value, vT = Utils.toC(document.getElementById("f-val").value), 
               dt = document.getElementById("f-date").value, vz = parseInt(document.getElementById("f-vezes").value),
               cbs = document.querySelectorAll(".m-cb:checked");
         if(!d || !vT || !dt || cbs.length === 0) return alert("Erro nos campos!");
+        
         const vM = Math.round(vT / vz);
         for(let i=0; i < vz; i++) {
             const cid = Utils.genId('c'), dataV = Utils.addMes(dt, i);
@@ -142,6 +193,7 @@ const Engine = {
                 DB.parcelas.push({id: Utils.genId('p'), contaId: cid, membroId: cb.dataset.id, membroNome: cb.value, valorBase: Math.round(vM / cbs.length), pago: false});
             });
         }
+        this.addLog(`Rateio de "${d}" criado por ${this.activeUser.nome}`);
         this.save();
     },
 
@@ -151,39 +203,26 @@ const Engine = {
         const c = DB.contas.find(x => x.id === p.contaId);
         p.pago = true; p.valorPagoFinal = p.valorBase + (Utils.hoje() > c.venc ? 500 : 0);
         DB.cofreCentavos += p.valorPagoFinal;
+        this.addLog(`${p.membroNome} pagou ${c.desc}`);
         this.save();
     },
 
     darBaixa(id) {
         const c = DB.contas.find(x => x.id === id);
-        if(DB.cofreCentavos < c.total) return alert("Sem saldo!");
+        if(DB.cofreCentavos < c.total) return alert("Saldo insuficiente!");
         c.status = "quitada"; c.dataFechamento = Utils.hoje();
         DB.cofreCentavos -= c.total;
+        this.addLog(`Conta ${c.desc} baixada no sistema`);
         this.save();
     },
 
     initCharts() {
-        const cfg = (l) => ({ type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: ['#4f46e5', '#10b981', '#f43f5e', '#fbbf24', '#8b5cf6'] }] }, options: { maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#fff' } } } } });
-        chartCasa = new Chart(document.getElementById('chartCasa'), cfg());
-        chartPessoas = new Chart(document.getElementById('chartPessoas'), cfg());
-    },
-
-    updateCharts() {
-        const cat = {}, pes = {}, mesAtual = new Date().getMonth();
-        (DB.contas || []).forEach(c => {
-            if(new Date(c.venc).getMonth() === mesAtual) {
-                const n = c.desc.split('(')[0].trim();
-                cat[n] = (cat[n] || 0) + (c.total / 100);
-            }
+        const ctx = document.getElementById('chartCasa').getContext('2d');
+        chartCasa = new Chart(ctx, {
+            type: 'bar',
+            data: { labels: [], datasets: [{ label: 'Gasto R$', data: [], backgroundColor: '#6c5dd3', borderRadius: 8 }] },
+            options: { responsive: true, plugins: { legend: { display: false } } }
         });
-        (DB.parcelas || []).forEach(p => {
-            const c = DB.contas.find(x => x.id === p.contaId);
-            if(c && new Date(c.venc).getMonth() === mesAtual) {
-                pes[p.membroNome] = (pes[p.membroNome] || 0) + (p.valorBase / 100);
-            }
-        });
-        chartCasa.data.labels = Object.keys(cat); chartCasa.data.datasets[0].data = Object.values(cat); chartCasa.update();
-        chartPessoas.data.labels = Object.keys(pes); chartPessoas.data.datasets[0].data = Object.values(pes); chartPessoas.update();
     },
 
     switchUser(id) {
@@ -195,26 +234,65 @@ const Engine = {
     render() {
         if(!this.activeUser) return;
         document.getElementById("ui-cofre").innerText = Utils.toR(DB.cofreCentavos);
-        document.getElementById("user-role-badge").innerText = `${this.activeUser.nome} • ${this.activeUser.role}`;
+        document.getElementById("user-role-badge").innerText = this.activeUser.nome;
         document.getElementById("session-select").innerHTML = DB.membros.map(m => `<option value="${m.id}" ${m.id === this.activeUser.id ? "selected" : ""}>👤 ${m.nome}</option>`).join("");
-        document.getElementById("ui-member-check-list").innerHTML = DB.membros.map(m => `<label style="display:block; margin:5px 0;"><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>`).join("");
         
-        // HISTÓRICO (DE VOLTA)
-        const quitadas = (DB.contas || []).filter(c => c.status === "quitada").sort((a,b) => b.dataFechamento > a.dataFechamento ? 1 : -1);
-        document.getElementById("ui-historico-detalhado").innerHTML = quitadas.map(c => `
-            <div class="hist-item"><span>✅ ${c.desc}</span><span style="color:var(--success); font-weight:700">${Utils.toR(c.total)}</span></div>
-        `).join("") || "Sem histórico.";
-
-        document.getElementById("ui-baixas-gerais").innerHTML = (DB.contas || []).filter(c => c.status === "aberta").map(c => `
-            <div class="parcela-item"><span>${c.desc}</span><button class="tag tag-pago" onclick="Engine.darBaixa('${c.id}')">OK</button></div>
+        document.getElementById("ui-member-check-list").innerHTML = DB.membros.map(m => `
+            <label style="font-size:0.8rem; font-weight:600"><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>
         `).join("");
 
+        // Histórico de Atividades (NOVO)
+        document.getElementById("ui-timeline").innerHTML = (DB.logs || []).map(l => `
+            <div class="timeline-item">
+                <div style="font-weight:600; font-size:0.9rem">${l.msg}</div>
+                <div class="time-text">Hoje às ${l.time}</div>
+            </div>
+        `).join("");
+
+        // Parcelas
         const vis = this.activeUser.role === "ADMIN" ? (DB.parcelas || []) : (DB.parcelas || []).filter(p => p.membroId === this.activeUser.id);
         document.getElementById("ui-minhas-parcelas").innerHTML = vis.filter(p => !p.pago).map(p => {
             const c = DB.contas.find(x => x.id === p.contaId);
-            return c && c.status === "aberta" ? `<div class="parcela-item"><div><b>${c.desc}</b><br><small>${Utils.toR(p.valorBase)}</small></div><button class="tag tag-pendente" onclick="Engine.payParcela('${p.id}')">PAGO</button></div>` : "";
+            if(!c || c.status === "quitada") return "";
+            return `
+            <div class="table-row">
+                <div>
+                    <div style="font-weight:600">${c.desc}</div>
+                    <div style="font-size:0.75rem; color:var(--text-sub)">Venc: ${c.venc}</div>
+                </div>
+                <div style="text-align:right">
+                    <div style="font-weight:700">${Utils.toR(p.valorBase)}</div>
+                    <span class="status-badge status-pendente" onclick="Engine.payParcela('${p.id}')" style="cursor:pointer">Pagar</span>
+                </div>
+            </div>`;
         }).join("");
-        this.updateCharts();
+
+        // Histórico de Quitadas
+        const quitadas = (DB.contas || []).filter(c => c.status === "quitada").slice(0, 5);
+        document.getElementById("ui-historico-detalhado").innerHTML = quitadas.map(c => `
+            <div class="table-row">
+                <span>✅ ${c.desc}</span>
+                <span style="font-weight:700; color:var(--success)">${Utils.toR(c.total)}</span>
+            </div>
+        `).join("");
+
+        // Baixas ADM
+        document.getElementById("ui-baixas-gerais").innerHTML = (DB.contas || []).filter(c => c.status === "aberta").map(c => `
+            <div class="table-row">
+                <span>${c.desc}</span>
+                <button class="btn btn-s" style="padding: 5px 15px;" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button>
+            </div>
+        `).join("");
+
+        // Gráfico
+        const cat = {}, mesA = new Date().getMonth();
+        (DB.contas || []).filter(c => new Date(c.venc).getMonth() === mesA).forEach(c => {
+            const n = c.desc.split('(')[0].trim();
+            cat[n] = (cat[n] || 0) + (c.total / 100);
+        });
+        chartCasa.data.labels = Object.keys(cat);
+        chartCasa.data.datasets[0].data = Object.values(cat);
+        chartCasa.update();
     }
 };
 
