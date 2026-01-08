@@ -29,6 +29,7 @@
         .btn-p { background: var(--primary); color: white; }
         .btn-s { background: var(--success); color: white; }
         .btn-ghost { background: rgba(255,255,255,0.05); color: white; border: 1px solid #1e293b; width: auto; }
+        .btn-reset { background: transparent; color: #475569; border: 1px solid #1e293b; font-size: 0.7rem; margin-top: 40px; }
         .item-row { display: flex; align-items: center; justify-content: space-between; padding: 14px; background: rgba(255,255,255,0.03); border-radius: 18px; margin-bottom: 10px; }
         .btn-del { background: rgba(244, 63, 94, 0.1); color: var(--danger); border: none; border-radius: 10px; padding: 8px 12px; cursor: pointer; }
         .parcela-item { border-bottom: 1px solid #1e293b; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
@@ -67,8 +68,10 @@
         <div style="display: flex; gap: 10px;"><input id="f-val" type="number" placeholder="Total"><input id="f-date" type="date"></div>
         <div id="ui-member-check-list" style="margin-top:10px"></div>
         <button class="btn btn-s" onclick="Engine.createMainBill()">GERAR RATEIO</button>
-        <h4 style="margin-top:25px">💰 Contas em Aberto (Baixas)</h4>
+        <h4 style="margin-top:25px">💰 Contas em Aberto</h4>
         <div id="ui-baixas-gerais"></div>
+
+        <button class="btn btn-reset" onclick="Engine.resetAll()">Zerar Sistema (Apaga Tudo)</button>
     </div>
 
     <div class="card">
@@ -77,7 +80,7 @@
     </div>
 
     <div class="card">
-        <h4>⌛ Histórico de Contas Pagas</h4>
+        <h4>⌛ Histórico de Pagos</h4>
         <div id="ui-historico-quitadas" style="opacity: 0.7; font-size: 0.9rem;"></div>
     </div>
 </div>
@@ -122,6 +125,15 @@ const Engine = {
         this.render();
     },
 
+    // FUNÇÃO PARA LIMPAR TUDO
+    resetAll() {
+        if(confirm("ATENÇÃO: Isso vai apagar todos os moradores, contas e saldo. Tem certeza?")) {
+            DB = { membros: [{id:"u1", nome:"Thiago", role:"ADMIN"}], contas: [], parcelas: [], cofreCentavos: 0, admPix: "" };
+            this.save();
+            alert("Sistema resetado!");
+        }
+    },
+
     updateAdmPix() { DB.admPix = document.getElementById("f-adm-pix").value; this.save(); alert("Pix Salvo!"); },
     
     addMember() {
@@ -147,11 +159,9 @@ const Engine = {
         this.save(); alert("Rateio Gerado!");
     },
 
-    // CORREÇÃO: Impede pagamento duplo
     payParcela(id) {
         const p = DB.parcelas.find(x => x.id === id);
-        if (p.pago) return; // Se já estiver pago, não faz nada
-        
+        if (p.pago) return;
         const c = DB.contas.find(x => x.id === p.contaId);
         const multa = Utils.hoje() > c.venc ? 500 : 0;
         p.pago = true; 
@@ -168,7 +178,7 @@ const Engine = {
 
     darBaixa(id) {
         const c = DB.contas.find(x => x.id === id);
-        if(DB.cofreCentavos < c.total) return alert("Saldo insuficiente no cofre!");
+        if(DB.cofreCentavos < c.total) return alert("Saldo insuficiente!");
         c.status = "quitada"; DB.cofreCentavos -= c.total;
         this.save();
     },
@@ -191,7 +201,6 @@ const Engine = {
         document.getElementById("ui-manage-members").innerHTML = DB.membros.map(m => `<div class="item-row"><span>${m.nome}</span><button class="btn-del" onclick="Engine.removeMember('${m.id}')">✖</button></div>`).join("");
         document.getElementById("ui-member-check-list").innerHTML = DB.membros.map(m => `<label class="item-row" style="cursor:pointer"><input type="checkbox" class="m-cb" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>`).join("");
 
-        // LISTA DE BAIXAS (CONTAS ABERTAS)
         document.getElementById("ui-baixas-gerais").innerHTML = (DB.contas || []).filter(c => c.status === "aberta").map(c => `
             <div class="parcela-item">
                 <div><b>${c.desc}</b><br><small>Total: ${Utils.toR(c.total)}</small></div>
@@ -199,16 +208,14 @@ const Engine = {
             </div>
         `).join("");
 
-        // HISTÓRICO DE CONTAS QUITADAS
         const quitadas = (DB.contas || []).filter(c => c.status === "quitada");
         document.getElementById("ui-historico-quitadas").innerHTML = quitadas.length ? quitadas.map(c => `
             <div style="border-bottom: 1px solid #1e293b; padding: 10px 0; display:flex; justify-content:space-between">
                 <span>✅ ${c.desc}</span>
                 <span style="font-weight:bold; color:var(--success)">${Utils.toR(c.total)}</span>
             </div>
-        `).join("") : "Nenhuma conta quitada ainda.";
+        `).join("") : "Nenhuma conta quitada.";
 
-        // PARCELAS DOS MORADORES
         const vis = this.activeUser.role === "ADMIN" ? (DB.parcelas || []) : (DB.parcelas || []).filter(p => p.membroId === this.activeUser.id);
         document.getElementById("ui-minhas-parcelas").innerHTML = vis.map(p => {
             const c = (DB.contas || []).find(x => x.id === p.contaId);
