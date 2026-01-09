@@ -3,168 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finexy Cloud Enterprise - Liberty Group</title>
+    <title>Finexy PRO v3.0 - Liberty Enterprise</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg: #f4f7fe; --card: #ffffff; --primary: #111c44;
-            --accent: #4318ff; --success: #05cd99; --danger: #ee5d50;
-            --warning: #ffb800; --text: #1b2559; --sub: #a3aed0;
-            --border: #e9edf7; --shadow: 0 20px 40px rgba(0,0,0,0.05);
+            --bg: #f8fafc; --card: #ffffff; --primary: #0f172a;
+            --accent: #4f46e5; --success: #22c55e; --danger: #ef4444;
+            --warning: #f59e0b; --text: #1e293b; --sub: #64748b;
+            --border: #e2e8f0; --shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
         }
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; transition: 0.2s ease; }
-        body { background: var(--bg); margin: 0; color: var(--text); padding-bottom: 50px; }
+        body { background: var(--bg); margin: 0; color: var(--text); padding-bottom: 60px; overflow-x: hidden; }
         
-        /* HEADER */
-        .header { background: rgba(255,255,255,0.85); backdrop-filter: blur(15px); padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-        .brand { font-size: 1.6rem; font-weight: 800; color: var(--primary); letter-spacing: -1px; }
-        .brand span { color: var(--accent); }
+        /* HEADER & NAV */
+        .navbar { background: rgba(255,255,255,0.9); backdrop-filter: blur(12px); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .logo { font-size: 1.6rem; font-weight: 800; color: var(--primary); letter-spacing: -1.5px; cursor: pointer; }
+        .logo span { color: var(--accent); }
         
-        .nav-menu { display: flex; gap: 10px; background: #f4f7fe; padding: 6px; border-radius: 16px; }
-        .nav-link { border: none; background: none; padding: 10px 20px; border-radius: 12px; font-weight: 700; color: var(--sub); cursor: pointer; font-size: 0.85rem; }
-        .nav-link.active { background: #fff; color: var(--accent); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .nav-links { display: flex; gap: 8px; background: #f1f5f9; padding: 5px; border-radius: 12px; }
+        .nav-btn { border: none; background: none; padding: 8px 18px; border-radius: 8px; font-weight: 700; color: var(--sub); cursor: pointer; font-size: 0.8rem; }
+        .nav-btn.active { background: #fff; color: var(--accent); box-shadow: var(--shadow); }
 
-        .user-auth { display: flex; align-items: center; gap: 15px; }
-        select#session-select { border: 1px solid var(--border); border-radius: 10px; padding: 8px; font-weight: 700; color: var(--primary); outline: none; background: white; cursor: pointer; }
+        .auth-zone { display: flex; align-items: center; gap: 12px; }
+        select#session-select { border: 1px solid var(--border); padding: 8px; border-radius: 10px; font-weight: 700; outline: none; background: #fff; cursor: pointer; }
 
-        /* MAIN CONTENT */
-        .container { max-width: 1440px; margin: 35px auto; padding: 0 25px; }
-        .dashboard-grid { display: grid; grid-template-columns: 340px 1fr 300px; gap: 30px; }
+        /* LAYOUT */
+        .container { max-width: 1400px; margin: 30px auto; padding: 0 20px; }
+        .main-grid { display: grid; grid-template-columns: 320px 1fr 300px; gap: 25px; }
 
         /* CARDS */
-        .card { background: var(--card); border-radius: 30px; padding: 25px; border: 1px solid var(--border); margin-bottom: 25px; box-shadow: var(--shadow); position: relative; }
-        .card h3 { margin: 0 0 22px 0; font-size: 1.2rem; font-weight: 800; color: var(--primary); }
+        .card { background: var(--card); border-radius: 24px; padding: 24px; border: 1px solid var(--border); margin-bottom: 25px; box-shadow: var(--shadow); }
+        .card h3 { margin: 0 0 20px 0; font-size: 1rem; font-weight: 800; display: flex; align-items: center; gap: 10px; color: var(--primary); }
         
-        /* WALLET - CARTÕES REAIS */
-        .card-real { height: 190px; border-radius: 24px; padding: 25px; color: white; margin-bottom: 20px; position: relative; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 12px 24px rgba(67, 24, 255, 0.25); cursor: pointer; transform-style: preserve-3d; }
-        .card-real:hover { transform: translateY(-5px) rotateX(5deg); }
-        .card-chip { width: 45px; height: 35px; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); border-radius: 8px; }
-        .card-label { font-size: 0.75rem; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; font-weight: 600; }
-        .card-val { font-size: 1.6rem; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        /* WALLET */
+        .credit-card { height: 175px; border-radius: 20px; padding: 22px; color: white; margin-bottom: 15px; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .card-chip { width: 42px; height: 32px; background: #edbc5a; border-radius: 6px; }
+        .card-num { font-size: 1.1rem; letter-spacing: 2px; font-weight: 500; }
         
         /* TABLE SYSTEM */
-        .table-res { width: 100%; overflow-x: auto; border-radius: 20px; }
-        table { width: 100%; border-collapse: collapse; min-width: 750px; }
-        th { text-align: left; padding: 18px; color: var(--sub); font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid var(--bg); font-weight: 800; }
-        td { padding: 20px 18px; border-bottom: 1px solid var(--border); font-size: 0.95rem; font-weight: 500; }
+        .table-wrap { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 650px; }
+        th { text-align: left; padding: 12px; color: var(--sub); font-size: 0.7rem; text-transform: uppercase; border-bottom: 1px solid var(--border); letter-spacing: 1px; }
+        td { padding: 16px 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
 
-        /* BADGES & ACTIONS */
-        .badge { padding: 8px 16px; border-radius: 12px; font-size: 0.75rem; font-weight: 800; border: none; cursor: pointer; }
-        .badge-wait { background: #fff8e6; color: #ffb800; }
-        .badge-late { background: #ffebeb; color: var(--danger); animation: pulse 1.5s infinite; }
-        .badge-success { background: #e6fff5; color: var(--success); }
-        
-        .btn-p { background: var(--accent); color: white; border: none; padding: 16px 24px; border-radius: 16px; font-weight: 800; width: 100%; cursor: pointer; box-shadow: 0 10px 20px rgba(67, 24, 255, 0.2); }
-        .btn-p:hover { background: #3311cc; transform: translateY(-2px); }
-
-        /* FORM CONTROLS */
-        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
-        .input-box { display: flex; flex-direction: column; gap: 8px; }
-        .input-box label { font-size: 0.8rem; font-weight: 800; color: var(--primary); padding-left: 5px; }
-        input, select { padding: 14px; border: 1px solid var(--border); border-radius: 14px; background: #f7f9ff; font-size: 0.9rem; outline: none; font-weight: 600; color: var(--primary); }
+        /* INPUTS */
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .field { display: flex; flex-direction: column; gap: 5px; }
+        .field label { font-size: 0.75rem; font-weight: 800; color: var(--sub); }
+        input, select { padding: 12px; border: 1px solid var(--border); border-radius: 12px; background: #f8fafc; outline: none; font-size: 0.9rem; }
         input:focus { border-color: var(--accent); background: #fff; }
 
-        /* LISTS & HISTORY */
-        .log-container { max-height: 450px; overflow-y: auto; padding-right: 5px; }
-        .log-row { padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; border-radius: 12px; margin-bottom: 5px; }
-        .log-row:hover { background: #fcfcff; }
-        .log-tag { font-size: 0.65rem; font-weight: 900; padding: 4px 8px; border-radius: 6px; margin-bottom: 5px; display: inline-block; }
+        /* BUTTONS */
+        .btn-main { background: var(--accent); color: #fff; border: none; padding: 14px; border-radius: 12px; font-weight: 700; width: 100%; cursor: pointer; font-size: 0.9rem; }
+        .btn-main:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-reset { background: #fff; color: var(--danger); border: 1px solid var(--danger); padding: 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 800; cursor: pointer; margin-top: 20px; width: 100%; }
+        .btn-reset:hover { background: var(--danger); color: #fff; }
 
-        /* MODAL */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(17, 28, 68, 0.7); backdrop-filter: blur(8px); z-index: 2000; align-items: center; justify-content: center; }
-        .modal-card { background: white; border-radius: 35px; width: 90%; max-width: 750px; padding: 40px; max-height: 90vh; overflow-y: auto; }
+        /* BADGES */
+        .st-badge { padding: 5px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 800; border: none; cursor: pointer; }
+        .bg-wait { background: #fff7ed; color: #f59e0b; }
+        .bg-late { background: #fef2f2; color: #ef4444; animation: pulse 1.5s infinite; }
+        .bg-done { background: #f0fdf4; color: #22c55e; }
+
+        /* MODALS */
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(6px); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: white; border-radius: 28px; padding: 35px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; }
 
         .hidden { display: none !important; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         
-        @media (max-width: 1200px) { .dashboard-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 1100px) { .main-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <div class="brand">FINEXY<span>.</span>PRO</div>
-    <div class="nav-menu">
-        <button class="nav-link active" onclick="location.reload()">Overview</button>
-        <button class="nav-link" onclick="UI.toggleAdm()">Manage</button>
-        <button class="nav-link" onclick="UI.showReport()">Full Reports</button>
+<div class="navbar">
+    <div class="logo" onclick="location.reload()">Finexy<span>.</span>PRO</div>
+    <div class="nav-links">
+        <button class="nav-btn active">Overview</button>
+        <button class="nav-btn" onclick="UI.toggleAdm()">Gerenciar</button>
+        <button class="nav-btn" onclick="UI.showReport()">Relatórios</button>
     </div>
-    <div class="user-auth">
-        <div style="text-align: right">
-            <div id="u-name" style="font-weight: 800; font-size: 0.9rem">User</div>
-            <div id="u-role" style="color: var(--sub); font-size: 0.7rem">Role</div>
-        </div>
+    <div class="auth-zone">
         <select id="session-select" onchange="Engine.switchUser(this.value)"></select>
     </div>
 </div>
 
 <div class="container">
-    <div class="dashboard-grid">
+    <div class="main-grid">
         
-        <div class="side-col">
+        <div class="sidebar">
             <div class="card">
-                <h3>💳 Cartões do Grupo</h3>
+                <h3>💳 Cartões Ativos</h3>
                 <div id="ui-cards-list"></div>
-                <button class="btn-p" style="background: var(--bg); color: var(--accent); box-shadow: none; border: 2px dashed var(--accent);" onclick="UI.openModal('modal-add-card')">+ Novo Cartão Real</button>
+                <button class="nav-btn" style="width:100%; border: 2px dashed var(--border); margin-top:10px" onclick="UI.openModal('modal-card')">+ Novo Cartão</button>
             </div>
 
-            <div class="card" style="background: linear-gradient(135deg, #1b2559 0%, #111c44 100%); color: white;">
-                <h3 style="color: white">💰 Cofre Liberty</h3>
-                <div style="font-size: 0.7rem; opacity: 0.7; text-transform: uppercase;">Saldo em mãos</div>
-                <div id="ui-total-cofre" style="font-size: 2.2rem; font-weight: 800; margin: 10px 0;">R$ 0,00</div>
-                <div style="height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; margin: 20px 0;">
-                    <div id="ui-progress-bar" style="height: 100%; background: var(--success); width: 0%; transition: 1s;"></div>
+            <div class="card" style="background: var(--primary); color: white;">
+                <h3 style="color:white">💰 Cofre Liberty</h3>
+                <div id="ui-total-cofre" style="font-size: 2rem; font-weight: 800; margin-bottom: 5px;">R$ 0,00</div>
+                <div style="font-size: 0.7rem; color: var(--sub);">Disponível para baixas</div>
+                <div style="height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; margin: 15px 0;">
+                    <div id="ui-progress" style="height:100%; background: var(--success); width: 0%; transition: 1s;"></div>
                 </div>
-                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 700;">
-                    <span id="ui-perc-val">0% Arrecadado</span>
-                </div>
+                <div style="font-size: 0.8rem; font-weight: 700; text-align: right;" id="ui-perc-txt">0%</div>
             </div>
+
+            <button class="btn-reset" onclick="Engine.resetSystem()">⚠️ LIMPAR TODO O SISTEMA</button>
         </div>
 
-        <div class="main-col">
-            <div id="view-admin" class="card hidden" style="border: 2px solid var(--accent);">
-                <h3 style="color: var(--accent);">⚙️ Gestão Administrativa</h3>
-                <div class="form-grid">
-                    <div class="input-box">
-                        <label>Descrição do Gasto</label>
-                        <input id="f-desc" placeholder="Ex: Internet Starlink">
+        <div class="main-content">
+            <div id="view-admin" class="card hidden" style="border: 2px solid var(--accent)">
+                <h3 style="color:var(--accent)">⚙️ Lançar Rateio Coletivo</h3>
+                <div class="form-row">
+                    <div class="field">
+                        <label>Descrição</label>
+                        <input id="f-desc" placeholder="Ex: Mercado Mensal">
                     </div>
-                    <div class="input-box">
+                    <div class="field">
                         <label>Valor Total (R$)</label>
-                        <input id="f-val" type="number" step="0.01" placeholder="0,00">
+                        <input id="f-val" type="number" step="0.01" placeholder="0.00">
                     </div>
-                    <div class="input-box">
-                        <label>Data de Vencimento</label>
+                </div>
+                <div class="form-row">
+                    <div class="field">
+                        <label>Categoria</label>
+                        <select id="f-cat">
+                            <option value="Fixas">🏠 Contas Fixas</option>
+                            <option value="Mercado">🛒 Mercado</option>
+                            <option value="Lazer">🍕 Lazer / Comida</option>
+                            <option value="Saude">🏥 Saúde</option>
+                            <option value="Outros">📦 Outros</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Vencimento</label>
                         <input id="f-date" type="date">
                     </div>
-                    <div class="input-box">
-                        <label>Pagar com qual Cartão?</label>
-                        <select id="f-card-select"></select>
+                </div>
+                <div class="form-row">
+                    <div class="field">
+                        <label>Cartão Utilizado</label>
+                        <select id="f-card-id"></select>
                     </div>
-                    <div class="input-box">
-                        <label>Parcelas</label>
-                        <select id="f-parcelas">
+                    <div class="field">
+                        <label>Parcelamento</label>
+                        <select id="f-vezes">
                             <option value="1">À vista</option>
                             <option value="2">2x</option>
-                            <option value="3">3x</option>
                             <option value="12">12x</option>
                         </select>
                     </div>
-                    <div class="input-box">
-                        <label>Participantes</label>
-                        <div id="ui-member-checks" style="display: flex; gap: 10px; flex-wrap: wrap; padding: 10px; background: white; border-radius: 12px; border: 1px solid var(--border);"></div>
-                    </div>
                 </div>
-                <button class="btn-p" style="margin-top: 25px" onclick="Engine.createRateio()">Lançar Rateio no Sistema</button>
+                <div class="field">
+                    <label>Quem vai pagar?</label>
+                    <div id="ui-check-membros" style="display:flex; gap:12px; flex-wrap:wrap; padding:12px; background:#f8fafc; border-radius:12px; border:1px solid var(--border)"></div>
+                </div>
+                <button class="btn-main" style="margin-top:20px" onclick="Engine.createBill()">Lançar e Notificar Grupo</button>
 
-                <h4 style="margin-top: 35px">✅ Baixas e Liquidações (Saída de Caixa)</h4>
-                <div id="ui-baixas-lista" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;"></div>
+                <h4 style="margin-top:30px">✅ Baixas Pendentes (Pagar Vendedor)</h4>
+                <div id="ui-baixas-lista" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px"></div>
             </div>
 
             <div class="card">
-                <h3>🔔 Cobranças Pendentes</h3>
-                <div class="table-res">
+                <h3>📅 Minhas Cobranças e Status</h3>
+                <div class="table-wrap">
                     <table>
                         <thead>
                             <tr>
@@ -172,84 +176,69 @@
                                 <th>Membro</th>
                                 <th>Valor</th>
                                 <th>Status</th>
-                                <th>Vencimento</th>
                                 <th>Ação</th>
                             </tr>
                         </thead>
-                        <tbody id="ui-table-body"></tbody>
+                        <tbody id="ui-table-parcelas"></tbody>
                     </table>
                 </div>
             </div>
 
             <div class="card">
-                <h3>📜 Histórico de Auditoria (Logs)</h3>
-                <div class="log-container" id="ui-logs-list"></div>
+                <h3>📝 Histórico de Auditoria</h3>
+                <div id="ui-logs-lista" style="max-height: 300px; overflow-y: auto;"></div>
             </div>
         </div>
 
-        <div class="chart-col">
+        <div class="sidebar">
             <div class="card">
-                <h3>📊 Categorias</h3>
-                <div style="height: 220px;"><canvas id="chartDoughnut"></canvas></div>
+                <h3>📊 Gastos por Categoria</h3>
+                <div style="height:220px"><canvas id="chartCat"></canvas></div>
             </div>
             <div class="card">
-                <h3>📈 Performance</h3>
-                <div style="height: 220px;"><canvas id="chartBar"></canvas></div>
+                <h3>📈 Performance (Cofre)</h3>
+                <div style="height:220px"><canvas id="chartPerf"></canvas></div>
             </div>
         </div>
     </div>
 </div>
 
-<div id="modal-add-card" class="modal">
-    <div class="modal-card">
-        <h3>Cadastrar Cartão de Crédito Real</h3>
-        <div class="form-grid">
-            <div class="input-box">
-                <label>Apelido do Cartão</label>
-                <input id="c-nome" placeholder="Ex: Nubank Ryan">
-            </div>
-            <div class="input-box">
-                <label>Limite Total</label>
-                <input id="c-limite" type="number" placeholder="R$ 0,00">
-            </div>
-            <div class="input-box">
-                <label>Dia de Vencimento</label>
-                <input id="c-venc" type="number" placeholder="Dia 01 a 31">
-            </div>
-            <div class="input-box">
-                <label>Cor do Cartão</label>
-                <select id="c-cor">
-                    <option value="linear-gradient(135deg, #820ad1 0%, #4c0677 100%)">Nubank Roxo</option>
-                    <option value="linear-gradient(135deg, #ff6b00 0%, #ff9e00 100%)">Inter Laranja</option>
-                    <option value="linear-gradient(135deg, #0f172a 0%, #334155 100%)">Black Elite</option>
-                    <option value="linear-gradient(135deg, #4318ff 0%, #b085ff 100%)">Finexy Blue</option>
-                </select>
-            </div>
+<div id="modal-card" class="overlay">
+    <div class="modal-content">
+        <h3>Cadastrar Cartão Real</h3>
+        <div class="form-row">
+            <input id="c-nome" placeholder="Nome do Cartão">
+            <input id="c-limite" type="number" placeholder="Limite Total">
         </div>
-        <div style="display: flex; gap: 15px; margin-top: 30px;">
-            <button class="btn-p" onclick="Engine.saveNewCard()">Salvar Cartão</button>
-            <button class="btn-p" style="background: var(--bg); color: var(--text);" onclick="UI.closeModal('modal-add-card')">Cancelar</button>
+        <div class="form-row">
+            <input id="c-venc" type="number" placeholder="Dia Vencimento">
+            <select id="c-cor">
+                <option value="linear-gradient(135deg, #4f46e5 0%, #312e81 100%)">Azul Royal</option>
+                <option value="linear-gradient(135deg, #820ad1 0%, #4c0677 100%)">Roxo Nubank</option>
+                <option value="linear-gradient(135deg, #1e293b 0%, #0f172a 100%)">Black Premium</option>
+            </select>
         </div>
+        <button class="btn-main" onclick="Engine.addCard()">Salvar Cartão</button>
+        <button class="nav-btn" style="width:100%; margin-top:10px" onclick="UI.closeModal('modal-card')">Fechar</button>
     </div>
 </div>
 
-<div id="modal-report" class="modal">
-    <div class="modal-card">
-        <h3>Relatório de Fluxo de Caixa</h3>
-        <div id="report-view-content"></div>
-        <button class="btn-p" style="margin-top: 30px" onclick="UI.closeModal('modal-report')">Fechar</button>
+<div id="modal-report" class="overlay">
+    <div class="modal-content">
+        <h3>📊 Relatório Consolidado</h3>
+        <div id="report-body"></div>
+        <button class="btn-main" style="margin-top:20px" onclick="UI.closeModal('modal-report')">Fechar</button>
     </div>
 </div>
 
 <script>
-// --- CORE CONFIGURATION ---
 const FIREBASE_URL = "https://grupo-ryan-default-rtdb.firebaseio.com/dados.json";
 let DB = { membros: [], contas: [], parcelas: [], cartoes: [], logs: [], cofreCentavos: 0 };
-let dChart, bChart;
+let cCat, cPerf;
 
 const Utils = {
     toC: v => Math.round(parseFloat(v || 0) * 100),
-    toR: c => ( (c || 0) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+    toR: c => ((c || 0) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
     genId: p => p + '_' + Math.random().toString(36).substr(2, 9),
     hoje: () => new Date().toISOString().split('T')[0],
     addMes: (d, m) => { let x = new Date(d + 'T12:00:00'); x.setMonth(x.getMonth() + m); return x.toISOString().split('T')[0]; }
@@ -262,8 +251,8 @@ const Engine = {
     async init() {
         await this.load();
         this.initCharts();
-        const sid = localStorage.getItem("activeUserId");
-        this.activeUser = DB.membros.find(m => m.id === sid) || DB.membros[0];
+        const saved = localStorage.getItem("activeUserId");
+        this.activeUser = DB.membros.find(m => m.id === saved) || DB.membros[0];
         this.render();
         setInterval(() => this.load(), 5000);
     },
@@ -273,16 +262,10 @@ const Engine = {
             let r = await fetch(FIREBASE_URL);
             let d = await r.json();
             if (d) { 
-                // Garantir que arrays existem para evitar erros de render
-                DB.membros = d.membros || [];
-                DB.contas = d.contas || [];
-                DB.parcelas = d.parcelas || [];
-                DB.cartoes = d.cartoes || [];
-                DB.logs = d.logs || [];
-                DB.cofreCentavos = d.cofreCentavos || 0;
+                DB = { ...DB, ...d };
                 this.render(); 
             }
-        } catch (e) { console.error("Falha na sincronização"); }
+        } catch (e) { console.error("Erro conexão"); }
     },
 
     async save() {
@@ -292,60 +275,59 @@ const Engine = {
 
     addLog(tipo, msg, valor) {
         if (!DB.logs) DB.logs = [];
-        DB.logs.unshift({ id: Date.now(), tipo, msg, valor, user: this.activeUser.nome, data: new Date().toLocaleString() });
-        if (DB.logs.length > 150) DB.logs.pop();
+        DB.logs.unshift({ tipo, msg, valor, user: this.activeUser.nome, data: new Date().toLocaleString() });
+        if (DB.logs.length > 100) DB.logs.pop();
     },
 
-    saveNewCard() {
-        const n = document.getElementById("c-nome").value, l = document.getElementById("c-limite").value;
-        const v = document.getElementById("c-venc").value, c = document.getElementById("c-cor").value;
-        if (!n || !l) return alert("Preencha o nome e limite!");
-        
-        DB.cartoes.push({ id: Utils.genId('crd'), nome: n, limite: Utils.toC(l), venc: v, cor: c, fatura: 0 });
-        this.addLog("CADASTRO", `Novo cartão ${n} adicionado`, Utils.toC(l));
-        UI.closeModal('modal-add-card');
+    addCard() {
+        const n = document.getElementById("c-nome"), l = document.getElementById("c-limite");
+        if (!n.value || !l.value) return;
+        if (!DB.cartoes) DB.cartoes = [];
+        DB.cartoes.push({ id: Utils.genId('crd'), nome: n.value, limite: Utils.toC(l.value), venc: document.getElementById("c-venc").value, cor: document.getElementById("c-cor").value, fatura: 0 });
+        this.addLog("SISTEMA", `Cartão ${n.value} adicionado`, 0);
+        n.value = ""; l.value = ""; 
+        UI.closeModal('modal-card');
         this.save();
     },
 
-    createRateio() {
-        const d = document.getElementById("f-desc").value, v = document.getElementById("f-val").value;
-        const dt = document.getElementById("f-date").value, ct = document.getElementById("f-card-select").value;
-        const vz = parseInt(document.getElementById("f-parcelas").value), cbs = document.querySelectorAll(".m-cb:checked");
+    createBill() {
+        const d = document.getElementById("f-desc"), v = document.getElementById("f-val"), 
+              cat = document.getElementById("f-cat"), dt = document.getElementById("f-date"),
+              ct = document.getElementById("f-card-id"), vz = parseInt(document.getElementById("f-vezes").value);
+        const checks = document.querySelectorAll(".m-cb:checked");
 
-        if (!d || !v || !dt || !cbs.length) return alert("Preencha todos os campos e selecione os membros.");
+        if (!d.value || !v.value || !dt.value || !checks.length) return alert("Preencha tudo!");
 
-        const vt = Utils.toC(v), vm = Math.round(vt / vz);
+        const vt = Utils.toC(v.value), vm = Math.round(vt / vz);
 
-        // CORREÇÃO NAN: Inicializa a fatura caso não exista
-        if (ct) {
-            const card = DB.cartoes.find(x => x.id === ct);
-            if (card) {
-                if (isNaN(card.fatura)) card.fatura = 0;
-                card.fatura += vt;
-            }
+        if (ct.value) {
+            const card = DB.cartoes.find(x => x.id === ct.value);
+            if (card) card.fatura = (card.fatura || 0) + vt;
         }
 
         for (let i = 0; i < vz; i++) {
-            const cid = Utils.genId("cnt"), dv = Utils.addMes(dt, i);
-            DB.contas.push({ id: cid, desc: vz > 1 ? `${d} (${i+1}/${vz})` : d, total: vm, venc: dv, status: "aberta", cartaoId: ct });
-            cbs.forEach(cb => {
-                DB.parcelas.push({ id: Utils.genId("prc"), contaId: cid, membroId: cb.dataset.id, membroNome: cb.value, valorBase: Math.round(vm / cbs.length), pago: false });
+            const cid = Utils.genId("cnt"), dv = Utils.addMes(dt.value, i);
+            DB.contas.push({ id: cid, desc: vz > 1 ? `${d.value} (${i+1}/${vz})` : d.value, total: vm, venc: dv, status: "aberta", cartaoId: ct.value, categoria: cat.value });
+            checks.forEach(cb => {
+                DB.parcelas.push({ id: Utils.genId("prc"), contaId: cid, membroId: cb.dataset.id, membroNome: cb.value, valorBase: Math.round(vm / checks.length), pago: false });
             });
         }
-        this.addLog("RATEIO", `Rateio ${d} criado por ${this.activeUser.nome}`, vt);
-        document.getElementById("f-val").value = "";
+        
+        this.addLog("RATEIO", `Rateio de ${d.value} lançado`, vt);
+        // LIMPEZA AUTOMÁTICA DOS CAMPOS
+        d.value = ""; v.value = ""; dt.value = "";
         this.save();
     },
 
-    payParcela(id) {
+    pay(id) {
         const p = DB.parcelas.find(x => x.id === id);
         if (!p || p.pago) return;
         const c = DB.contas.find(x => x.id === p.contaId);
         const multa = Utils.hoje() > c.venc ? 500 : 0;
         p.pago = true;
-        p.valorFinal = p.valorBase + multa;
-        DB.cofreCentavos += p.valorFinal;
-        this.addLog("RECEBIMENTO", `${p.membroNome} pagou ${c.desc}`, p.valorFinal);
+        p.vFinal = p.valorBase + multa;
+        DB.cofreCentavos = (DB.cofreCentavos || 0) + p.vFinal;
+        this.addLog("PAGAMENTO", `${p.membroNome} pagou ${c.desc}`, p.vFinal);
         this.save();
     },
 
@@ -354,13 +336,19 @@ const Engine = {
         if (DB.cofreCentavos < c.total) return alert("Cofre insuficiente!");
         c.status = "quitada";
         DB.cofreCentavos -= c.total;
-        
-        // Estornar valor da fatura visual do cartão
         if (c.cartaoId) {
             const card = DB.cartoes.find(x => x.id === c.cartaoId);
-            if (card && !isNaN(card.fatura)) card.fatura -= c.total;
+            if (card) card.fatura -= c.total;
         }
-        this.addLog("BAIXA", `Liquidado pagamento de ${c.desc}`, c.total);
+        this.addLog("BAIXA", `Conta ${c.desc} quitada com sucesso`, c.total);
+        this.save();
+    },
+
+    resetSystem() {
+        if (prompt("SENHA MESTRE PARA RESETAR TUDO:") !== this.PASS) return;
+        if (!confirm("Isso apagará todas as contas e históricos. Continuar?")) return;
+        DB.contas = []; DB.parcelas = []; DB.logs = []; DB.cofreCentavos = 0;
+        if (DB.cartoes) DB.cartoes.forEach(c => c.fatura = 0);
         this.save();
     },
 
@@ -373,86 +361,82 @@ const Engine = {
 
     initCharts() {
         const cfg = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
-        dChart = new Chart(document.getElementById("chartDoughnut"), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: ['#4318ff', '#05cd99', '#ee5d50', '#ffb800'] }] }, options: cfg });
-        bChart = new Chart(document.getElementById("chartBar"), { type: 'bar', data: { labels: [], datasets: [{ data: [], backgroundColor: '#4318ff', borderRadius: 8 }] }, options: cfg });
+        cCat = new Chart(document.getElementById("chartCat"), { type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: ['#4f46e5', '#22c55e', '#ef4444', '#f59e0b', '#64748b'] }] }, options: cfg });
+        cPerf = new Chart(document.getElementById("chartPerf"), { type: 'line', data: { labels: [], datasets: [{ data: [], borderColor: '#4f46e5', tension: 0.4, fill: true, backgroundColor: 'rgba(79, 70, 229, 0.1)' }] }, options: cfg });
     },
 
     render() {
         if (!this.activeUser) return;
-        document.getElementById("u-name").innerText = this.activeUser.nome;
-        document.getElementById("u-role").innerText = this.activeUser.role;
         document.getElementById("ui-total-cofre").innerText = Utils.toR(DB.cofreCentavos);
         document.getElementById("session-select").innerHTML = DB.membros.map(m => `<option value="${m.id}" ${m.id === this.activeUser.id ? 'selected' : ''}>${m.nome}</option>`).join("");
-        document.getElementById("ui-member-checks").innerHTML = DB.membros.map(m => `<label style="font-size:0.75rem; font-weight:700"><input class="m-cb" type="checkbox" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>`).join("");
+        document.getElementById("ui-check-membros").innerHTML = DB.membros.map(m => `<label style="font-size:0.7rem; font-weight:800"><input class="m-cb" type="checkbox" data-id="${m.id}" value="${m.nome}" checked> ${m.nome}</label>`).join("");
 
         // Cartões
-        document.getElementById("ui-cards-list").innerHTML = DB.cartoes.map(c => `
-            <div class="card-real" style="background: ${c.cor}">
-                <div style="display:flex; justify-content:space-between; align-items:center">
+        document.getElementById("ui-cards-list").innerHTML = (DB.cartoes || []).map(c => `
+            <div class="credit-card" style="background: ${c.cor}">
+                <div style="display:flex; justify-content:space-between">
                     <div class="card-chip"></div>
-                    <div style="font-weight:900; letter-spacing:2px; font-style:italic">VISA</div>
+                    <div style="font-weight:800; opacity:0.8">VISA</div>
                 </div>
                 <div>
-                    <div class="card-label">${c.nome}</div>
-                    <div class="card-val">${Utils.toR(c.fatura || 0)}</div>
-                    <div style="font-size:0.6rem; opacity:0.8; margin-top:5px">LIMITE: ${Utils.toR(c.limite)} | VENC: DIA ${c.venc}</div>
+                    <div style="font-size:0.7rem; opacity:0.8">${c.nome}</div>
+                    <div style="font-size:1.4rem; font-weight:800">${Utils.toR(c.fatura || 0)}</div>
+                    <div style="font-size:0.55rem; margin-top:5px">Limite: ${Utils.toR(c.limite)} | Venc: Dia ${c.venc}</div>
                 </div>
             </div>
         `).join("");
-        document.getElementById("f-card-select").innerHTML = `<option value="">Dinheiro vivo</option>` + DB.cartoes.map(c => `<option value="${c.id}">${c.nome}</option>`).join("");
+        document.getElementById("f-card-id").innerHTML = `<option value="">💵 Dinheiro (Cofre)</option>` + (DB.cartoes || []).map(c => `<option value="${c.id}">${c.nome}</option>`).join("");
 
-        // Tabela Atividades
+        // Tabelas
         const isAdm = this.activeUser.role === "ADMIN";
         const parcelas = isAdm ? DB.parcelas : DB.parcelas.filter(p => p.membroId === this.activeUser.id);
         
-        document.getElementById("ui-table-body").innerHTML = parcelas.filter(p => !p.pago).map(p => {
+        document.getElementById("ui-table-parcelas").innerHTML = parcelas.filter(p => !p.pago).map(p => {
             const c = DB.contas.find(x => x.id === p.contaId);
             if (!c || c.status === "quitada") return "";
             const late = Utils.hoje() > c.venc;
             return `<tr>
                 <td><b>${c.desc}</b></td>
                 <td>${p.membroNome}</td>
-                <td style="font-weight:800; color:${late ? 'var(--danger)' : 'inherit'}">${Utils.toR(late ? p.valorBase + 500 : p.valorBase)}</td>
-                <td><span class="badge ${late ? 'badge-late' : 'badge-wait'}">${late ? 'MULTA' : 'PENDENTE'}</span></td>
-                <td>${c.venc.split('-').reverse().join('/')}</td>
-                <td><button class="badge badge-success" onclick="Engine.payParcela('${p.id}')">PAGAR</button></td>
+                <td style="font-weight:800">${Utils.toR(late ? p.valorBase + 500 : p.valorBase)}</td>
+                <td><span class="st-badge ${late ? 'bg-late' : 'bg-wait'}">${late ? 'ATRASADO' : 'PENDENTE'}</span></td>
+                <td><button class="st-badge bg-done" onclick="Engine.pay('${p.id}')">PAGAR</button></td>
             </tr>`;
         }).join("");
 
-        // Baixas ADM
+        // Baixas
         document.getElementById("ui-baixas-lista").innerHTML = DB.contas.filter(c => c.status === "aberta").map(c => `
-            <div style="padding:15px; background:#f7f9ff; border-radius:15px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border)">
-                <span style="font-size:0.8rem"><b>${c.desc}</b><br>${Utils.toR(c.total)}</span>
-                <button class="badge badge-success" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button>
+            <div style="padding:12px; background:#f1f5f9; border-radius:12px; display:flex; justify-content:space-between; align-items:center">
+                <span style="font-size:0.75rem"><b>${c.desc}</b><br>${Utils.toR(c.total)}</span>
+                <button class="st-badge bg-done" onclick="Engine.darBaixa('${c.id}')">BAIXAR</button>
             </div>
         `).join("");
 
         // Logs
-        document.getElementById("ui-logs-list").innerHTML = DB.logs.map(l => `
-            <div class="log-row">
-                <div>
-                    <div class="log-tag" style="background:${l.tipo === 'BAIXA' ? '#ffebeb' : '#e6fff5'}; color:${l.tipo === 'BAIXA' ? 'var(--danger)' : 'var(--success)'}">${l.tipo}</div>
-                    <div style="font-weight:700; font-size:0.85rem">${l.msg}</div>
-                    <div style="font-size:0.65rem; color:var(--sub)">${l.data} por ${l.user}</div>
-                </div>
-                <div style="font-weight:800">${Utils.toR(l.valor)}</div>
+        document.getElementById("ui-logs-lista").innerHTML = (DB.logs || []).map(l => `
+            <div style="padding:10px; border-bottom:1px solid #f1f5f9; font-size:0.75rem; display:flex; justify-content:space-between">
+                <span><b>${l.tipo}</b>: ${l.msg}</span>
+                <span style="color:var(--sub)">${Utils.toR(l.valor)}</span>
             </div>
         `).join("");
 
-        // Charts
-        const totalMes = DB.contas.reduce((a, b) => a + b.total, 0);
-        document.getElementById("ui-progress-bar").style.width = Math.min((DB.cofreCentavos / (totalMes || 1)) * 100, 100) + "%";
-        document.getElementById("ui-perc-val").innerText = Math.round((DB.cofreCentavos / (totalMes || 1)) * 100) + "% Arrecadado";
-
-        const stats = {}; DB.contas.forEach(c => stats[c.desc.substring(0,8)] = (stats[c.desc.substring(0,8)] || 0) + c.total/100);
-        dChart.data.labels = Object.keys(stats); dChart.data.datasets[0].data = Object.values(stats); dChart.update();
-        bChart.data.labels = Object.keys(stats).slice(-5); bChart.data.datasets[0].data = Object.values(stats).slice(-5); bChart.update();
+        // Gráficos
+        const catStats = {}; DB.contas.forEach(c => catStats[c.categoria] = (catStats[c.categoria] || 0) + c.total/100);
+        cCat.data.labels = Object.keys(catStats); cCat.data.datasets[0].data = Object.values(catStats); cCat.update();
+        
+        const totalMes = DB.contas.reduce((a,b) => a+b.total, 0);
+        document.getElementById("ui-progress").style.width = Math.min((DB.cofreCentavos/(totalMes||1))*100, 100) + "%";
+        document.getElementById("ui-perc-txt").innerText = Math.round((DB.cofreCentavos/(totalMes||1))*100) + "%";
+        
+        cPerf.data.labels = (DB.logs || []).slice(0, 7).reverse().map(l => l.data.split(',')[0]);
+        cPerf.data.datasets[0].data = (DB.logs || []).slice(0, 7).reverse().map(l => l.valor/100);
+        cPerf.update();
     }
 };
 
 const UI = {
     toggleAdm() {
-        if (Engine.activeUser.role !== "ADMIN" && prompt("Acesso Restrito:") !== Engine.PASS) return;
+        if (Engine.activeUser.role !== "ADMIN" && prompt("ADMIN PASS:") !== Engine.PASS) return;
         document.getElementById("view-admin").classList.toggle("hidden");
     },
     openModal(id) { document.getElementById(id).style.display = 'flex'; },
@@ -460,19 +444,19 @@ const UI = {
     showReport() {
         const total = DB.contas.reduce((a, b) => a + b.total, 0);
         const arrecadado = DB.cofreCentavos;
-        const baixas = DB.contas.filter(c => c.status === "quitada").reduce((a,b) => a+b.total, 0);
+        const baixadas = DB.contas.filter(c => c.status === "quitada").reduce((a,b) => a+b.total, 0);
         
-        document.getElementById("report-view-content").innerHTML = `
+        document.getElementById("report-body").innerHTML = `
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px">
-                <div class="card" style="margin:0; background:#f7f9ff"> <small>Gasto Total Criado</small> <h3>${Utils.toR(total)}</h3> </div>
-                <div class="card" style="margin:0; background:#f0fdf4"> <small>Total Pago (Baixado)</small> <h3>${Utils.toR(baixas)}</h3> </div>
-                <div class="card" style="margin:0; background:#e0e7ff"> <small>Arrecadado Membros</small> <h3>${Utils.toR(arrecadado)}</h3> </div>
-                <div class="card" style="margin:0; background:#fef2f2"> <small>Saldo Devido aos Vendedores</small> <h3>${Utils.toR(total - baixas)}</h3> </div>
+                <div class="card" style="margin:0; background:#f8fafc"><small>Gasto Criado</small><h3>${Utils.toR(total)}</h3></div>
+                <div class="card" style="margin:0; background:#f0fdf4"><small>Já Arrecadado</small><h3>${Utils.toR(arrecadado)}</h3></div>
+                <div class="card" style="margin:0; background:#eff6ff"><small>Baixas Efetuadas</small><h3>${Utils.toR(baixadas)}</h3></div>
+                <div class="card" style="margin:0; background:#fef2f2"><small>Saldo Pendente de Baixa</small><h3>${Utils.toR(total - baixadas)}</h3></div>
             </div>
-            <h4 style="margin:25px 0 10px 0">Contribuição por Membro</h4>
+            <h4 style="margin-top:20px">Contribuição Real por Membro</h4>
             ${DB.membros.map(m => {
-                const totalM = DB.parcelas.filter(p => p.membroId === m.id && p.pago).reduce((a,b) => a+b.valorFinal, 0);
-                return `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee">
+                const totalM = DB.parcelas.filter(p => p.membroId === m.id && p.pago).reduce((a,b) => a+b.vFinal, 0);
+                return `<div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #eee">
                     <span>${m.nome}</span><b>${Utils.toR(totalM)}</b>
                 </div>`;
             }).join("")}
@@ -483,6 +467,5 @@ const UI = {
 
 Engine.init();
 </script>
-
 </body>
 </html>
